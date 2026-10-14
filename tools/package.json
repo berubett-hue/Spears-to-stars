@@ -1,0 +1,9 @@
+{
+  "name": "spears-to-stars-tools",
+  "private": true,
+  "description": "Developer tools: headless harness, balance sims and script load-order checks",
+  "scripts": {
+    "check": "node check-load-order.js ../js && node check-load-callbacks.js ../js"
+  },
+  "dependencies": { "acorn": "^8.11.0", "acorn-walk": "^8.3.0" }
+}

@@ -1,0 +1,370 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="icon" href="art/ui/favicon.png">
+<title>Spears to Stars</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="app">
+  <div class="topbar" id="topbar">
+  <header class="hud">
+    <div class="hud-top">
+      <div class="era"><span id="eraName">Ancient Era</span><span class="clock"><b id="clock">0:00</b></span></div>
+      <div class="hud-btns">
+        <button class="icon-btn" id="btnSpeed" aria-label="Game speed">1×</button>
+        <button class="icon-btn" id="btnLedger" aria-label="Ledger" title="Ledger (L)"><img class="ui-ic" data-kit="u_book" alt=""></button>
+        <button class="icon-btn" id="btnMusic" aria-label="Music on" title="Music (M)"><img class="ui-ic" data-kit="u_music" alt=""></button>
+        <button class="icon-btn" id="btnSound" aria-label="Sound on"><img class="ui-ic" data-kit="u_sound" alt=""></button>
+        <button class="icon-btn" id="btnPause" aria-label="Pause"><img class="ui-ic" data-kit="u_pause" alt=""></button>
+      </div>
+    </div>
+    <div class="chips">
+      <div class="chip food"><img class="chi" data-kit="ic_food" alt=""><b id="vFood">+0</b><span>Food</span></div>
+      <div class="chip prod"><img class="chi" data-kit="ic_prod" alt=""><b id="vProd">0</b><span>Prod</span></div>
+      <div class="chip sci"><img class="chi" data-kit="ic_sci" alt=""><b id="vSci">0</b><span>Science</span></div>
+      <div class="chip infl"><img class="chi" data-kit="ic_infl" alt=""><b id="vInfl">0</b><span>Influence</span></div>
+      <div class="chip"><img class="chi" data-kit="ic_cities" alt=""><b id="vCities">0</b><span>Cities</span></div>
+      <div class="chip"><img class="chi" data-kit="ic_army" alt=""><b id="vArmy">0</b><span>Army / max</span></div>
+    </div>
+  </header>
+
+  <div class="research">
+    <div class="rbar"><i id="rFill"></i></div>
+    <div class="rlabel"><span class="lvchip"><img class="ui-ic" data-kit="u_levelup" alt=""><span id="rText">Next discovery 0%</span></span><span class="rright"><button class="envoy" id="envoy" hidden>✉ 0</button><span class="alarm" id="alarm" hidden></span><span class="raidw"><img class="ui-ic" data-kit="u_raid" alt=""><span class="raid" id="raid">Raid in 0s</span></span></span></div>
+  </div>
+
+  <div class="natrow"><button class="nat-tog" id="natTog" title="Show every rival"><img class="ui-ic" data-kit="u_chev" alt=""><span>Rivals</span> <b id="natN">0</b></button><nav class="nations" id="nations" aria-label="Rival nations"></nav></div>
+  <button class="fold fold-top" id="foldTop" aria-label="Collapse the top panel" title="Show less"><svg viewBox="0 0 24 24"><path d="M6 15l6-6 6 6"/></svg></button>
+  </div>
+
+  <main class="stage" id="stage">
+    <canvas id="map" aria-label="The known world. Tap to march your hero, drag to look around, pinch or scroll to zoom."></canvas>
+    <canvas id="mini" aria-label="Minimap. Tap to move the view."></canvas>
+    <div class="map-btns">
+      <button id="btnZoomIn" aria-label="Zoom in"><img class="ui-ic" data-kit="u_zoom" alt=""></button>
+      <button id="btnZoomOut" aria-label="Zoom out">&minus;</button>
+      <button id="btnWatch" aria-label="Watch the fighting" title="Watch the fighting (B)"><svg viewBox="0 0 24 24"><path d="M5 3l9 9M3 5l2-2M14 12l2 2-2 2-2-2zM19 3l-9 9M21 5l-2-2M10 12l-2 2 2 2 2-2zM4 20l3-3M20 20l-3-3"/></svg></button>
+      <button id="btnFollow" aria-label="Follow your general" title="Follow your general (H)" hidden><img class="ui-ic" data-kit="u_center" data-tint="1" alt=""></button>
+      <button id="btnHome" aria-label="Center on your capital"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="6"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg></button>
+    </div>
+    <div id="toasts" aria-live="polite"></div>
+    <div class="settle" id="settleBar" hidden><span><b>Settler ready.</b> Tap a lit spot · <span id="settleT">15</span>s</span><button id="btnAutoSettle">Auto</button></div>
+    <div class="banner" id="banner"></div>
+    <div class="lootpop" id="lootPop"></div>
+    <div class="streak" id="streak"><b>×0</b><span></span><i></i></div>
+    <div class="killtot" id="killTot"></div>
+    <div class="dmeter" id="dmgMeter" hidden></div>
+    <div class="hosts" id="hostAlerts" hidden></div>
+    <div class="battlebar" id="battleBar" hidden></div>
+    <div class="declchip" id="declChip" hidden></div>
+    <div class="moment" id="moment" hidden></div>
+    <div class="goaltick" id="goalTick"></div>
+  </main>
+
+  <section class="deck" id="deck">
+    <button class="fold fold-bot" id="foldBot" aria-label="Collapse the bottom panel" title="Show less"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button>
+    <div class="armywrap"><div class="herocard" id="heroCard"><button class="hc-main" id="hcSel" title="Back to your hero (H)"><img id="hcImg" alt=""><span class="hc-txt"><b id="hcName">Hero</b><i class="hc-hp"><i id="hcHp"></i></i><span id="hcSub">—</span></span></button><button class="hc-act" id="hcAct" title="Hero ability (Space)"><i class="hc-cd" id="hcCd"></i><img id="hcActI" alt=""><b id="hcActN">Ability</b><span>Space</span></button><button class="hc-act hc-rally" id="hcRally" title="Release your band: they guard the nearest city (G)"><img class="ui-ic" data-kit="u_release" alt=""><b id="hcRallyN">Release</b><span id="hcRallyK">G</span></button><div class="orders" id="orders"><button data-o="charge" title="Charge (Q): your Host rushes every enemy nearby"><img class="ui-ic" data-kit="u_charge" alt=""><b>Charge</b><span>Q</span></button><button data-o="hold" title="Hold (E): your Host forms up around you and takes less damage"><img class="ui-ic" data-kit="u_hold" data-tint="1" alt=""><b>Hold</b><span>E</span></button><button data-o="fall" title="Fall back (R): your Host breaks off, runs to you and heals"><img class="ui-ic" data-kit="u_fallback" alt=""><b>Fall back</b><span>R</span></button></div><button class="hc-act hc-arts" id="hcArts" title="Artifacts your hero carries. Find them in ruins and barbarian camps"><i class="hc-artrow" id="hcArtRow"></i><span id="hcArtN">0/6</span></button></div><div class="mclock" id="mclock" title="Your level and era"><b>Lv 0</b><span>Ancient</span></div><div class="armybar" id="armybar" aria-label="Your army slots"></div></div>
+    <div class="row3 doctrine" id="doctrine">
+      <button data-d="expand" class="on"><b>Expand</b><span>Settlers &amp; riders</span></button>
+      <button data-d="build"><b>Build</b><span>Food &amp; science</span></button>
+      <button data-d="defend"><b>Defend</b><span>Guards, army home</span></button>
+    </div>
+    <div class="row3 decrees" id="decrees">
+      <button data-k="mobilize"><i class="cd"></i><b>Mobilize <span class="keys">Z</span></b><span>60 influence · +50% damage</span></button>
+      <button data-k="golden"><i class="cd"></i><b>Golden Age <span class="keys">X</span></b><span>80 influence · +50% yields</span></button>
+      <button data-k="fortify"><i class="cd"></i><b>Fortify <span class="keys">C</span></b><span>40 influence · repair cities</span></button>
+    </div>
+    <p class="hint" id="hint">Tap the map to march your hero · troops inside the hero’s circle join the band · Space for the ability · drag to look around, H to return</p>
+  </section>
+</div>
+
+<div class="overlay home" id="ovHome">
+  <i class="home-corner tl"></i><i class="home-corner tr"></i><i class="home-corner bl"></i><i class="home-corner br"></i>
+  <div class="home-top"><span class="glory" title="Glory: earned every game, spent in Legacy"><img class="crest" data-ui="crest" alt=""><i class="coin"></i> <b id="hGlory">0</b> <small>Glory</small></span><span class="hstats" id="hStats"></span></div>
+  <div class="home-main">
+    <p class="kicker">A fifteen-minute civilization</p>
+    <h1 class="home-title"><img class="logo-w" data-ui="logo" alt="Spears to Stars"><img class="logo-s" data-ui="logo2" alt=""></h1>
+    <div class="home-btns">
+      <button class="primary big" id="hStart"><img class="bi" data-ui="i_start" alt="">Start</button>
+      <button class="secondary" id="hContinue" hidden><img class="bi" data-ui="i_cont" alt="">Continue your empire</button>
+      <div class="home-grid">
+        <button id="hLegacy"><img class="ti" data-ui="i_legacy" alt=""><b>Legacy</b><span>Spend Glory on permanent power</span><i class="dot" hidden></i></button>
+        <button id="btnCollect"><img class="ti" data-ui="i_collect" alt=""><b>Collection</b><span>Troops, mastery, evolutions</span><i class="dot" hidden></i></button>
+        <button id="hUnlocks"><img class="ti" data-ui="i_unlock" alt=""><b>Unlocks</b><span>Every goal and what it opens</span><i class="dot" hidden></i></button>
+        <button id="btnStartArena"><img class="ti" data-ui="i_arena" alt=""><b>Proving Grounds</b><span>Test any army</span></button>
+        <button id="hHow"><img class="ti" data-ui="i_how" alt=""><b>How to Play</b><span>The rules of the land</span></button>
+        <button id="hOpts"><img class="ti" data-ui="i_opts" alt=""><b>Options</b><span>Sound and progress</span></button>
+      </div>
+    </div>
+    <div id="hNext"></div>
+    <p class="best" id="best"></p>
+  </div>
+</div>
+
+<div class="overlay" id="ovStart" hidden>
+  <div class="sheet wiz">
+    <div class="wiz-steps" id="wizSteps"><button data-s="0">1 · People</button><button data-s="2">2 · Challenge</button></div>
+    <section class="wstep" data-s="0">
+      <h2>Choose your people</h2>
+      <p class="lnote">Each people starts with its own troop, hero and bonus. Locked peoples open when you unlock their troop, or win in a special way.</p>
+      <div class="natpick" id="natPick"></div>
+    </section>
+    <section class="wstep" data-s="1" hidden>
+      <h2>Choose your army</h2>
+      <p class="kicker" id="listKicker">Your army</p>
+      <p class="lnote listnote">Your people’s starting troop is your <b>core</b>: it can reach Lv 8, and the more of your army it makes up, the stronger it gets. Pick up to 4 more lines the draft may offer as <b>supports</b> (one slot from level 3, a second in the Medieval Age). Supports top out at Lv 7, unless they fuse into a union. Stars show each line's mastery: field it in more games to unlock its Lv 7 and 8 forms.</p>
+      <div class="listpick" id="listPick"></div>
+    </section>
+    <section class="wstep" data-s="2" hidden>
+      <h2>Choose your challenge</h2>
+      <div class="natpick diffpick" id="diffPick"></div>
+      <div class="wiz-sum" id="wizSum"></div>
+    </section>
+    <div class="btn-row wiz-nav"><button class="secondary" id="wBack">Back</button><button class="primary" id="wNext">Next</button><button class="primary" id="btnBegin" hidden>Found your capital</button></div>
+  </div>
+</div>
+
+<div class="overlay" id="ovHow" hidden>
+  <div class="sheet codex">
+    <p class="kicker">How to play</p>
+    <h2>The rules of the land</h2>
+    <p class="lede">Your people farm, settle and fight on their own. You decide what they discover, where they go, and who they call a friend.</p>
+    <ol class="how">
+      <li hidden><b>Discover.</b> When science fills the bar, pick a tech. Techs unlock other techs, upgrade your soldiers, and each new era opens only when you research its keystone.</li>
+      <li><b>Shape your draft.</b> On the level-up screen you can Reroll the three cards (3 per game, plus 1 each new era), Banish a troop line or civic so it never appears again this game (3 per game), or Skip for 40 influence. Keys: R, B and K.</li>
+      <li><b>Level up.</b> Science is your experience bar. Each level, pick one of three cards: military, science or expansion. Every troop is a line that modernizes as it levels: Lv 1 is its Ancient form, Lv 8 its Future form (Spearmen → Phalanx → Pikemen … → Shield Mechs). A troop can be at most two ages ahead of your era, and the Future form also needs Astronomy 3, so science and growth decide how modern your army gets. When a new era begins, troops left behind modernize for free. Levels 3, 6 and 8 also change how a troop fights, and level 4 unlocks its special attack. Some troop lines hide evolutions and unions. Recipes are secret until you discover them: when your army stumbles onto one, its slot glows “Something stirs”, and the next War Chest (from a rival hero or a Warlord, marked with a chest) reveals it. Discoveries are kept forever in the Collection, which also holds clues. Each rival nation guards one legendary union and fields it late in the game: defeat that nation to learn it. New troops unlock as you achieve things.</li>
+      <li><b>Lead your hero.</b> Every people has a hero you steer yourself, and the camera follows them. Tap the map to march there, or tap an enemy city to attack it. WASD steers too. Any of your troops that step inside your hero’s circle join the band, with no limit: they follow and fight with you until they die. Troops busy defending their own city stay put. Dragging looks around the map, and H brings the camera back. G releases your band to guard the nearest city. Space fires the hero’s ability. A fallen hero returns to the capital after 60 seconds. Rival nations have heroes too, and slaying one earns a War Chest. P pauses.</li>
+      <li><b>Explore the wilds.</b> The map is hidden until your hero, troops or borders see it. Out in the unclaimed land you’ll find ancient ruins, barbarian camps (clear the guards, then walk onto the loot), mercenary camps, lost tribes that join your band, shrines that bless it, and three natural wonders that boost your empire once they sit inside your borders. Ruins and camps hide <b>artifacts</b>: powers your hero keeps all game, up to six at a time. New sites keep appearing. A site swallowed by a rival’s borders is lost.</li>
+      <li><b>Build.</b> Food grows your cities. Production decides how many troops you field, up to 90 army room: big troops take more room (a Titan takes about 4 times what a Spear Line does). Siege and Sky break city walls fastest, but any army can wear a city down. Influence pushes your borders and pays for diplomacy. Buildings rise on their own as the eras pass.</li>
+      <li><b>Deal.</b> Six rival peoples share the land, each with its own color, hero and guarded legend, and everyone starts somewhere random. Borders are closed: armies can only enter a nation’s land if they are at war with it or allied, so wars are fought between neighbors or around the edges. Spend influence on gifts, trade and alliances, or go to war and take their cities. All the influence you earn also pushes your borders: more of it lets each city claim more land.</li>
+      <li><b>Counters.</b> Every troop hunts with its main type and deals 75% more damage to its prey: Line beats Mounted and Titans, Mounted beats Ranged, Siege and Fire, Ranged beats Line, Swarm and flyers, Titans beat Swarm and Mounted, Swarm beats Siege and Fire, Siege beats Titans and Line, Fire beats Ranged and Support. Crossbows also pierce Titans. Rivals watch your army and raise its counters, so mix your troops. Each card shows what it’s strong and weak against.</li>
+      <li><b>Win.</b> Conquer all six rival nations, by war or by diplomatic union, or research the Space Program and launch a starship. The starship is a long siege: pick three launch sites (big cities build faster, frontline ones are exposed), survive at least 8 minutes of building while your neighbors and then the whole world come for those sites, choose a defense protocol at the start and at each third, then hold every site through a 3-minute launch. Take four nations and the rest also unite against you. Lose your capital, or let a rival launch first, and it’s over.</li>
+      <li><b>Morale.</b> Rival nations lose heart when they lose cities, generals and battles. Below a third, their wounded troops rout and run home, their soldiers desert as their cities fall, and a broken nation may offer to surrender. When a rival host gathers and marches on one of your cities, you get a warning with its size.</li>
+      <li><b>Climb the Crowns.</b> Chieftain is for learning. King is Crown 0. Win it to open Crown 1, and each Crown adds one twist and pays more Glory, up to Crown 10. Every win also earns a grade, from Bronze to Star, for winning fast, losing no city, keeping your general alive and bringing every nation down.</li>
+      <li><b>Core and supports.</b> Your people’s starting troop is your core: it costs 30% less to raise and keep, reaches Lv 8, and gets +15% health and damage when it is half your army, +30% at three quarters, but rivals counter it harder. A support slot opens when the Classical Age dawns and a second in the Medieval Age: each time, you choose from three lines drawn from everything you have unlocked from the ages you have reached. Supports top out at Lv 7, but a union of two lines can reach Lv 8, and it frees a slot. Use Reroll and Banish to fish for the supports you want.</li>
+      <li><b>Decline and Fall.</b> Every empire falls. After a victory you can face it for bonus Glory; if you have not won by 15:00, it begins on its own. Your output drains and your far cities break away one by one (a city holds only while your general stands in it). The peoples you conquered rise behind pretenders and barbarians flood in from every side, until only your capital is left. Protect your capital and your way of life: it ends when your capital falls, and at 20:00 the End of the Age comes for it, and nothing can stop that. You can still win by conquest while your empire unravels. The longer you hold, the more Glory, and the history books judge your reign.</li>
+      <li><b>Quests.</b> Every people has three quests in the Collection that pay Glory. Finish all three and that people’s starting troops begin at Lv 2.</li>
+    </ol>
+    <div class="btn-row"><button class="primary" data-close="ovHow">Back</button></div>
+  </div>
+</div>
+
+<div class="overlay" id="ovOpts" hidden>
+  <div class="sheet">
+    <p class="kicker">Options</p>
+    <h2>Options</h2>
+    <h3>Sound</h3>
+    <div class="vols"><label>Battle effects <input type="range" id="optFx" min="0" max="1" step="0.05"></label><label>Music <input type="range" id="optMus" min="0" max="1" step="0.05"></label></div>
+    <div class="opt-row"><label class="chk"><input type="checkbox" id="optSnd"> Sound on</label><label class="chk"><input type="checkbox" id="optMusOn"> Music on</label><label class="chk"><input type="checkbox" id="optDemo"> Live map behind the menu</label></div>
+    <div class="opt-row"><span>Screen shake</span><span class="seg" id="optShake"><button data-v="0">Off</button><button data-v="1">Low</button><button data-v="2">Full</button></span></div>
+    <h3>Progress</h3>
+    <p class="lnote" id="optLife"></p>
+    <div class="btn-row"><button class="secondary danger" id="btnResetProg">Reset all progress</button></div>
+    <div class="btn-row"><button class="primary" data-close="ovOpts">Back</button></div>
+  </div>
+</div>
+
+<div class="overlay" id="ovLegacy" hidden>
+  <div class="sheet ledger">
+    <p class="kicker">Legacy · permanent power for every game</p>
+    <div class="leg-head"><h2>Legacy</h2><span class="glory big"><i class="coin"></i> <b id="lgGlory">0</b> <small>Glory</small></span></div>
+    <p class="lnote">Every game earns Glory: for time survived, eras reached, enemies defeated, cities built and taken, and a big bonus for victory. Each rank you buy raises the price of the next.</p>
+    <div class="leg-grid" id="legGrid"></div>
+    <div class="btn-row"><button class="secondary" id="btnRefund">Refund all</button><button class="primary" data-close="ovLegacy">Back</button></div>
+  </div>
+</div>
+
+<div class="overlay" id="ovUnl" hidden>
+  <div class="sheet ledger">
+    <p class="kicker" id="unlKicker">Unlocks</p>
+    <h2>Unlocks</h2>
+    <div id="unlBody"></div>
+    <div class="btn-row"><button class="primary" data-close="ovUnl">Back</button></div>
+  </div>
+</div>
+
+<div class="overlay" id="ovDraft" hidden>
+  <div class="sheet">
+    <h2 id="draftTitle">Choose what your people learn</h2>
+    <div id="secT"><p class="kicker" id="draftKicker">Discovery</p><div id="buildStrip"></div><div class="cards" id="cards"></div><div class="dtools" id="dtools" hidden></div></div>
+    <div id="secM" hidden><p class="kicker" id="musterKicker">Muster</p><div class="cards" id="mcards"></div></div>
+  </div>
+</div>
+
+<div class="overlay" id="ovEvent" hidden>
+  <div class="sheet">
+    <img class="ev-art" id="evArt" alt="" hidden>
+    <p class="kicker" id="evKicker">Event</p>
+    <h2 id="evTitle"></h2>
+    <p class="ev-text" id="evText"></p>
+    <div class="choices" id="evChoices"></div>
+  </div>
+</div>
+
+<div class="overlay" id="ovDiplo" hidden>
+  <div class="sheet">
+    <p class="kicker">Diplomacy · game paused</p>
+    <h2>The nations</h2>
+    <div class="infl-line"><span>Influence <b id="dInfl">0</b></span><span id="dRate">+0/s</span></div>
+    <p class="alarm-note" id="dAlarm" hidden></p>
+    <div class="offers" id="dipOffers"></div>
+    <div class="dip-list" id="dipList"></div>
+    <div class="btn-row"><button class="primary" id="btnDipClose">Back to the map</button></div>
+  </div>
+</div>
+
+<div class="overlay" id="ovLedger" hidden>
+  <div class="sheet codex ledger">
+    <p class="kicker" id="ledgerKicker">Ledger · game paused</p>
+    <h2>Ledger</h2>
+    <div class="ltabs" role="tablist">
+      <button data-t="nations" class="on" role="tab">Compare nations</button>
+      <button data-t="empire" role="tab">Your empire</button>
+    </div>
+    <div id="ledgerBody"></div>
+    <div class="btn-row"><button class="primary" id="btnLedgerClose">Back to the map</button></div>
+  </div>
+</div>
+
+<div class="overlay" id="ovArmy" hidden>
+  <div class="sheet codex">
+    <p class="kicker" id="armyKicker">Your army · game paused</p>
+    <h2>Army</h2>
+    <div class="army-list" id="armyList"></div>
+    <h3>Battle record</h3>
+    <div class="meter" id="armyRecord"></div>
+    <h3>Synergies</h3>
+    <div class="syn-list" id="synList"></div>
+    <h3>Combos</h3>
+    <div class="syn-list" id="comboList"></div>
+    <h3>Special attacks</h3>
+    <div class="syn-list" id="abilList"></div>
+    <div class="btn-row"><button class="primary" id="btnArmyClose">Back to the map</button><button class="secondary" id="btnArmyArena">Test in the Proving Grounds</button><button class="secondary" id="btnArmyCol">Collection and recipes</button></div>
+  </div>
+</div>
+
+<div class="overlay" id="ovPause" hidden>
+  <div class="sheet codex">
+    <p class="kicker" id="pauseKicker">Paused</p>
+    <h2>Codex</h2>
+    <h3>Your army</h3>
+    <p class="dip-note" id="cxArmy"></p>
+    <h3>Victory</h3>
+    <p class="dip-note" id="cxGoal"></p>
+    <h3>Next era</h3>
+    <p class="dip-note" id="cxEra"></p>
+    <h3>Civics</h3>
+    <div class="pills" id="cxTechs"></div>
+    <h3>Your evolutions and unions</h3>
+    <div class="recipes" id="cxEvos"></div>
+    <h3>Sound</h3>
+    <div class="vols"><label>Battle effects <input type="range" id="volFx" min="0" max="1" step="0.05"></label><label>Music <input type="range" id="volMus" min="0" max="1" step="0.05"></label></div>
+    <h3>Keys</h3>
+    <div class="keylist">
+      <kbd>WASD</kbd><span>Steer your hero (or tap the map to march there)</span>
+      <kbd>Arrows</kbd><span>Look around (dragging works too). H brings the camera back to your hero</span>
+      <kbd>Q E R</kbd><span>Orders for your Host: Charge, Hold, Fall back</span>
+      <kbd>Scroll</kbd><span>Zoom in and out (or + and −)</span>
+      <kbd>F</kbd><span>Center on your capital</span>
+      <kbd>1 2 3</kbd><span>Expand, Build, Defend</span>
+      <kbd>Z X C</kbd><span>Mobilize, Golden Age, Fortify</span>
+      <kbd>N</kbd><span>Diplomacy</span>
+      <kbd>V</kbd><span>Army</span>
+      <kbd>B</kbd><span>Watch the fighting: the camera follows your troops into battle</span>
+      <kbd>L</kbd><span>Ledger: compare nations, see everything you’ve gained</span>
+      <kbd>M</kbd><span>Music on or off</span>
+      <kbd>Space</kbd><span>Hero ability</span>
+      <kbd>G</kbd><span>Release your band to guard the nearest city</span>
+      <kbd>P</kbd><span>Pause</span>
+    </div>
+    <div class="btn-row">
+      <button class="primary" id="btnResume">Resume</button>
+      <button class="secondary" id="btnRestart">Main menu</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay cine" id="ovCine" hidden><img alt=""><i class="cflash"></i></div>
+
+<div class="overlay" id="ovEnd" hidden>
+  <div class="sheet">
+    <img class="end-art" id="endArt" alt="">
+    <img class="end-ribbon" id="endRibbon" alt="">
+    <p class="kicker" id="endKicker">The end</p>
+    <h1 id="endTitle">The capital has fallen</h1>
+    <div class="stats" id="endStats"></div>
+    <div class="end-glory" id="endGlory"></div>
+    <div class="btn-row">
+      <button class="primary" id="btnMenu">Back to menu</button>
+      <button class="secondary" id="btnAgain">Play again</button>
+      <button class="secondary" id="btnEndless" hidden title="Your victory is already saved. Hold as long as you can for bonus Glory">⚔ Face the Decline and Fall</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="ovChest" hidden>
+  <div class="sheet chest">
+    <p class="kicker" id="chestSrc">War Chest</p>
+    <h2 id="chestTitle">A treasure</h2>
+    <div id="chestList"></div>
+    <div class="btn-row"><button class="primary" id="btnChest">Claim</button></div>
+  </div>
+</div>
+
+<div class="overlay" id="ovFind" hidden>
+  <div class="sheet chest find">
+    <p class="kicker" id="findKick">Discovery</p>
+    <h2 id="findTitle">A find</h2>
+    <div id="findBody"></div>
+    <div class="btn-row" id="findBtns"></div>
+  </div>
+</div>
+
+<div class="overlay" id="ovCollect" hidden>
+  <div class="sheet codex ledger">
+    <p class="kicker" id="colKicker">Collection</p>
+    <h2>Collection</h2>
+    <div class="ltabs" id="colTabs" role="tablist"></div>
+    <div id="colBody"></div>
+    <div class="btn-row"><button class="primary" id="btnColClose">Close</button></div>
+  </div>
+</div>
+
+<div class="overlay" id="ovArena" hidden>
+  <div class="sheet codex arena">
+    <p class="kicker">Proving Grounds · real combat, equal budgets</p>
+    <h2>Test your armies</h2>
+    <div id="arenaCtl"></div>
+    <div class="ar-btns"><button class="primary" id="btnArenaGo">Fight</button><button class="secondary" id="btnArenaSpeed">Speed 1×</button><button class="secondary" id="btnArenaClose">Close</button></div>
+    <canvas id="arenaCv" aria-label="Arena battle"></canvas>
+    <div id="arenaMeter"></div>
+  </div>
+</div>
+
+<script src="js/01-data-troops.js"></script>
+<script src="js/02-progress.js"></script>
+<script src="js/03-peoples.js"></script>
+<script src="js/04-map.js"></script>
+<script src="js/05-art.js"></script>
+<script src="js/06-state.js"></script>
+<script src="js/07-economy.js"></script>
+<script src="js/08-buildings-raids.js"></script>
+<script src="js/09-combat.js"></script>
+<script src="js/10-cities-diplomacy.js"></script>
+<script src="js/11-update-draft.js"></script>
+<script src="js/12-events-meta.js"></script>
+<script src="js/13-decline.js"></script>
+<script src="js/14-fx-audio.js"></script>
+<script src="js/15-render.js"></script>
+<script src="js/16-hud.js"></script>
+<script src="js/17-arena.js"></script>
+<script src="js/18-menu.js"></script>
+<script src="js/19-main.js"></script>
+</body>
+</html>
