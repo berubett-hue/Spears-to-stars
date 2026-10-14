@@ -687,7 +687,7 @@ function towerParams(o){
 function updateTowers(dt){
   const P = {};
   P[PLAYER] = towerParams(PLAYER);
-  G.rivals.forEach(r => { if(r.alive) P[r.id] = towerParams(r.id); });
+  G.rivals.forEach(r => { if(r.alive) P[r.id] = towerParams(r.id); }); (G.holdR||[]).forEach(r => { if(r.hold) P[r.id] = towerParams(r.id); });
   for(const c of G.cities){
     c.cd -= dt; c.fl -= dt;
     if(c.cd > 0 || c.dead) continue;

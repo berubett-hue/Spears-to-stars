@@ -206,7 +206,7 @@ function openCollect(){
   let h = nextHTML(3, 'Closest unlocks') + '<p class="lnote">'+L0.games+' games · '+L0.wins+' wins · '+L0.kills.toLocaleString()+' enemies defeated · '+L0.founded+' cities founded · '+L0.ruins+' ruins explored</p>';
   h += '<h3>Troops</h3><p class="lnote col-how">Each troop line is <b>one unit that modernizes as it levels</b>: Lv 1 is its Ancient form, Lv 8 its Future form. Field a line in your games to earn <b>mastery</b>, which unlocks its later forms for good.</p><div class="tr-grid">';
   for(const id of Object.keys(CARDS).filter(id => !CARDS[id].secret).sort((a,b) => (isUnlocked(b) - isUnlocked(a)) || CARDS[a].era - CARDS[b].era)){
-    const C = CARDS[id], on = isUnlocked(id), a = ACH.find(x => x.id===id), r = mRank(id), xp = META.mx[id]||0, cap = mCap(id), has = USPR.ok && USPR.m[id];
+    const C = CARDS[id], on = isUnlocked(id), a = achFor(id), r = mRank(id), xp = META.mx[id]||0, cap = mCap(id), has = USPR.ok && USPR.m[id];
     const big = has ? artURL('cpb_'+id+'_'+(on ? cap : 1), () => uPortrait(id, on ? Math.min(8, cap) : 1)) : '';
     const pic = big ? '<img class="tr-pic" src="'+big+'" alt="">' : '<i class="tr-pic"></i>';
     if(on){
@@ -283,7 +283,7 @@ function buildNatPick(){
   try { buildListPick(); } catch(e){}
   const el = $('#natPick'); if(!el || !el.querySelectorAll) return;
   if(!NATIONS_P.find(n => n.id===R.nation && natOK(n))) R.nation = 'horde';
-  el.innerHTML = NATIONS_P.filter(n => !n.secret || natOK(n) || (META.met||[]).includes(n.id)).map(n => { const ok = natOK(n), lockA = !ok && (n.secret ? {d:'“'+((SECRETS.find(x => x.id===n.id)||{}).clue||'')+'” Find their secret'} : n.lock ? ACH.find(a => a.id==='nat:'+n.id) : ACH.find(a => a.id===n.start.find(id => !isUnlocked(id))));
+  el.innerHTML = NATIONS_P.filter(n => !n.secret || natOK(n) || (META.met||[]).includes(n.id)).map(n => { const ok = natOK(n), lockA = !ok && (n.secret ? {d:(achFor(n.id)||{}).d || '“'+((SECRETS.find(x => x.id===n.id)||{}).clue||'')+'”'} : n.lock ? ACH.find(a => a.id==='nat:'+n.id) : achFor(n.start.find(id => !isUnlocked(id))));
     return '<button data-n="'+n.id+'" class="'+(R.nation===n.id ? 'on' : '')+(ok ? '' : ' locked')+'"'+(ok ? '' : ' disabled')+'>'+(HSPR.ok && (HSPR.m[n.id] || HEROES[n.id]) ? '<img class="np-hero" src="'+hsprPortrait(n.id)+'" alt="'+esc(HEROES[n.id].n)+'">' : '')+'<b><i class="sw" style="background:'+PEOPLE[n.id].col+'"></i>'+n.n+(ok ? '' : ' 🔒')+'</b><span>'+(ok ? 'Starts with '+n.start.map(id => CARDS[id].n).join(' and ')+'. '+n.perk+'. Hero: '+HEROES[n.id].n+'. '+HEROES[n.id].sig+'.' : 'Locked. '+(lockA ? lockA.d : '')+' to unlock them.')+'</span></button>'; }).join('');
   el.querySelectorAll('button:not([disabled])').forEach(b => b.addEventListener('click', () => { R.nation = b.dataset.n; buildNatPick(); }));
   const dp = $('#diffPick'); if(dp && dp.querySelectorAll){

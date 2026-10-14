@@ -46,11 +46,11 @@ function showEvent(ev){
   R.event = ev;
   modal = 'event';
   const ov = $('#ovEvent'); if(!ov || !ov.querySelector) return;
-  { const ea = $('#evArt'), u = ev.art != null && EVART[ev.art] != null ? KIT['ev_'+EVART[ev.art]] : ''; if(ea){ ea.hidden = !u; if(u) ea.src = u; } }
+  { const ea = $('#evArt'), u = ev.img || (ev.art != null && EVART[ev.art] != null ? KIT['ev_'+EVART[ev.art]] : ''); if(ea){ ea.hidden = !u; if(u) ea.src = u; } }
   $('#evKicker').textContent = ev.kicker;
   $('#evTitle').textContent = ev.title;
   $('#evText').textContent = ev.text;
-  $('#evChoices').innerHTML = [ev.a, ev.b].map(o => '<button class="choice"><b>'+esc(o.l)+'</b><span>'+esc(o.s)+'</span></button>').join('');
+  $('#evChoices').innerHTML = (ev.opts || [ev.a, ev.b]).map(o => '<button class="choice"><b>'+esc(o.l)+'</b><span>'+esc(o.s)+'</span></button>').join('');
   [...$('#evChoices').children].forEach((el,i) => el.addEventListener('click', () => {
     if(performance.now() - R.openedAt < 350) return;
     resolveEvent(i);
@@ -61,7 +61,7 @@ function showEvent(ev){
 }
 function resolveEvent(i){
   const ev = R.event; if(!ev) return;
-  (i===0 ? ev.a : ev.b).f();
+  (ev.opts ? ev.opts[i] : (i===0 ? ev.a : ev.b)).f();
   G.rivals.forEach(r => r.rel = clamp(r.rel,-100,100));
   refreshStats();
   modal = null; R.event = null; G.gate = G.t + 15;
@@ -205,6 +205,7 @@ function statTick(){
   if(G.eraIdx >= 5 && st.modernT == null) st.modernT = G.t;
   if(G.eraIdx >= 2 && !st.medC){ st.medC = 1; lifeAdd('med'); }
   if((st.warlords||0) > (META.life.bestWl||0)){ META.life.bestWl = st.warlords; lifeDirty = true; }
+  { const bb = (k, v) => { if((v||0) > (META.life['b_'+k]||0)){ META.life['b_'+k] = v; lifeDirty = true; } }; bb('cities', st.peakCities); bb('wl', st.warlords); bb('sling', ((G.dmg||{})[PLAYER+':slingers']||{}).k); }
   // riddles sharpen when you field the right line high enough
   for(const e of UEVO){
     if(e.legend || known(e) || (META.hint[e.id]||0) >= 1) continue;
@@ -232,6 +233,7 @@ function endMeta(won){
     if(G.winKind==='conquest') lifeAdd('wConq'); else if(G.winKind==='diplomacy') lifeAdd('wDip'); else lifeAdd('wSci');
     if(!(G.stats.lost||0)) lifeAdd('wNoLoss');
     if(G.diff !== 0){
+      if(c > (META.life.topCrown ?? -1)){ META.life.topCrown = c; lifeDirty = true; }
       lifeAdd('wKing'); if(c >= 1) lifeAdd('wC1');
       G.grade = gradeOf();
       const pb = META.pb[nat]; G.firstClear = pb == null || pb < c; if(G.firstClear) META.pb[nat] = c;
@@ -253,7 +255,7 @@ function progSnap(){
 }
 function nextList(n){
   const out = [];
-  for(const a of ACH){ if(a.secret || isUnlocked(a.id) || !a.prog) continue; let p; try { p = a.prog(); } catch(e){ continue; } if(p[0] >= p[1]) continue; out.push({name:unlName(a.id), d:a.d, p, f:Math.min(1, p[0]/p[1])}); }
+  for(const a of ACH){ if(a.secret || isUnlocked(a.id) || !a.prog) continue; let p; try { p = a.prog(); } catch(e){ continue; } if(p[0] >= p[1]) continue; out.push({name:achName(a), d:a.d, p, f:Math.min(1, p[0]/p[1])}); }
   for(const nn of NATIONS_P) if(natOK(nn)) QUESTS[nn.id].forEach((q, k) => { const id = nn.id+':'+k; if(META.qd.has(id) || q.win) return; const b = META.q[id]||0; out.push({name:nn.n+' quest', d:q.d, p:[b, q.g], f:Math.min(1, b/q.g)}); });
   const c = META.crown||0; if(c < 10 && c >= 1) out.push({name:'Crown '+(c+1)+' · '+CROWNS[c+1].n, d:'Win at Crown '+c, p:[0, 1], f:.05});
   return out.sort((a,b) => b.f - a.f).slice(0, n);

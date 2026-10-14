@@ -61,11 +61,12 @@ function goalsLive(){
   if(G.perk && QUESTS[G.perk]) QUESTS[G.perk].forEach((q, k) => { const qid = G.perk+':'+k; if(META.qd.has(qid) || q.win) return; let v = 0; try { v = q.v(); } catch(e){} out.push({id:'q:'+qid, ic:'u_goals', name:(G.natName || 'People')+' quest '+(k+1), d:q.d+' · +'+Q_REW[k]+' Glory', v, g:q.g}); });
   for(const a of ACH){ if(isUnlocked(a.id) || !a.prog) continue; let p; try { p = a.prog(); } catch(e){ continue; } if(!p || p[1] <= 1 || p[0] >= p[1]) continue; if(G_REQ[a.id] && !inArmy(G_REQ[a.id])) continue;
     if(a.secret){ const sc = SECRETS.find(x => x.id===a.id); out.push({id:'a:'+a.id, ic:'u_g_hidden', name:'A hidden people', d:sc ? '“'+sc.clue+'”' : '???', v:p[0], g:p[1]}); }
-    else { const nat = a.id.startsWith('nat:'); out.push({id:'a:'+a.id, ic:nat ? 'u_g_people' : 'u_g_troop', img:CARDS[a.id] ? troopImg(a.id, 1) : '', name:'Unlock '+unlName(a.id), d:a.d, v:p[0], g:p[1]}); } }
+    else { const nat = a.id.startsWith('nat:'); out.push({id:'a:'+a.id, ic:nat ? 'u_g_people' : 'u_g_troop', img:CARDS[a.id] ? troopImg(a.id, 1) : '', name:'Unlock '+achName(a), d:a.d, v:p[0], g:p[1]}); } }
   for(const sl of G.cards){ const r = mRank(sl.id); if(r >= MX_T.length) continue; const x = META.mx[sl.id]||0, lo = r ? MX_T[r-1] : 0; out.push({id:'m:'+sl.id, ic:'u_g_mastery', img:troopImg(sl.id, Math.min(8, sl.lvl)), name:cardName(PLAYER, sl.id)+' · mastery '+(r+1), d:mPerk(r+1), v:Math.floor(x - lo), g:MX_T[r] - lo}); }
   for(const sl of G.cards){ let st; try { st = evoStatus(sl); } catch(e){ continue; }
     if(st.state==='ready') out.push({id:'e:'+sl.id, ic:'u_g_relic', name:known(st.ev) ? st.ev.n : 'Something stirs', d:'Ready · slay a rival general to awaken it', v:1, g:1, ready:1});
     else if(st.state==='path' && st.ev && st.ev.from===sl.id){ const L = evLv(st.ev); out.push({id:'e:'+sl.id, ic:'u_g_relic', name:st.ev.n, d:st.txt, v:Math.min(sl.lvl, L), g:L}); } }
+  try { out.push(...holdGoals()); } catch(e){}
   out.forEach(o => { o.f = Math.min(1, o.v/Math.max(1, o.g)); });
   out.sort((a,b) => (b.id===R.pin) - (a.id===R.pin) || (b.ready||0) - (a.ready||0) || b.f - a.f);
   return out;

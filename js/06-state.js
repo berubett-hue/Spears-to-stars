@@ -28,7 +28,7 @@ function refreshStats(){
 const eraScale = e => Math.pow(1.35, e);
 const rEra = () => timeEra(G.t);
 const ownerEra = o => o===PLAYER ? G.eraIdx : rEra();
-const rival = id => G.rivals[id-2];
+const rival = id => G.rivals[id-2] || (G.holdR && G.holdR[id - 2 - G.rivals.length]);
 const citiesOf = o => G.cities.filter(c => c.owner===o);
 const capitalOf = o => G.cities.find(c => c.owner===o && c.capital) || G.cities.find(c => c.owner===o);
 const unitCount = o => { let n=0; for(const u of G.units) if(u.owner===o && u.hp>0 && !u.hero && !u.merc) n++; return n; };
@@ -37,7 +37,7 @@ const supOf = (id, o) => { const ev = cardEvo(o || PLAYER, id); return Math.roun
 const rUp = (o, id) => { const ev = cardEvo(o, id); return CARDS[id].up + (ev && ev.union && ev.with ? CARDS[ev.with].up : 0); };
 const armySup = o => { let n=0; for(const u of G.units) if(u.owner===o && u.hp>0 && !u.hero && !u.merc && u.card) n += supOf(u.card, o); return n; };
 const ocol = o => o===PLAYER ? pcol() : o===0 ? '#e0473b' : rival(o).col;
-const cityMax = c => cityMax0(c)*1.5*(c.owner===PLAYER && G && G.perk==='golems' ? 1.5 : 1)*(c.owner > 1 && CR(6) ? 1.35 : 1)*(c.owner > 1 && c.capital ? 1.4 : 1)*(G && G.proj && G.proj.proto && c.owner===PLAYER ? (proto('walls') ? 1.5 : 1)*(proto('bunkers') && isPart(c) ? 2 : 1) : 1);
+const cityMax = c => cityMax0(c)*1.5*(c.fort||1)*(c.owner===PLAYER && G && G.perk==='golems' ? 1.5 : 1)*(c.owner > 1 && CR(6) ? 1.35 : 1)*(c.owner > 1 && c.capital ? 1.4 : 1)*(G && G.proj && G.proj.proto && c.owner===PLAYER ? (proto('walls') ? 1.5 : 1)*(proto('bunkers') && isPart(c) ? 2 : 1) : 1);
 const cityMax0 = c => { const m = R.cb.get(c.id); return (60 + 25*c.pop) * (c.owner===PLAYER ? 1.2*(1 + S.cityhp)*(G.coal ? 1.25 : 1)*(c.capital ? 1.5 : 1) : (1.25 + .5*rEra())*(G.coal ? 1.3 : 1)) * (c.hill ? 1.4 : 1) * (1 + (m ? (m.keep ? .2 : 0) + (m.castle ? .3 : 0) : 0)); };
 const allyCount = () => G.rivals.filter(r => r.alive && r.status==='ally').length;
 const tradeCount = () => G.rivals.filter(r => r.alive && (r.status==='trade' || r.status==='ally')).length;
@@ -158,13 +158,13 @@ function evoStatus(sl){
     }
     const f = slotOf(ev.from); return {state:'path', ev, txt:ev.n+': with '+CARDS[ev.from].n+(f ? ' Lv '+f.lvl+'/'+L : '')};
   }
-  if(hasHidden(sl.id)) return {state:'hidden', txt:'◆ ? Hidden evolution'};
+  if(hasHidden(sl.id)) return {state:'hidden', txt:'◆ ? Hidden evolution: find its recipe in ruins, warcamps or strongholds'};
   return {state:'none', txt:STYLE_N[lvStyle(CARDS[sl.id])]};
 }
 function evoReady(sl){
   if(sl.evo) return null;
   for(const ev of UEVO.filter(e => e.from===sl.id).sort((a,b) => (b.legend||0) - (a.legend||0))){
-    const L = evLv(ev); if(sl.lvl < L || !evoUsable(ev)) continue;
+    const L = evLv(ev); if(sl.lvl < L || !evoUsable(ev) || (!ev.legend && !recipeOk(ev))) continue;
     if(ev.union){ const p = slotOf(ev.with); if(p && p.lvl >= L && !p.evo) return ev; }
     else if(relicLv(ev.relic) > 0) return ev;
   }
@@ -172,7 +172,7 @@ function evoReady(sl){
 }
 
 function tagCount(ids){ const t = {}; ids.forEach(id => CARDS[id] && CARDS[id].tags.forEach(g => t[g] = (t[g]||0) + 1)); return t; }
-function computeSyn(){ R.syn = tagCount(G.cards.map(c => c.id)); R.rsyn = {}; G.rivals.forEach(r => R.rsyn[r.id] = tagCount(r.cards||[])); }
+function computeSyn(){ R.syn = tagCount(G.cards.map(c => c.id)); R.rsyn = {}; G.rivals.forEach(r => R.rsyn[r.id] = tagCount(r.cards||[])); (G.holdR||[]).forEach(r => R.rsyn[r.id] = tagCount(r.cards||[])); }
 const ownerCards = o => o===PLAYER ? G.cards.map(c => c.id) : (rival(o).cards || []);
 const ownsCard = (o, id) => ownerCards(o).includes(id);
 function cardLevel(o, id){ if(o===PLAYER){ const s = slotOf(id); return s ? s.lvl : 1; } return Math.min(8, (rival(o).lv||{})[id] || 1); }
@@ -190,6 +190,7 @@ function uStat(u){
   if(u.hero){ s0.cleave = Math.max(s0.cleave||0, 2); if(u.enr){ s0.dmg *= 1.3; s0.cd *= .8; } if(u.owner > 1 && CR(5)){ s0.hp *= 1.4; s0.dmg *= 1.3; } }
   if(u.owner===PLAYER && G && !G.arena && SPERK[G.perk]) SPERK[G.perk](u, s0);
   if(u.owner===PLAYER && G && !G.arena && u.card===G.core && SBAL[G.perk] && !u.hero){ s0.dmg *= SBAL[G.perk]; s0.hp *= Math.sqrt(SBAL[G.perk]); }
+  if(u.elite){ s0.hp *= 1.8; s0.dmg *= 1.5; }
   if(u.owner===PLAYER && G && G.focus && u.card===G.core && !u.hero){ s0.hp *= 1 + .15*G.focus; s0.dmg *= 1 + .15*G.focus; }
   if(u.owner > 1 && G && !G.arena && G.rivals){ const rv = G.rivals[u.owner-2]; const m = rv ? (rv.morale ?? 70) : 70; if(m < 40) s0.dmg *= m < 20 ? .75 : .87; }
   return s0;
@@ -356,7 +357,7 @@ function newGame(demo){
   for(const id of nat.start) for(let k=0;k<Math.min(3, CARDS[id].sq) + (nat.secret && CARDS[id].sq===1 ? 1 : 0);k++) spawnUnit(PLAYER, cap, id);
   const others = shuffle(NATIONS_P.filter(n => n.id !== nat.id && (!n.secret || natOK(n)))).slice(0, 6);
   let mystery = null;
-  if(!demo && (META.life.games||0) >= 5 && Math.random() < .25){ const hid = NATIONS_P.filter(n => n.secret && !natOK(n)); if(hid.length){ mystery = hid[rint(hid.length)]; others[others.length-1] = mystery; } }
+  if(false && !demo){ /* masked rivals are replaced by hidden strongholds */ const hid = NATIONS_P.filter(n => n.secret && !natOK(n)); if(hid.length){ mystery = hid[rint(hid.length)]; others[others.length-1] = mystery; } }
   const spare = shuffle(UEVO.filter(e => e.legend && !others.some(n => PEOPLE[n.id].legend===e.id)).map(e => e.id));
   others.forEach((pn, k) => {
     const s = taken[k+1], P = PEOPLE[pn.id], T = TRAITS[P.trait];
@@ -373,10 +374,10 @@ function newGame(demo){
     spawnUnit(r.id, c, r.cards[0]); spawnUnit(r.id, c, r.cards[1] || r.cards[0]);
   });
   if(CR(1)) for(const r of G.rivals){ const s2 = findSite(r.id); if(s2){ const c2 = foundCity(s2.x, s2.y, r.id, false); if(c2) spawnUnit(r.id, c2, r.cards[0]); } }
-  fogInit(); reveal(home.x+.5, home.y+.5, 10); placePois();
+  fogInit(); reveal(home.x+.5, home.y+.5, 10); placePois(); placeHolds();
   if(!demo) progSnap();
   R.cb=new Map(); R.towers=[]; R.tcd=new Map(); R.bnew=new Map(); R.corpses=[]; R.fights=new Map(); R.bdirty=true; R.heroArts=null; R.wmul=null;
-  R.parts=[]; R.projs=[]; R.floats=[]; R.gPrev = {}; R.gInit = false; R.gDone = []; R.gDot = null; R.uiTintC = null; R.flash.clear(); R.shake=0; R.dirty=true; R.raidT.clear(); R.raidS.clear(); R.raidGo.clear(); R.danger.clear(); R.rings=[]; R.fires=[]; R.warArm=null; R.lastLayers=-1;
+  R.parts=[]; R.projs=[]; R.floats=[]; R.conqQ = null; R.gPrev = {}; R.gInit = false; R.gDone = []; R.gDot = null; R.uiTintC = null; R.flash.clear(); R.shake=0; R.dirty=true; R.raidT.clear(); R.raidS.clear(); R.raidGo.clear(); R.danger.clear(); R.rings=[]; R.fires=[]; R.warArm=null; R.lastLayers=-1;
   speed = 1; paused = false; modal = null;
   setupVisuals();
   syncDoctrine();

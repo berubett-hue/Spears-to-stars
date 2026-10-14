@@ -4,6 +4,7 @@ function resolveCities(){
   const dead = G.cities.filter(c => c.dead);
   for(const c of dead){
     if(G.ended) return;
+    if(c.hold && c.owner > 1 && c.killer!==PLAYER){ c.dead = false; c.killer = 0; c.hp = cityMax(c)*.5; continue; }  // only you can take a hidden stronghold
     if(c.killer>0 && c.killer!==c.owner && (c.killer===PLAYER || rival(c.killer).alive)) captureCity(c, c.killer);
     else destroyCity(c);
   }
@@ -43,6 +44,7 @@ function captureCity(c, nw){
     if(!citiesOf(old).length) eliminate(old);
     else if(wasCap) promote(old);
   }
+  if(nw===PLAYER && wasCap && old > 1 && !G.arena && !G.demo && rival(old).alive && citiesOf(old).length){ R.conqQ = {r:old, c:c.id}; }
 }
 function destroyCity(c){
   const o = c.owner; (R.rubble || (R.rubble = [])).push({x:c.x+.5, y:c.y+.98, t:G.t});
@@ -56,7 +58,8 @@ function destroyCity(c){
   burst(c.x+.5, c.y+.5, 30, '#ffb35c'); burst(c.x+.5, c.y+.3, 16, '#6c6862');
   R.dirty = true;
   const at = {x:c.x+.5, y:c.y+.5};
-  if(o===PLAYER){ G.stats.lost++; toast(c.brk ? c.name+' breaks away from your empire' : c.name+' has fallen to raiders', 'bad', at); R.shake = 6; SFX.fall(); }
+  if(o===PLAYER && c.razed){ toast(c.name+' is put to the torch', 'warn', at); R.shake = 6; SFX.fall(); }
+  else if(o===PLAYER){ G.stats.lost++; toast(c.brk ? c.name+' breaks away from your empire' : c.name+' has fallen to raiders', 'bad', at); R.shake = 6; SFX.fall(); }
   else {
     toast('Raiders burned '+c.name+' of '+rival(o).name, '', at);
     if(c.capital && rival(o).proj){ rival(o).proj = null; rival(o).projAt = G.t + 240; }
@@ -69,7 +72,7 @@ function promote(o){
   cs.sort((a,b) => b.pop-a.pop); cs[0].capital = true;
 }
 function eliminate(o){
-  const r = rival(o); if(!r.alive) return;
+  const r = rival(o); if(r && r.hold){ holdFall(o); return; } if(!r.alive) return;
   r.alive = false; r.status = 'gone';
   G.units.forEach(u => { if(u.owner===o && u.hp>0){ u.hp=0; u.dead=true; burst(u.x,u.y,4,r.col); } });
   for(let i=0;i<G.own.length;i++) if(G.own[i]===o){ G.own[i] = 0; G.bmap[i] = 0; }
@@ -83,9 +86,50 @@ function eliminate(o){
   checkVictory();
 }
 function checkVictory(){
-  if(G.decline && !G.decline.win && !G.decline.done && !G.rivals.some(x => x.alive) && !G.ended && !G.won){ G.declPrev = G.decline; G.decline = null; G.endless = false; G.conquest = true; endGame(true, null, null, 'conquest'); return; }
+  if(G.decline && !G.decline.win && !G.decline.done && !G.rivals.some(x => x.alive && !x.vassal) && !G.ended && !G.won){ G.declPrev = G.decline; G.decline = null; G.endless = false; G.conquest = true; endGame(true, null, null, 'conquest'); return; }
   if(G.decline) return;
-  if(!G.rivals.some(x => x.alive) && !G.ended && !G.won){ G.conquest = true; endGame(true, null, null, 'conquest'); }
+  if(!G.rivals.some(x => x.alive && !x.vassal) && !G.ended && !G.won){ G.conquest = true; endGame(true, null, null, 'conquest'); }
+}
+/* ---------- Conquest choice: absorb, vassal or raze when a rival capital falls ---------- */
+function openConquest(q){
+  const r = rival(q.r), c = G.cities.find(k => k.id===q.c); if(!r || !r.alive) return;
+  const P = NATIONS_P.find(n => n.id===r.people) || {start:[]}, line = P.start[0], C = CARDS[line];
+  const has = !!slotOf(line), room = G.cards.length < cardSlots(), nc = citiesOf(r.id).length, trib = (Math.max(1, nc)*.6).toFixed(1);
+  const lineTxt = !C ? '' : has ? ' Their veterans swell your '+cardName(PLAYER, line)+'.' : room ? ' '+C.n+' join you as a support line for this game.' : ' Their veterans join you (no free troop slot for their line).';
+  showEvent({kicker:'Conquest', img:KIT.vic_conquest, title:(c ? c.name : 'Their capital')+' is yours', text:'The '+r.name+' still hold '+nc+' cit'+(nc===1 ? 'y' : 'ies')+'. Their leader kneels. What becomes of them?',
+    opts:[
+      {l:'Absorb them', s:'Their cities and army join your empire.'+lineTxt+' Their towns are restless for a minute', f:() => conqAbsorb(r.id, line)},
+      {l:'Make them a vassal', s:'They keep their land, fight beside you and pay '+trib+' influence a second. Vassals count as conquered', f:() => conqVassal(r.id)},
+      {l:'Raze the capital', s:'Burn '+(c ? c.name : 'it')+' for a War Chest and Glory. Every other nation trusts you less', f:() => conqRaze(r.id, c)}]});
+}
+function conqAbsorb(id, line){
+  const r = rival(id); if(!r || !r.alive) return;
+  const before = new Set(citiesOf(PLAYER).map(c => c.id));
+  r.conq = true; absorb(r);
+  for(const c of citiesOf(PLAYER)) if(!before.has(c.id)){ c.unrest = G.t + 60; c.prevOwner = id; }
+  if(line && CARDS[line] && !slotOf(line) && G.cards.length < cardSlots()){
+    G.cards.push({id:line, lvl:Math.min(lvlFloor(PLAYER), cardCap(line)), evo:null, str:isUnlocked(line) ? 0 : 1});
+    computeSyn(); refreshStats(); R.armyKey = '';
+    bigMoment({tier:'epic', kick:'Absorbed', title:CARDS[line].n, sub:'The '+r.name+'’s finest join your army for this game', col:r.col, img:troopImg(line, Math.min(8, lvlFloor(PLAYER)))});
+  }
+  G.stats.absorbed = (G.stats.absorbed||0) + 1;
+}
+function conqVassal(id){
+  const r = rival(id); if(!r || !r.alive) return;
+  r.vassal = true; r.status = 'ally'; r.rel = 95; r.allyT = G.t; r.truceT = 0;
+  G.rwars = G.rwars.filter(w => w.a!==id && w.b!==id);
+  banner(r.name, 'Bends the knee'); toast(r.name+' is now your vassal: they keep their land, fight your enemies and pay tribute','good');
+  SFX.era && SFX.era(); G.stats.vassals = (G.stats.vassals||0) + 1;
+  checkVictory();
+}
+function conqRaze(id, c){
+  const r = rival(id);
+  if(c && c.owner===PLAYER && !c.dead){ c.razed = true; destroyCity(c); }
+  G.razed = (G.razed||0) + 1;
+  G.rivals.forEach(x => { if(x.alive && x.id!==id) x.rel -= 20; });
+  if(r && r.alive) r.morale = Math.max(0, (r.morale ?? 70) - 25);
+  earnChest('You razed the capital of '+(r ? r.name : 'your enemy'));
+  toast('The world hears of the burning. Every nation trusts you less','warn');
 }
 function absorb(r){
   if(!r.alive) return;
@@ -112,6 +156,8 @@ function addRWar(a,b,dur){
 }
 function declareWar(att, tgt){
   const r = rival(att===PLAYER ? tgt : att);
+  if(r.vassal && att!==PLAYER) return;
+  if(r.vassal){ r.vassal = false; toast(r.name+' is no longer your vassal','warn'); }
   if(!r.alive || r.status==='war') return;
   const wasAlly = r.status==='ally';
   r.status = 'war'; r.rel = Math.min(r.rel, -60); r.weary = 0; r.warStart = G.t; r.offeredPeace = G.t;
@@ -140,6 +186,7 @@ function makePeace(r){
   banner(r.name, 'Peace'); toast('Peace with '+r.name, 'good');
 }
 function diplomacy(dt){
+  for(const r of G.rivals){ if(!r.alive || !r.vassal) continue; if(r.status!=='ally') r.status = 'ally'; r.rel = Math.max(r.rel, 90); r.allyT = r.allyT || G.t; G.influence = Math.min(600, G.influence + Math.max(1, citiesOf(r.id).length)*.6*dt); }
   expireOffers();
   const st = alarmStage();
   if(st > (G.alarm||0)){
@@ -277,7 +324,7 @@ function playerAct(act, rid){
     G.influence -= unionCost(); absorb(r);
     G.rivals.forEach(o => { if(o.alive) o.rel -= 15; }); toast('The other nations fear they are next','warn');
   } else if(act==='unally'){
-    if(r.status!=='ally') return; r.status = 'trade'; r.rel -= 15; toast('You left the alliance with '+r.name,'warn');
+    if(r.status!=='ally') return; r.vassal = false; r.status = 'trade'; r.rel -= 15; toast('You left the alliance with '+r.name,'warn');
   } else if(act==='war'){
     declareWar(PLAYER, r.id);
   } else if(act==='peace'){

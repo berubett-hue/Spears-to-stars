@@ -154,8 +154,14 @@ function placePois(){
   shuffle(['falls','tree','spire']).forEach(w => addPoi('wonder', {sub:w}));
   const plan = ['ruins','ruins','ruins','ruins','ruins','ruins','ruins','camp','camp','camp','camp','camp','merc','merc','merc','tribe','tribe','tribe','shrine','shrine','shrine'];
   plan.forEach((k, j) => addPoi(k, k==='camp' ? {big:j < 9} : k==='shrine' ? {sub:['war','life','wisdom'][j%3]} : null));
+  addPoi('camp', {big:true, keep:true});
 }
 function campGuards(p){
+  if(p.keep){ const kinds = ['warlord','brute','brute','warband','warband','warband','warband','raider'];
+    kinds.forEach((kd, j) => { const a = j/kinds.length*6.283, hx = p.x+.5+Math.cos(a)*(j ? 1.2 : .2), hy = p.y+.5+Math.sin(a)*(j ? 1.2 : .2);
+      spawnBarb(kd, clamp(hx, .5, N-.5), clamp(hy, .5, N-.5), j ? 1.6 : .9); const b = G.units[G.units.length-1]; b.camp = p.id; b.hx = hx; b.hy = hy; b.reb = 1; b.rc = [212,170,80];
+      if(!j){ b.name = 'The Pretender'; b.chief = 1; } });
+    return; }
   const kinds = p.big ? ['brute','warband','warband','warband','warband','raider','raider'] : ['warband','raider','warband','raider'];
   kinds.forEach((kd, j) => {
     const a = j/kinds.length*6.283, hx = p.x+.5+Math.cos(a)*(j ? 1.1 : .3), hy = p.y+.5+Math.sin(a)*(j ? 1.1 : .3);
@@ -190,7 +196,7 @@ function campCheck(id, att){
   const p = G.pois.find(q => q.id===id); if(!p || p.dead || p.st!=='ok') return;
   if(G.units.some(u => u.camp===id && u.hp > 0)) return;
   p.st = 'loot'; burst(p.x+.5, p.y+.5, 14, '#ffd36a'); ring(p.x+.5, p.y+.5, .2, 1.6, '#ffd36a', .7);
-  if(att===PLAYER || fogSee(p.x+.5, p.y+.5)){ toast((p.big ? 'Stronghold' : 'Camp')+' cleared! A loot pile waits: walk your hero onto it','good',{x:p.x+.5, y:p.y+.5}); SFX.found && SFX.found(); float('LOOT!', p.x+.5, p.y-.4, '#ffd36a', 2); R.floats[R.floats.length-1].big = 1; }
+  if(att===PLAYER || fogSee(p.x+.5, p.y+.5)){ toast((p.keep ? 'Pretender’s keep' : p.big ? 'Warcamp' : 'Camp')+' cleared! A loot pile waits: walk your hero onto it','good',{x:p.x+.5, y:p.y+.5}); SFX.found && SFX.found(); float('LOOT!', p.x+.5, p.y-.4, '#ffd36a', 2); R.floats[R.floats.length-1].big = 1; }
 }
 /* The Host: every troop not guarding a city marches with your general. Garrisons scale with city size and only defend */
 const garQuota = c => Math.max(1, Math.round((1 + Math.floor(c.pop/3) + (c.capital ? 1 : 0))*(G.doctrine==='defend' ? 1.6 : 1)));
@@ -272,7 +278,13 @@ function poiTouch(p, h){
     if(p.st!=='loot'){ if(!p.warned){ p.warned = 1; toast('Clear the guards first','warn',at); } return; }
     p.dead = true; G.stats.camps = (G.stats.camps||0) + 1; lifeAdd('camps'); if(p.big) lifeAdd('holds');
     const v = Math.round((p.big ? 70 : 40)*eraCash()); G.influence = Math.min(600, G.influence + v);
-    if(p.big || Math.random() < .3){ lootPop({tier:p.big ? 'legend' : 'epic', kick:p.big ? '✦ Stronghold plundered ✦' : 'Plunder!', title:p.big ? 'The Warlord’s Treasury!' : 'A relic in the loot pile!', gain:'+'+v+' influence', big:'+'+v+' ◎', at}); gainArt(p.big ? 'Plundered from a barbarian stronghold' : 'Plundered from a barbarian camp', p.big ? 'hold' : 'camp'); }
+    if(p.big){ const n = (p.keep ? 5 : 4) + Math.min(3, G.eraIdx||0), before = G.units.length; joinBand(h, n, true);
+      for(let k=before;k<G.units.length;k++){ const u = G.units[k]; if(u.owner===PLAYER && u.merc){ u.elite = 1; u.hp = uStat(u).hp; ring(u.x, u.y, .1, .8, '#ffd36a', .7); } }
+      SFX.q && SFX.q('horn', h.x, h.y, .9);
+      lootPop({tier:'legend', kick:p.keep ? '✦ The Pretender’s keep falls ✦' : '✦ Warcamp plundered ✦', title:p.keep ? 'His Guard Kneels to You!' : 'The Warlord’s Champions!', gain:'+'+n+' elite troops join your band · +'+v+' influence', big:'+'+n+' ★', line:'Veterans, twice as tough as your own. They fight for you the rest of this game.', at});
+      gainArt(p.keep ? 'Taken from the Pretender’s keep' : 'Plundered from a barbarian warcamp', 'hold');
+      setTimeout(() => { try { giveHint(at); } catch(e){} }, 3600); }
+    else if(Math.random() < .3){ lootPop({tier:'epic', kick:'Plunder!', title:'A relic in the loot pile!', gain:'+'+v+' influence', big:'+'+v+' ◎', at}); gainArt('Plundered from a barbarian camp', 'camp'); }
     else { const sc = Math.round(levelCost(G.level||0)*.15); G.sci += sc; lootPop({tier:'rare', kick:'Plunder!', title:pickLine(['The Camp is Yours!','Spoils of War!','Raiders’ Stash!']), gain:'+'+v+' influence · +'+sc+' science', big:'+'+v+' ◎', line:pickLine(['Stolen gold returns to honest hands. Yours.','They will not raid again.','Every coin they stole, and then some.']), at}); }
     burst(at.x, at.y, 16, '#ffd36a');
   }

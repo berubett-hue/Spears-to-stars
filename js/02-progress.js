@@ -150,30 +150,34 @@ function lvText(C, l){
 }
 const BASE_UNLOCKED = ['militia','spearmen','slingers','horse'];
 const LIFE = () => META.life, CK = id => (META.life.ck[id]||0);
+/* ---------- Unlocks: a people and its troop line arrive together; feats are won inside one game ---------- */
+const RUN = f => { try { return (G && !G.demo && !G.arena && G.stats) ? (f() || 0) : 0; } catch(e){ return 0; } };
+const BEST = (k, cur) => Math.max(META.life['b_'+k]||0, cur||0);
+const TOPC = () => LIFE().topCrown ?? -1;
 const ACH = [
-  {id:'shieldwall', d:'Reach the Medieval Age in 2 games', prog:() => [LIFE().med||0, 2]},
-  {id:'longbow', d:'Your Slingers defeat 2,000 enemies (across all games)', prog:() => [CK('slingers'), 2000]},
-  {id:'priests', d:'Found 30 cities (across all games)', prog:() => [LIFE().founded, 30]},
-  {id:'catapult', d:'Explore 30 ruins (across all games)', prog:() => [LIFE().ruins, 30]},
-  {id:'banner', d:'Discover your first union', prog:() => [[...META.disc].filter(id => (UEVO.find(e => e.id===id)||{}).union).length, 1]},
-  {id:'elephant', d:'Slay 20 barbarian Warlords (across all games)', prog:() => [LIFE().warlords, 20]},
-  {id:'knights', d:'Your Light Horse defeat 3,000 enemies (across all games)', prog:() => [CK('horse'), 3000]},
-  {id:'crossbow', d:'Your Longbowmen defeat 5,000 enemies (across all games)', prog:() => [CK('longbow'), 5000]},
-  {id:'grenadiers', d:'Discover 8 evolutions or unions', prog:() => [META.disc.size, 8]},
-  {id:'airships', d:'Win at Crown 1 or higher', prog:() => [LIFE().wC1||0, 1]},
-  {id:'wolves', secret:1, d:'Defeat 50,000 enemies across all your games', prog:() => [LIFE().kills, 50000]},
-  {id:'firemonks', secret:1, d:'Win a game with Healers in your army', prog:() => [LIFE().wHeal||0, 1]},
-  {id:'golems', secret:1, d:'Capture 60 cities across all your games', prog:() => [LIFE().captured, 60]},
-  {id:'skylancers', secret:1, d:'Reach mastery 3 with Heavy Horse', prog:() => [mRank('knights'), 3]},
-  {id:'shadows', secret:1, d:'Slay 40 rival generals across all your games', prog:() => [LIFE().heroes||0, 40]},
-  {id:'colossus', secret:1, d:'Win at Crown 5 or higher', prog:() => [LIFE().wEmp||0, 1]},
-  {id:'nat:khanate', d:'Win by conquest', prog:() => [LIFE().wConq||0, 1]},
-  {id:'nat:merchant', d:'Win by diplomacy, with most nations joining you', prog:() => [LIFE().wDip||0, 1]},
-  {id:'nat:star', d:'Discover the Grand Battery', prog:() => [META.disc.has('battery') ? 1 : 0, 1]},
-  {id:'nat:bastion', d:'Win without losing a single city', prog:() => [LIFE().wNoLoss||0, 1]},
-  {id:'nat:northmen', d:'Slay 5 Warlords in one game', prog:() => [Math.max(LIFE().bestWl||0, (G && !G.demo && G.stats ? G.stats.warlords||0 : 0)), 5]},
-  {id:'diff:2', d:'Win on King (Crown 0)', prog:() => [LIFE().wKing||0, 1]}
+  {id:'priests', tier:1, d:'Hold 6 cities at once in one game', prog:() => [BEST('cities', RUN(() => G.stats.peakCities)), 6]},
+  {id:'longbow', tier:1, d:'Your Skirmishers defeat 500 enemies in one game', prog:() => [BEST('sling', RUN(() => ((G.dmg||{})[PLAYER+':slingers']||{}).k)), 500]},
+  {id:'elephant', tier:1, d:'Slay 3 Warlords in one game', prog:() => [BEST('wl', RUN(() => G.stats.warlords)), 3]},
+  {id:'diff:2', d:'Win on King (Crown 0)', prog:() => [LIFE().wKing||0, 1]},
+  {id:'nat:khanate', pair:'knights', tier:2, d:'Win by conquest', prog:() => [LIFE().wConq||0, 1]},
+  {id:'nat:merchant', pair:'crossbow', tier:2, d:'Win by diplomacy, with most nations joining you', prog:() => [LIFE().wDip||0, 1]},
+  {id:'nat:star', pair:'catapult', tier:2, d:'Win by launching the starship', prog:() => [LIFE().wSci||0, 1]},
+  {id:'nat:bastion', pair:'shieldwall', tier:2, d:'Win without losing a single city', prog:() => [LIFE().wNoLoss||0, 1]},
+  {id:'nat:northmen', tier:2, d:'Win at Crown 1 or higher', prog:() => [TOPC() >= 1 ? 1 : 0, 1]},
+  {id:'grenadiers', tier:3, d:'Win at Crown 2 or higher', prog:() => [Math.max(0, Math.min(2, TOPC())), 2]},
+  {id:'banner', tier:3, d:'Discover 3 unions or evolutions', prog:() => [Math.min(3, META.disc.size), 3]},
+  {id:'airships', tier:3, d:'Win at Crown 4 or higher', prog:() => [Math.max(0, Math.min(4, TOPC())), 4]},
+  {id:'wolves', secret:1, tier:4, crown:1, d:'Find and conquer the stronghold of the Wolf Clans (from Crown 1)', prog:() => [LIFE().sh_wolves||0, 1]},
+  {id:'firemonks', secret:1, tier:4, crown:2, d:'Find and conquer the Ash Monastery (from Crown 2)', prog:() => [LIFE().sh_firemonks||0, 1]},
+  {id:'golems', secret:1, tier:4, crown:3, d:'Find and conquer the hold of the Stoneborn (from Crown 3)', prog:() => [LIFE().sh_golems||0, 1]},
+  {id:'skylancers', secret:1, tier:4, crown:4, d:'Find and conquer the eyrie of the Order of the Wing (from Crown 4)', prog:() => [LIFE().sh_skylancers||0, 1]},
+  {id:'shadows', secret:1, tier:4, crown:5, d:'Find and conquer the Shadow Court (from Crown 5)', prog:() => [LIFE().sh_shadows||0, 1]},
+  {id:'colossus', secret:1, tier:4, crown:6, d:'Find and conquer the Last Machine (from Crown 6)', prog:() => [LIFE().sh_colossus||0, 1]}
 ];
+/* ---------- Alpha reset: the unlock system changed, so every save starts over once ---------- */
+const SAVE_VER = 'alpha-2';
+let SAVE_RESET = false;
+try { if(localStorage.getItem('eh-ver') !== SAVE_VER){ SAVE_RESET = !!(localStorage.getItem('eh-life') || localStorage.getItem('eh-unlocks')); ['eh-life','eh-unlocks','eh-disc','eh-crown','eh-diff','eh-list','eh-pin'].forEach(k => localStorage.removeItem(k)); localStorage.setItem('eh-ver', SAVE_VER); } } catch(e){}
 const META = {unl:new Set(BASE_UNLOCKED), disc:new Set(), seen:new Set(), leg:new Set(), arts:new Set(), life:{games:0, wins:0, kills:0, warlords:0, captured:0, founded:0, ruins:0, ck:{}}, mx:{}, hint:{}};
 try { const v = JSON.parse(localStorage.getItem('eh-life') || '{}'); if(v.life) Object.assign(META.life, v.life); META.life.ck = META.life.ck || {}; if(v.mx) META.mx = v.mx; if(v.hint) META.hint = v.hint; META.glory = v.glory||0; META.gloryT = v.gt||0; META.lg = v.lg||{}; META.ack = v.ack ? new Set(v.ack) : null; META.colSeen = v.cs||''; META.noDemo = !!v.nd; META.crown = v.cr ?? null; META.pb = v.pb||{}; META.pg = v.pg||{}; META.q = v.q||{}; META.qd = new Set(v.qd||[]); META.stir = v.st||[]; META.df = v.df||{}; META.met = v.met||[]; } catch(e){}
 if(!META.lg) META.lg = {}; if(!META.pb) META.pb = {}; if(!META.pg) META.pg = {}; if(!META.q) META.q = {}; if(!META.qd) META.qd = new Set(); if(!META.stir) META.stir = []; if(META.glory == null) META.glory = 0; if(META.gloryT == null) META.gloryT = 0;
@@ -266,23 +270,30 @@ const CROWNS = [
 const crownMul = c => +(1 + .15*c).toFixed(2);
 function crownDF(c){ const d = Object.assign({}, DIFFS[1]); if(c >= 2) d.barb *= 1.3; if(c >= 3) d.rival *= 1.08; if(c >= 4){ d.counter = 3; d.extra = .5; } if(c >= 7) d.rival *= 1.08; if(c >= 9) d.barb *= 1.3; return d; }
 const natOK = n => n.lock ? META.unl.has('nat:'+n.id) : n.start.every(isUnlocked);
+const achName = a => { if(a.id.startsWith('nat:')){ const n = NATIONS_P.find(x => 'nat:'+x.id===a.id); return n.n+(a.pair ? ' + '+CARDS[a.pair].n : ''); } if(a.id.startsWith('diff:')) return 'The Crown ladder'; const np = typeof linePeople === 'function' ? linePeople(a.id) : null; return np ? np.n+' + '+CARDS[a.id].n : CARDS[a.id].n; };
+const achFor = id => ACH.find(a => a.id===id) || ACH.find(a => a.pair===id);
+const PAIR_OF = {}; ACH.forEach(a => { if(a.pair) PAIR_OF[a.id] = a.pair; });
+const linePeople = id => NATIONS_P.find(n => !n.lock && !n.secret && n.start.includes(id) && n.start.every(s => s===id || BASE_UNLOCKED.includes(s)));
 function unlockCard(id){
-  if(isUnlocked(id)) return; META.unl.add(id);
+  if(isUnlocked(id)) return; META.unl.add(id); const pr = PAIR_OF[id]; if(pr) META.unl.add(pr);
   try { localStorage.setItem('eh-unlocks', JSON.stringify([...META.unl])); } catch(e){}
   if(!(G && running)) return;
-  if(id.startsWith('nat:')){ const n = NATIONS_P.find(x => 'nat:'+x.id===id); banner(n.n, 'New people unlocked'); toast(n.n+' can now be chosen when you found a new empire','good'); }
+  const people = (n, line, tier) => { bigMoment({tier, kick:tier==='legend' ? '✦ A hidden people joins the world ✦' : '✦ A new people joins you ✦', title:n.n, sub:line ? 'and with them, '+CARDS[line].n+': '+CARDS[line].d : 'Choose them when you found your next empire', col:(PEOPLE[n.id]||{}).col || '#ffd36a', img:hsprPortrait(n.id, 1) || (line ? troopImg(line, 1) : '')});
+    toast(n.n+' can now be chosen when you found a new empire'+(line ? '. '+CARDS[line].n+' can be drafted as a support line' : ''),'good'); MUS.sting && MUS.sting(tier==='legend' ? 'crown' : 'quest'); };
+  if(id.startsWith('nat:')){ const n = NATIONS_P.find(x => 'nat:'+x.id===id); people(n, pr, 'epic'); }
   else if(id==='diff:2'){ banner('The Crown ladder', 'Now open'); toast('The Crown ladder is open. Pick Crown 1 when you found your next empire','good'); }
-  else if(CARDS[id].secret){ banner(CARDS[id].n, '✦ A secret troop line awakens'); toast('Secret troop found: '+CARDS[id].n+'. '+CARDS[id].d+'. Add them to your army list before your next game','good'); MUS.sting && MUS.sting('evo'); R.shake = Math.min(8, (R.shake||0) + 4); }
-  else if(CARDS[id].secret && secretPeople(id)){ const sp = secretPeople(id); bigMoment({tier:'legend', kick:'✦ A hidden people joins the world ✦', title:sp.n, sub:'Choose them when you found your next empire', col:PEOPLE[sp.id].col, img:hsprPortrait(sp.id, 1)}); toast(sp.n+' can now be chosen when you found a new empire. Their '+CARDS[id].n+' fight only for them until you finish their three quests','good'); MUS.sting && MUS.sting('crown'); }
-  else { bigMoment({tier:'epic', kick:'New troop line unlocked', title:CARDS[id].n, sub:CARDS[id].d, col:'#9fd0ff', img:troopImg(id, 1)}); toast(CARDS[id].n+' unlocked. It can now be offered as a support line in your games','good'); }
-  if(G && !G.arena){ G.newUnl = G.newUnl || []; G.newUnl.push(id); }
+  else if(CARDS[id].secret){ const sp = secretPeople(id); if(sp) people(sp, id, 'legend'); else { banner(CARDS[id].n, '✦ A secret troop line awakens'); MUS.sting && MUS.sting('evo'); } R.shake = Math.min(8, (R.shake||0) + 4); }
+  else { const np = linePeople(id); if(np) people(np, id, 'epic'); else { bigMoment({tier:'epic', kick:'New troop line unlocked', title:CARDS[id].n, sub:CARDS[id].d, col:'#9fd0ff', img:troopImg(id, 1)}); toast(CARDS[id].n+' unlocked. It can now be offered as a support line in your games','good'); } }
+  if(G && !G.arena){ G.newUnl = G.newUnl || []; G.newUnl.push(id); if(pr) G.newUnl.push(pr); }
   SFX.era();
 }
 function checkAch(){ if(G && G.demo) return; for(const a of ACH) if(!isUnlocked(a.id)){ try { if(achDone(a)) unlockCard(a.id); } catch(e){} } if(lifeDirty) saveLife(); }
 const evoRecipe = ev => ev.union ? CARDS[ev.from].n+' Lv '+evLv(ev)+' + '+CARDS[ev.with].n+' Lv '+evLv(ev) : CARDS[ev.from].n+' Lv '+evLv(ev)+' + '+RELICS[ev.relic].n;
 const evoOf = id => UEVO.find(e => e.from===id && !e.legend) || UEVO.find(e => e.with===id && !e.legend);
-const knownEvos = id => UEVO.filter(e => (e.from===id || e.with===id) && known(e) && evoUsable(e));
-const hasHidden = id => UEVO.some(e => (e.from===id || e.with===id) && !e.legend && !known(e));
+/* a union or evolution can be forged once you know it, or hold its full recipe (two pages) */
+const recipeOk = ev => known(ev) || (META.hint[ev.id]||0) >= 2;
+const knownEvos = id => UEVO.filter(e => (e.from===id || e.with===id) && recipeOk(e) && evoUsable(e));
+const hasHidden = id => UEVO.some(e => (e.from===id || e.with===id) && !e.legend && !recipeOk(e));
 
 const PART_NEED = 40000, LAUNCH_T = 180;
 const ALARM = [

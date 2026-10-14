@@ -1196,3 +1196,5 @@ img[src^="data:image/png"].hand,.artlist .ucard img,.col-item img.ai,#hcArtRow i
   .hc-act:not(.hc-rally){min-width:40px;width:42px}
   .hc-act:not(.hc-rally) b,.hc-act:not(.hc-rally) span{display:none}
 }
+.alpha-note{border-color:var(--lamp)!important}
+.alpha-note span{display:block;font-size:13px;color:var(--fg);line-height:1.35}

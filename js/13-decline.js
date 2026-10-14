@@ -109,12 +109,12 @@ function endGame(won, fallenCap, by, kind, who){
   if(G.demo){ R.demoReset = true; return; }
   if(G.decline && won) return;
   if(G.decline && !won && !G.decline.done) declineEnd();
-  if(won && !G.arena){ G.won = true; G.winKind = kind==='science' ? 'science' : (G.rivals.filter(r => r.status==='joined').length > G.rivals.length/2 ? 'diplomacy' : 'conquest'); }
+  if(won && !G.arena){ G.won = true; G.winKind = kind==='science' ? 'science' : (G.rivals.filter(r => r.status==='joined' && !r.conq).length > G.rivals.length/2 ? 'diplomacy' : 'conquest'); }
   if(!G.arena && !G.lifeDone) endMeta(won);
   MUS.sting((G.decline && G.decline.done) ? 'epitaph' : won ? 'win' : 'lose');
   if(won && !G.arena && (G.newCrown || G.grade)) setTimeout(() => { if(G.newCrown) MUS.sting('crown'); else MUS.sting('grade', {i:G.grade.i}); }, 4600);
   if(!G.arena && !G.lifeDone){ G.glory = calcGlory(won); META.glory += G.glory.total; META.gloryT += G.glory.total; if(won){ lifeAdd('wins'); G.cards.forEach(sl => mxAdd(sl.id, 60)); if(G.cards.some(sl => sl.id==='priests')) lifeAdd('wHeal'); if(CR(5)) lifeAdd('wEmp'); } saveLife(); }
-  if(won){ G.won = true; G.winKind = kind==='science' ? 'science' : (G.rivals.filter(r => r.status==='joined').length > G.rivals.length/2 ? 'diplomacy' : 'conquest'); modal = 'end'; checkAch(); }
+  if(won){ G.won = true; G.winKind = kind==='science' ? 'science' : (G.rivals.filter(r => r.status==='joined' && !r.conq).length > G.rivals.length/2 ? 'diplomacy' : 'conquest'); modal = 'end'; checkAch(); }
   else {
     G.ended = true;
     if(fallenCap){ burst(fallenCap.x+.5, fallenCap.y+.5, 50, '#ffb35c'); focusOn(fallenCap.x+.5, fallenCap.y+.5); }
@@ -123,8 +123,8 @@ function endGame(won, fallenCap, by, kind, who){
   saveBest();
   const ov = $('#ovEnd'); if(!ov || !ov.querySelector) return;
   if(!won && kind==='rivalship'){ G.ended = true; const cap = capitalOf(who.id); if(cap) focusOn(cap.x+.5, cap.y+.5); }
-  const joined = G.rivals.filter(r => r.status==='joined').length;
-  { const ea = $('#endArt'); if(ea){ const joinedN = G.rivals.filter(r => r.status==='joined').length; ea.src = KIT['vic_'+(!won ? 'defeat' : kind==='science' ? 'science' : joinedN > G.rivals.length/2 ? 'diplomacy' : 'conquest')]; } }
+  const joined = G.rivals.filter(r => r.status==='joined' && !r.conq).length;
+  { const ea = $('#endArt'); if(ea){ const joinedN = G.rivals.filter(r => r.status==='joined' && !r.conq).length; ea.src = KIT['vic_'+(!won ? 'defeat' : kind==='science' ? 'science' : joinedN > G.rivals.length/2 ? 'diplomacy' : 'conquest')]; } }
   { const rb = $('#endRibbon'); if(rb){ rb.src = UIA[won ? 'victory' : 'defeat']; rb.alt = won ? 'Victory' : 'Defeat'; rb.style.display = (G.decline && G.decline.done) ? 'none' : ''; } }
   $('#endKicker').textContent = won ? (kind==='science' ? 'Science victory' : joined > G.rivals.length/2 ? 'Diplomatic victory' : 'Conquest victory') : 'Defeat';
   $('#endTitle').textContent = won ? (kind==='science' ? 'Your starship lifts off' : 'Every nation answers to you')
@@ -151,6 +151,7 @@ function calcGlory(won){
     ['Cities founded', 10*(st.founded||0)],
     ['Cities taken', 30*(st.captured||0)],
     ['Warlords slain', 40*(st.warlords||0)],
+    ['Capitals razed', 60*(G.razed||0)],
     ['Wild sites', 15*((st.ruins||0) + (st.camps||0) + (st.wonders||0))],
     ['Victory', won ? 400 : 0],
     [G.grade ? GRADES[G.grade.i].n+' grade' : '', won && G.grade ? GRADES[G.grade.i].g : 0],

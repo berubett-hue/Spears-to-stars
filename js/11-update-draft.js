@@ -1,11 +1,12 @@
 "use strict";
 /* ---------- Update ---------- */
 function update(dt){
+  if(R.conqQ && !modal && !G.ended){ const q = R.conqQ; R.conqQ = null; openConquest(q); if(modal) return; }
   G.t += dt;
   for(const k in G.cd) G.cd[k] = Math.max(0, G.cd[k]-dt);
   for(const k in G.buff) G.buff[k] = Math.max(0, G.buff[k]-dt);
   G.econAcc += dt;
-  while(G.econAcc >= .5){ G.econAcc -= .5; if(R.bdirty) rebuildB(); econ(.5); rivalEcon(.5); if(!G.arena){ moraleTick(.5); battleTick(.5); focusTick(); levyTick(.5); unrestTick(); if(G.decline) declineTick(); } diplomacy(.5); constructBuildings(.5); if(!G.arena) hostTick(); }
+  while(G.econAcc >= .5){ G.econAcc -= .5; if(R.bdirty) rebuildB(); econ(.5); rivalEcon(.5); if(!G.arena){ moraleTick(.5); battleTick(.5); focusTick(); levyTick(.5); unrestTick(); if(G.decline) declineTick(); } diplomacy(.5); constructBuildings(.5); if(!G.arena){ hostTick(); holdTick(); } }
   if(!G.arena && !modal){ G.eraT = (G.eraT||0) + dt; if(G.eraT > 1){ G.eraT = 0; const o = G.eraIdx; if(Math.min(eraOfLevel(G.level||0), timeEra(G.t)) > o){ refreshStats(); if(G.eraIdx > o) eraUp(o); } } }
   const dm = DOCT[G.doctrine];
   G.borderAcc += (.45 + .12*citiesOf(PLAYER).length) * (1+S.border) * dm.border * dt;
@@ -221,7 +222,7 @@ function levelOptions(){
     for(const id in CARDS) if(lineEra(id) <= G.eraIdx && !slotOf(id) && isUnlocked(id) && lineAllowed(id) && (!G.list || G.list.includes(id)) && !G.cards.some(sl => { const ev = sl.evo && UEVO.find(e => e.id===sl.evo); return ev && ev.with===id; })) nw.push({t:{ucard:'new', id}, w:1.4 + CARDS[id].era*.25});
     shuffle(nw).slice(0, 4).forEach(x => pool.mil.push(x));
     if(false){ // strangers retired: the draft only offers troops from your army list
-      const lk = Object.keys(CARDS).filter(id => !isUnlocked(id) && !CARDS[id].secret && CARDS[id].era <= G.eraIdx && !slotOf(id) && ACH.some(a => a.id===id));
+      const lk = Object.keys(CARDS).filter(id => !isUnlocked(id) && !CARDS[id].secret && CARDS[id].era <= G.eraIdx && !slotOf(id) && !!achFor(id));
       if(lk.length){ pool.mil.push({t:{ucard:'new', id:lk[rint(lk.length)], str:1}, w:1e6}); }
     }
   }
@@ -390,7 +391,7 @@ function unitCardHTML(t){
     const sq = squadSize(PLAYER, t.id); extra += '<span class="up">Squads of '+sq+' · each takes '+supOf(t.id)+' army room · '+({guard:'holds cities',rider:'hunts raiders',archer:'fires from range',siege:'breaks walls in war',support:'follows your troops',titan:'smashes through crowds'})[C.role]+'</span>';
     const partners = COMBOS.filter(c => (c.a===t.id && (c.b ? slotOf(c.b) : G.cards.some(s => CARDS[s.id].tags.includes(c.tag)))) || (c.b===t.id && slotOf(c.a)) || (c.tag && C.tags.includes(c.tag) && slotOf(c.a)));
     extra += vsHTML(t.id) + abilLine(t.id) + ladderHTML(t.id, 1);
-    if(t.str){ const a = ACH.find(x => x.id===t.id); extra = '<span class="rankup">✦ A troop you have not unlocked. Try it this game. Unlock for good: '+esc(a ? a.d : '')+'</span>' + extra; }
+    if(t.str){ const a = achFor(t.id); extra = '<span class="rankup">✦ A troop you have not unlocked. Try it this game. Unlock for good: '+esc(a ? a.d : '')+'</span>' + extra; }
     { const kn = knownEvos(t.id); if(kn.length) extra += '<span class="abil">'+kn.map(ev => (ev.union ? 'Union' : 'Evolution')+': '+evoRecipe(ev)+' → '+ev.n).join('<br>')+'</span>'; else if(hasHidden(t.id)) extra += '<span class="abil">◆ ? This line hides an evolution</span>'; }
   } else {
     const nl = sl.lvl + 1; label = (isCore(t.id) ? '♛ Core · ' : G.core && !G.demo ? 'Support · ' : '')+'Level '+nl+' · '+FORM_ERA[nl-1]; desc = '<b class="morph">'+esc(formOf(t.id, sl.lvl).n)+' → '+esc(formOf(t.id, nl).n)+'</b>'+lvText(C, nl);
@@ -453,7 +454,7 @@ function choose(t){
   if(t.ucard==='rnew'){ if((G.relics||[]).length < relicSlots()) G.relics.push({id:t.id, lvl:1}); toast(RELICS[t.id].n+' adopted','good'); }
   else if(t.ucard==='rlvl'){ const r = G.relics.find(x => x.id===t.id); r.lvl = Math.min(RELICS[t.id].max, r.lvl+1); toast(RELICS[t.id].n+' reaches level '+r.lvl,'good'); }
   else if(t.ucard==='new'){ if(G.cards.length < cardSlots()) G.cards.push({id:t.id, lvl:Math.min(lvlFloor(PLAYER), cardCap(t.id)), evo:null, str:t.str ? 1 : 0}); G.stats.maxCards = Math.max(G.stats.maxCards||0, G.cards.length); mxAdd(t.id, 10);
-    if(t.str){ const a = ACH.find(x => x.id===t.id); banner(CARDS[t.id].n, 'A stranger joins, for this game only'); toast('A stranger joins: '+CARDS[t.id].n+' fight for you this game. Unlock them for good: '+(a ? a.d : ''),'good'); }
+    if(t.str){ const a = achFor(t.id); banner(CARDS[t.id].n, 'A stranger joins, for this game only'); toast('A stranger joins: '+CARDS[t.id].n+' fight for you this game. Unlock them for good: '+(a ? a.d : ''),'good'); }
     else toast(formName(PLAYER, t.id)+' join your army','good'); }
   else if(t.ucard==='lvl'){ const sl = slotOf(t.id); sl.lvl = Math.min(cardCap(t.id), sl.lvl+1); mxAdd(t.id, 15); rankUp(t.id, sl.lvl); }
   else if(t.ucard==='heal'){ G.units.forEach(u => { if(u.owner===PLAYER && u.card) u.hp = uStat(u).hp; }); citiesOf(PLAYER).forEach(c => c.hp = cityMax(c)); toast('Your troops and cities are restored','good'); }

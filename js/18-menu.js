@@ -43,7 +43,7 @@ function refreshHome(){
   dot('#hLegacy', lgCan());
   dot('#hUnlocks', !!META.ack && [...META.unl].some(id => !META.ack.has(id) && !BASE_UNLOCKED.includes(id)));
   dot('#btnCollect', (META.colSeen||'') !== colSig() && META.life.games > 0);
-  { const hn = $('#hNext'); if(hn && META.life.games > 0) hn.innerHTML = nextHTML(2, 'Closest unlocks'); }
+  { const hn = $('#hNext'); if(hn){ const note = SAVE_RESET ? '<div class="nextun alpha-note"><h4>Alpha update · fresh start</h4><span>Progress was reset for the new unlock system. Peoples now arrive with their troop line through feats inside a game, wins, the Crown ladder, and hidden strongholds on the map. Check Unlocks to see every goal.</span></div>' : ''; hn.innerHTML = note + (META.life.games > 0 ? nextHTML(2, 'Closest unlocks') : ''); } }
 }
 function openMenuOv(id){ R.menuOv = id; const e = $('#'+id); if(e) e.hidden = false; SFX.init(); SFX.tick && SFX.tick(); }
 function closeMenuOv(){ const id = R.menuOv; R.menuOv = null; if(id){ const e = $('#'+id); if(e) e.hidden = true; } if(id==='ovStart' || id==='ovWiz'){} refreshHome(); }
@@ -80,19 +80,22 @@ function openLegacy(){ renderLegacy(); openMenuOv('ovLegacy'); }
 function unlRows(){
   const rows = [];
   for(const a of ACH){
-    if(a.secret && !isUnlocked(a.id)) continue;
-    const done = isUnlocked(a.id), p = a.prog ? a.prog() : null, kind = a.id.startsWith('nat:') ? 'Peoples' : a.id.startsWith('diff:') ? 'Crowns' : 'Troops';
-    const name = kind==='Troops' ? CARDS[a.id].n : kind==='Peoples' ? (NATIONS_P.find(n => 'nat:'+n.id===a.id)||{}).n : 'The Crown ladder';
-    rows.push({id:a.id, kind, name, d:a.d, done, p, frac: done ? 1 : p ? Math.min(1, p[0]/p[1]) : 0, fresh: done && META.ack && !META.ack.has(a.id), troop: kind==='Troops' ? a.id : null});
+    const done = isUnlocked(a.id), p = a.prog ? a.prog() : null, frac = done ? 1 : p ? Math.min(1, p[0]/p[1]) : 0, fresh = done && META.ack && !META.ack.has(a.id);
+    if(a.secret){ const n = NATIONS_P.find(x => x.id===a.id), sc = SECRETS.find(x => x.id===a.id) || {};
+      rows.push({id:a.id, kind:'Hidden peoples', name:done ? n.n+' + '+CARDS[a.id].n : '??? · a hidden people', d:done ? 'Taken from their stronghold' : '“'+(sc.clue||'')+'” Their stronghold appears from Crown '+a.crown, done, p:null, frac, fresh, troop:done ? a.id : null}); continue; }
+    if(a.id.startsWith('diff:')){ rows.push({id:a.id, kind:'Crowns', name:'The Crown ladder', d:a.d, done, p, frac, fresh}); continue; }
+    if(a.id.startsWith('nat:')){ const n = NATIONS_P.find(x => 'nat:'+x.id===a.id); rows.push({id:a.id, kind:'Peoples', name:n.n+(a.pair ? ' + '+CARDS[a.pair].n : ''), d:a.d, done, p, frac, fresh, troop:a.pair || null}); continue; }
+    const np = linePeople(a.id);
+    rows.push({id:a.id, kind:np ? 'Peoples' : 'Troops', name:np ? np.n+' + '+CARDS[a.id].n : CARDS[a.id].n, d:a.d, done, p, frac, fresh, troop:a.id});
   }
-  for(const n of NATIONS_P) if(!n.lock && !n.secret){ const need = n.start, got = need.filter(isUnlocked).length; rows.push({id:'nat:'+n.id, kind:'Peoples', name:n.n, d:'Unlock '+need.map(id => CARDS[id].n).join(' and '), done:got===need.length, p:need.length > 1 ? [got, need.length] : null, frac:got/need.length, fresh:false}); }
+  for(const n of NATIONS_P) if(!n.lock && !n.secret && n.start.every(id => BASE_UNLOCKED.includes(id))) rows.push({id:'nat:'+n.id, kind:'Peoples', name:n.n+' + '+n.start.map(id => CARDS[id].n).join(' + '), d:'Ready from the start', done:true, p:null, frac:1, fresh:false, troop:n.start[0]});
   for(const n of NATIONS_P) if(natOK(n)) QUESTS[n.id].forEach((q, k) => { const id = n.id+':'+k, dn = META.qd.has(id), b = Math.min(q.g, META.q[id]||0); rows.push({id:'q:'+id, kind:'Quests', name:n.n+' · quest '+(k+1), d:q.d+' · +'+Q_REW[k]+' Glory', done:dn, p:q.g > 1 ? [b, q.g] : null, frac:dn ? 1 : b/q.g, fresh:false}); });
   { const c = META.crown||0; for(let i=1;i<=10;i++) rows.push({id:'cr:'+i, kind:'Crowns', name:'Crown '+i+' · '+CROWNS[i].n, d:i <= c ? CROWNS[i].d : 'Win at Crown '+(i-1)+' to open it', done:i <= c, p:null, frac:i <= c ? 1 : 0, fresh:false}); }
   for(const id of Object.keys(CARDS).filter(isUnlocked)){ const r = mRank(id); if(r >= MX_T.length) continue; const xp = META.mx[id]||0, lo = MX_T[r-1]||0; rows.push({id:'mx:'+id, kind:'Mastery', name:CARDS[id].n+' · rank '+(r+1), d:mPerk(r+1), done:false, p:[xp, MX_T[r]], frac:(xp-lo)/(MX_T[r]-lo), fresh:false, troop:id}); }
   return rows;
 }
 function renderUnlocks(){
-  const rows = unlRows(), sec = ['Troops','Peoples','Crowns','Quests','Mastery'];
+  const rows = unlRows(), sec = ['Peoples','Troops','Hidden peoples','Crowns','Quests','Mastery'];
   const total = rows.filter(r => r.kind!=='Mastery'), done = total.filter(r => r.done).length;
   $('#unlKicker').textContent = 'Unlocks · '+done+' of '+total.length+' complete';
   let h = '';
@@ -107,7 +110,6 @@ function renderUnlocks(){
     }
     h += '</div>';
   }
-  h += '<h3>Secrets · '+SECRETS.filter(x => isUnlocked(x.id)).length+' of '+SECRETS.length+' found</h3><p class="lnote">'+SECRETS.length+' secret troop lines are hidden in this land. Their conditions are unknown. Their clues are in the Collection.</p>';
   $('#unlBody').innerHTML = h;
 }
 function openUnlocks(){ renderUnlocks(); openMenuOv('ovUnl'); if(!META.ack) META.ack = new Set(); META.unl.forEach(id => META.ack.add(id)); saveLife(); }

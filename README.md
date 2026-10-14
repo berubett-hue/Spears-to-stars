@@ -34,6 +34,7 @@ js/               the game, split by system, loaded in this order:
   11-update-draft.js       main update, level-up draft, ages, hidden peoples, big moments
   12-events-meta.js        events, decrees, morale, grades, quests, unlock progress, artifacts
   13-decline.js            Decline and Fall
+  13s-strongholds.js       hidden strongholds of the six hidden peoples
   14-fx-audio.js           effects, sound, generative music
   15-render.js             pixel art, troop forms, map rendering
   16-hud.js                HUD, damage meter, goals, battles, diplomacy panel, ledger
