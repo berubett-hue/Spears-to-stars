@@ -14,7 +14,7 @@ function frame(now){
     const hsel = heroOf(PLAYER);
     R.heroDir = hsel ? {x:kx, y:ky} : null;
     if(!hsel){ ax += kx; ay += ky; }
-    if(hsel && (kx || ky)){ if(R.follow){ R.follow = null; R.camZ = null; syncWatch(); } }
+    if(hsel && (kx || ky)){ if(R.follow){ R.follow = null; R.camZ = null; syncWatch(); } if(R.camFree){ R.camFree = false; R.camTo = null; } }
     if(ax || ay){ const sp = 720/CAM.z*dtr; CAM.x += ax*sp; CAM.y += ay*sp; R.camTo = null; R.camFree = true; if(R.follow){ R.follow = null; R.camZ = null; syncWatch(); } clampCam(); }
     if(hsel && !R.camFree && !R.follow && running && !G.ended){ const k = 1 - Math.pow(.02, dtr), ty = hsel.y + (R.camOffY||0)/CAM.z; CAM.x += (hsel.x - CAM.x)*k; CAM.y += (ty - CAM.y)*k; R.camTo = null; clampCam(); }
 

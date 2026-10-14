@@ -415,8 +415,10 @@ function zLimits(){ return {min: Math.max(3, Math.min(VW, VH)/N*.95), max: 60}; 
 function clampCam(){
   const L = zLimits(); CAM.z = clamp(CAM.z, L.min, L.max);
   const hw = VW/2/CAM.z, hh = VH/2/CAM.z;
-  CAM.x = hw*2 >= N ? N/2 : clamp(CAM.x, hw, N-hw);
-  CAM.y = hh*2 >= N ? N/2 : clamp(CAM.y, hh, N-hh);
+  // let the view run a little past the map edge (and past the HUD panels) so edge cities are never hidden
+  const hp = R.hudPad || {t:0, b:0}, mx = 3, padT = mx + hp.t/CAM.z, padB = mx + hp.b/CAM.z;
+  CAM.x = (hw - mx)*2 >= N ? N/2 : clamp(CAM.x, hw - mx, N - hw + mx);
+  CAM.y = (hh*2 - padT - padB) >= N ? N/2 : clamp(CAM.y, hh - padT, N - hh + padB);
 }
 function focusOn(x,y){ R.camTo = {x, y}; R.follow = null; R.camZ = null; R.camFree = true; syncWatch(); }
 function findBattle(near){
@@ -455,7 +457,7 @@ function resize(){
   { const tb = $('#topbar'), dk = $('#deck'), ov = !!(st && typeof getComputedStyle==='function' && getComputedStyle(st).position==='fixed');
     const th = tb && tb.getBoundingClientRect ? tb.getBoundingClientRect().height : 0, dh = dk && dk.getBoundingClientRect ? dk.getBoundingClientRect().height : 0;
     try { document.documentElement.style.setProperty('--topH', Math.round(th-20)+'px'); document.documentElement.style.setProperty('--deckH', Math.round(dh-14)+'px'); } catch(e){}
-    R.camOffY = ov ? (dh - th)/2 : 0; }
+    R.camOffY = ov ? (dh - th)/2 : 0; R.hudPad = ov ? {t:th, b:dh} : {t:0, b:0}; }
   cv.width = Math.round(VW*dpr); cv.height = Math.round(VH*dpr);
   if(mini){ const ms = mini.clientWidth || 104; mini.width = Math.round(ms*dpr); mini.height = Math.round(ms*dpr); }
   clampCam();
