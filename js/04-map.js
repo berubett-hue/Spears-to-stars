@@ -204,7 +204,7 @@ function hostTick(){
   }
   const free = G.units.filter(u => u.owner===PLAYER && u.hp>0 && u.card && !u.hero && !u.gar && !u.fol && !u.rel);
   let total = 0; for(const u of G.units) if(u.owner===PLAYER && u.hp>0 && u.card && !u.hero) total++;
-  let budget = Math.ceil(total*(G.doctrine==='defend' ? .55 : .4));
+  let budget = (G.banT||0) > G.t ? 0 : Math.ceil(total*(G.doctrine==='defend' ? .55 : .4));
   const dl = (R.dangerAll && R.dangerAll.get(PLAYER)) || [];
   cs.sort((a,b) => (dl.includes(b.id) - dl.includes(a.id)) || (b.capital - a.capital) || (b.pop - a.pop));
   for(const c of cs){

@@ -555,6 +555,7 @@ function nationStep(u, dt, cityById, unitById){
     const ti = idx(clamp(Math.floor(u.x),0,N-1), clamp(Math.floor(u.y),0,N-1));
     let s = st.spd*mul*(own!==PLAYER && G.own[ti]===PLAYER && proto('scorched') ? .65 : 1)*(formFly(u.card, cardLevel(own, u.card)) || (cardEvo(own, u.card)||{}).fly ? 1 : MOVE[G.ter[ti]])*(u.slow > 0 ? .5 : 1);
     if(own!==PLAYER && S.barbSlow && G.own[ti]===PLAYER) s *= .55;
+    if(u.fmT > G.t) s *= 1.7;
     const m = Math.min(d, s*dt); u.x += (tx-u.x)/d*m; u.y += (ty-u.y)/d*m; u.mv = (u.mv||0) + m;
     if(Math.abs(tx-u.x) > .05) u.fx = tx<u.x ? -1 : 1;
   };
@@ -589,7 +590,8 @@ function nationStep(u, dt, cityById, unitById){
   let fh = null;
   if(u.fol){ fh = unitById.get(u.fol); if(!fh || fh.hp<=0 || fh.owner!==own){ u.fol = 0; fh = null; } }
   const raiding = !fh && isRaider(u);
-  if(fh){ if(u.rt<=0){ u.rt = .35;
+  if(fh && u.fmT > G.t && (fh.x-u.x)**2 + (fh.y-u.y)**2 > 36){ u.tgt = 0; u.tcity = 0; u.eng = false; u.rt = .35; }  // forced march: answer the banners first, fight later
+  else if(fh){ if(u.rt<=0){ u.rt = .35;
     // once the band engages it stays in the fight until the enemy (or the soldier) is dead, then rejoins the general
     const cur = unitById.get(u.tgt);
     const ord = own===PLAYER ? (G.order||'charge') : 'charge';

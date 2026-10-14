@@ -127,6 +127,29 @@ function selectHero(){
 function heroGarrison(){ const h = heroOf(PLAYER); if(!h) return;
   if(!G.units.some(v => v.fol===h.id && v.hp>0)){ let r = 0; for(const v of G.units) if(v.owner===PLAYER && v.rel){ v.rel = 0; r++; } toast(r ? r+' troops march back to your general' : 'No released troops to recall','good'); hostTick(); return; }
   const c = nearOwnCity(h, 2.5); let n = 0; for(const v of G.units) if(v.fol===h.id && v.hp>0){ v.fol = 0; v.rel = 1; if(c) v.home = c.id; n++; } toast(n ? n+' troops leave the band'+(c ? ' to guard '+c.name : ' and head home') : 'No troops in the band','good'); h.gatherT = G.t + 6; }
+/* Call the Banners: every troop on the map marches to your general, at a forced-march pace */
+const BAN_CD = 90, BAN_T = 35, BAN_MARCH = 30;
+function callBanners(){
+  if(!G || G.ended) return;
+  const h = heroOf(PLAYER); if(!h){ toast('Your general must be on the field to call the banners','warn'); return; }
+  if(G.t < (G.banCd||0)){ toast('The banners can be called again in '+Math.ceil(G.banCd - G.t)+'s','warn'); return; }
+  let n = 0;
+  for(const v of G.units){
+    if(v.owner!==PLAYER || v.hp<=0 || !v.card || v.hero) continue;
+    const far = (v.x-h.x)**2 + (v.y-h.y)**2 > 36;
+    if(v.fol!==h.id || far){ v.gar = 0; v.rel = 0; v.fol = h.id; v.tgt = 0; v.tcity = 0; n++; if(onScr(v.x, v.y)) ring(v.x, v.y, .1, .6, '#ffd36a', .5); }
+    v.fmT = G.t + BAN_MARCH;
+  }
+  if(!n){ toast('Every troop already marches with your general','good'); return; }
+  G.banCd = G.t + BAN_CD; G.banT = G.t + BAN_T;
+  const H = HEROES[h.hero] || {};
+  banner('Call the Banners', n+' troops march to '+(H.n || 'your general'));
+  toast('⚑ '+n+' troops break off and march to your general. Your cities keep only their towers until you Release (G)','good',{x:h.x, y:h.y});
+  SFX.q && SFX.q('horn', h.x, h.y, 1); MUS.sting && MUS.sting('focus');
+  ring(h.x, h.y, .3, 4.5, '#ffd36a', 1); ring(h.x, h.y, .2, 2.5, '#fff1cf', .8); float('TO ME!', h.x, h.y-1.4, '#ffd36a', 1.6); R.floats[R.floats.length-1].big = 1;
+  R.shake = Math.min(6, (R.shake||0) + 2);
+  hostTick();
+}
 function heroUse(){ const h = heroOf(PLAYER); if(!h){ toast('Your hero returns in '+Math.max(0, Math.ceil(G.hero.t - G.t))+'s','warn'); return; } if((h.acd||0) > 0){ toast(HEROES[h.hero].act+' is ready in '+Math.ceil(h.acd)+'s','warn'); return; } if(!heroActive(h)) toast('No targets for '+HEROES[h.hero].act,'warn'); }
 function heroHud(){
   const el = document.getElementById('heroCard'); if(!el || !el.classList || !G || !G.hero) return;
@@ -142,6 +165,8 @@ function heroHud(){
   document.getElementById('hcActN').textContent = H.act; { const ai = document.getElementById('hcActI'), u = KIT['ab_'+ABKEY[key]]; if(ai && u && ai.getAttribute('src') !== u) ai.src = u; } act.classList.toggle('ready', !!h && cd <= 0);
   document.getElementById('hcCd').style.height = (h ? clamp(cd/H.cd, 0, 1)*100 : 100)+'%';
   act.title = H.act+': '+H.ad+' (Space). '+H.sig;
+  { const bb = document.getElementById('hcBan'); if(bb){ const cd = Math.max(0, (G.banCd||0) - G.t); bb.disabled = !h; bb.classList.toggle('ready', !!h && cd <= 0); bb.classList.toggle('live', (G.banT||0) > G.t);
+      document.getElementById('hcBanCd').style.height = (h ? clamp(cd/BAN_CD, 0, 1)*100 : 100)+'%'; document.getElementById('hcBanK').textContent = cd > 0 ? Math.ceil(cd)+'s' : 'Y'; } }
   const rb = document.getElementById('hcRally');
   rb.disabled = !fol;
   document.getElementById('hcRallyN').textContent = 'Release';
@@ -185,6 +210,7 @@ function bind(){
   document.querySelectorAll('#orders button').forEach(b => b.addEventListener('click', () => setOrder(b.dataset.o)));
   $('#btnFollow').addEventListener('click', () => { if(G && running && !modal) selectHero(); });
   $('#hcRally').addEventListener('click', () => { if(G && running && !modal && !paused) heroGarrison(); });
+  { const bb = $('#hcBan'); if(bb) bb.addEventListener('click', () => { if(G && running && !modal && !paused) callBanners(); }); }
   $('#btnAgain').addEventListener('click', begin);
   $('#btnMenu').addEventListener('click', () => goHome(false));
   $('#btnRestart').addEventListener('click', () => goHome(true));
@@ -292,6 +318,7 @@ function bind(){
     else if(k==='p'){ if(paused) closePause(); else if(!modal) openPause(); }
     else if(k==='h'){ if(!modal && !paused) selectHero(); }
     else if(k==='g'){ if(!modal && !paused) heroGarrison(); }
+    else if(k==='y'){ if(!modal && !paused) callBanners(); }
     else if(k==='escape'){ if(modal==='diplo') closeDiplo(); else if(modal==='army') closeArmy(); else if(modal==='ledger') closeLedger(); else if(modal==='arena') closeArena(); else if(modal==='collect') closeCollect(); else if(modal==='chest' && !R.chestOpts) closeChest(); else if(paused) closePause(); }
     else if(modal==='chest' && R.chestOpts && /^[1-3]$/.test(k)) pickChest(+k-1);
     else if((modal==='draft' || modal==='muster') && /^[1-5]$/.test(k)){ const c = (modal==='muster' ? R.mchoices : R.choices)[+k-1]; if(c) choose(c); }

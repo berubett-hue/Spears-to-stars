@@ -1182,3 +1182,17 @@ img[src^="data:image/png"].hand,.artlist .ucard img,.col-item img.ai,#hcArtRow i
 [data-k="mobilize"]{--ki:url(../art/ui/action_mobilize.png)}
 [data-k="golden"]{--ki:url(../art/ui/action_golden.png)}
 [data-k="fortify"]{--ki:url(../art/ui/action_fortify.png)}
+/* Call the Banners */
+.hc-ban{position:relative;overflow:hidden}
+.hc-ban.ready{border-image-source:var(--b-h);box-shadow:0 0 12px rgba(244,184,74,.35)}
+.hc-ban.live .ui-ic{animation:banw .5s ease-in-out infinite alternate}
+@keyframes banw{from{transform:rotate(-8deg)}to{transform:rotate(8deg)}}
+.hc-ban .hc-cd{z-index:0}
+@media (max-width:400px){
+  .hc-act:not(.hc-rally) b{font-size:10px}
+  .hc-ban{width:35px}
+}
+@media (max-width:440px){
+  .hc-act:not(.hc-rally){min-width:40px;width:42px}
+  .hc-act:not(.hc-rally) b,.hc-act:not(.hc-rally) span{display:none}
+}
