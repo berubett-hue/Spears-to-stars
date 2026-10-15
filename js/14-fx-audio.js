@@ -27,10 +27,10 @@ function toast(msg,kind,at){
   while(box.children.length > 3) box.firstChild.remove();
   setTimeout(() => el.remove(), at ? (at.watch ? 7000 : 4200) : 2800);
 }
-function banner(title, kicker){
+function banner(title, kicker, img){
   if(G && G.demo) return;
   const b = $('#banner'); if(!b) return;
-  b.innerHTML = '<div><small>'+esc(kicker)+'</small><strong>'+esc(title)+'</strong></div>';
+  b.innerHTML = '<div>'+(img ? '<img class="bn-img" src="'+img+'" alt="">' : '')+'<small>'+esc(kicker)+'</small><strong>'+esc(title)+'</strong></div>';
 }
 
 /* ---------- Sound ---------- */

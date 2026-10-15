@@ -45,6 +45,10 @@ function makeHold(pid, s){
   R.dirty = true; R.bdirty = true;
   return r;
 }
+function holdPic(r){
+  try { if(kOk('ev_hold')){ const c = tintKit('ev_hold', r.col); if(c && c.toDataURL) return c.toDataURL(); } } catch(e){}
+  return KIT.ev_hold;
+}
 function holdTick(){
   if(!G.holds || !G.holds.length) return;
   for(const h of G.holds){
@@ -52,7 +56,7 @@ function holdTick(){
     const r = rival(h.id), c = G.cities.find(k => k.id===h.c); if(!r || !c) continue;
     if(!h.found && fogSee(c.x+.5, c.y+.5)){
       h.found = true;
-      banner(r.name, 'A hidden stronghold');
+      banner(r.name, 'A hidden stronghold', holdPic(r));
       toast('You found the stronghold of '+r.name+'. They will never attack you. Take it and they join your peoples for good','good',{x:c.x+.5, y:c.y+.5});
       MUS.sting && MUS.sting('focus'); R.shake = Math.min(5, (R.shake||0) + 2);
     }

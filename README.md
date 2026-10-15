@@ -1,6 +1,8 @@
 # Spears to Stars
 
-A fifteen-minute civilization. Vampire Survivors meets Civilization: lead your people from spears to starships, draft troop lines as you level, conquer the map, and hold your capital through the Decline and Fall.
+![Spears to Stars](art/ui/og.jpg)
+
+A twenty-minute civilization. Vampire Survivors meets Civilization: lead your people from spears to starships, draft troop lines as you level, conquer the map, and hold your capital through the Decline and Fall.
 
 Built entirely through prompting by Tim Berube.
 
@@ -45,6 +47,8 @@ art/              every image and the pixel font, grouped by use
   sprites/                 the big sheets (troops, generals, cities, barbarians, map tiles, effects)
   hud/  ui/                in-game HUD icons and frames
   manifest.json            list of every art file and its size
+  planned/                 finished art for features not built yet (governments, resource sites, the Horde)
+  store/                   logo, app icon and wide banners for store pages and sharing
 tools/            developer tools (Node)
 ```
 

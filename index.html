@@ -4,6 +4,18 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <link rel="icon" href="art/ui/favicon.png">
+<link rel="apple-touch-icon" href="art/ui/icon_180.png">
+<meta name="theme-color" content="#0d1420">
+<meta name="description" content="A twenty-minute civilization: lead your people from spears to starships, conquer the map and hold your capital through the Decline and Fall.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Spears to Stars">
+<meta property="og:description" content="A twenty-minute civilization: lead your people from spears to starships. Plays on phone and PC.">
+<meta property="og:url" content="https://berubett-hue.github.io/Spears-to-stars/">
+<meta property="og:image" content="https://berubett-hue.github.io/Spears-to-stars/art/ui/og.jpg">
+<meta property="og:image:width" content="1280">
+<meta property="og:image:height" content="640">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://berubett-hue.github.io/Spears-to-stars/art/ui/og.jpg">
 <title>Spears to Stars</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -69,7 +81,7 @@
 
   <section class="deck" id="deck">
     <button class="fold fold-bot" id="foldBot" aria-label="Collapse the bottom panel" title="Show less"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button>
-    <div class="armywrap"><div class="herocard" id="heroCard"><button class="hc-main" id="hcSel" title="Back to your hero (H)"><img id="hcImg" alt=""><span class="hc-txt"><b id="hcName">Hero</b><i class="hc-hp"><i id="hcHp"></i></i><span id="hcSub">—</span></span></button><button class="hc-act" id="hcAct" title="Hero ability (Space)"><i class="hc-cd" id="hcCd"></i><img id="hcActI" alt=""><b id="hcActN">Ability</b><span>Space</span></button><button class="hc-act hc-rally" id="hcRally" title="Release your band: they guard the nearest city (G)"><img class="ui-ic" data-kit="u_release" alt=""><b id="hcRallyN">Release</b><span id="hcRallyK">G</span></button><button class="hc-act hc-rally hc-ban" id="hcBan" title="Call the Banners (Y): every troop on the map marches to your general. Your cities keep only their towers until you Release (G)"><i class="hc-cd" id="hcBanCd"></i><img class="ui-ic" data-kit="u_rally" data-tint="1" alt=""><b>Banners</b><span id="hcBanK">Y</span></button><div class="orders" id="orders"><button data-o="charge" title="Charge (Q): your Host rushes every enemy nearby"><img class="ui-ic" data-kit="u_charge" alt=""><b>Charge</b><span>Q</span></button><button data-o="hold" title="Hold (E): your Host forms up around you and takes less damage"><img class="ui-ic" data-kit="u_hold" data-tint="1" alt=""><b>Hold</b><span>E</span></button><button data-o="fall" title="Fall back (R): your Host breaks off, runs to you and heals"><img class="ui-ic" data-kit="u_fallback" alt=""><b>Fall back</b><span>R</span></button></div><button class="hc-act hc-arts" id="hcArts" title="Artifacts your hero carries. Find them in ruins and barbarian camps"><i class="hc-artrow" id="hcArtRow"></i><span id="hcArtN">0/6</span></button></div><div class="mclock" id="mclock" title="Your level and era"><b>Lv 0</b><span>Ancient</span></div><div class="armybar" id="armybar" aria-label="Your army slots"></div></div>
+    <div class="armywrap"><div class="herocard" id="heroCard"><button class="hc-main" id="hcSel" title="Back to your hero (H)"><img id="hcImg" alt=""><span class="hc-txt"><b id="hcName">Hero</b><i class="hc-hp"><i id="hcHp"></i></i><span id="hcSub">—</span></span></button><button class="hc-act" id="hcAct" title="Hero ability (Space)"><i class="hc-cd" id="hcCd"></i><img id="hcActI" alt=""><b id="hcActN">Ability</b><span>Space</span></button><button class="hc-act hc-rally" id="hcRally" title="Release your band: they guard the nearest city (G)"><img class="ui-ic" data-kit="u_release" alt=""><b id="hcRallyN">Release</b><span id="hcRallyK">G</span></button><button class="hc-act hc-rally hc-ban" id="hcBan" title="Call the Banners (Y): every troop on the map marches to your general. Your cities keep only their towers until you Release (G)"><i class="hc-cd" id="hcBanCd"></i><img class="ui-ic" data-kit="u_banners" data-tint="1" alt=""><b>Banners</b><span id="hcBanK">Y</span></button><div class="orders" id="orders"><button data-o="charge" title="Charge (Q): your Host rushes every enemy nearby"><img class="ui-ic" data-kit="u_charge" alt=""><b>Charge</b><span>Q</span></button><button data-o="hold" title="Hold (E): your Host forms up around you and takes less damage"><img class="ui-ic" data-kit="u_hold" data-tint="1" alt=""><b>Hold</b><span>E</span></button><button data-o="fall" title="Fall back (R): your Host breaks off, runs to you and heals"><img class="ui-ic" data-kit="u_fallback" alt=""><b>Fall back</b><span>R</span></button></div><button class="hc-act hc-arts" id="hcArts" title="Artifacts your hero carries. Find them in ruins and barbarian camps"><i class="hc-artrow" id="hcArtRow"></i><span id="hcArtN">0/6</span></button></div><div class="mclock" id="mclock" title="Your level and era"><b>Lv 0</b><span>Ancient</span></div><div class="armybar" id="armybar" aria-label="Your army slots"></div></div>
     <div class="row3 doctrine" id="doctrine">
       <button data-d="expand" class="on"><b>Expand</b><span>Settlers &amp; riders</span></button>
       <button data-d="build"><b>Build</b><span>Food &amp; science</span></button>
@@ -88,8 +100,8 @@
   <i class="home-corner tl"></i><i class="home-corner tr"></i><i class="home-corner bl"></i><i class="home-corner br"></i>
   <div class="home-top"><span class="glory" title="Glory: earned every game, spent in Legacy"><img class="crest" data-ui="crest" alt=""><i class="coin"></i> <b id="hGlory">0</b> <small>Glory</small></span><span class="hstats" id="hStats"></span></div>
   <div class="home-main">
-    <p class="kicker">A fifteen-minute civilization</p>
-    <h1 class="home-title"><img class="logo-w" data-ui="logo" alt="Spears to Stars"><img class="logo-s" data-ui="logo2" alt=""></h1>
+    <p class="kicker">A twenty-minute civilization</p>
+    <h1 class="home-title"><img class="logo-n" data-ui="logo3" alt="Spears to Stars"></h1>
     <div class="home-btns">
       <button class="primary big" id="hStart"><img class="bi" data-ui="i_start" alt="">Start</button>
       <button class="secondary" id="hContinue" hidden><img class="bi" data-ui="i_cont" alt="">Continue your empire</button>

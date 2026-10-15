@@ -98,9 +98,9 @@ function openConquest(q){
   const lineTxt = !C ? '' : has ? ' Their veterans swell your '+cardName(PLAYER, line)+'.' : room ? ' '+C.n+' join you as a support line for this game.' : ' Their veterans join you (no free troop slot for their line).';
   showEvent({kicker:'Conquest', img:KIT.vic_conquest, title:(c ? c.name : 'Their capital')+' is yours', text:'The '+r.name+' still hold '+nc+' cit'+(nc===1 ? 'y' : 'ies')+'. Their leader kneels. What becomes of them?',
     opts:[
-      {l:'Absorb them', s:'Their cities and army join your empire.'+lineTxt+' Their towns are restless for a minute', f:() => conqAbsorb(r.id, line)},
-      {l:'Make them a vassal', s:'They keep their land, fight beside you and pay '+trib+' influence a second. Vassals count as conquered', f:() => conqVassal(r.id)},
-      {l:'Raze the capital', s:'Burn '+(c ? c.name : 'it')+' for a War Chest and Glory. Every other nation trusts you less', f:() => conqRaze(r.id, c)}]});
+      {l:'Absorb them', ic:KIT.u_absorb, s:'Their cities and army join your empire.'+lineTxt+' Their towns are restless for a minute', f:() => conqAbsorb(r.id, line)},
+      {l:'Make them a vassal', ic:KIT.u_vassal, s:'They keep their land, fight beside you and pay '+trib+' influence a second. Vassals count as conquered', f:() => conqVassal(r.id)},
+      {l:'Raze the capital', ic:KIT.u_raze, s:'Burn '+(c ? c.name : 'it')+' for a War Chest and Glory. Every other nation trusts you less', f:() => conqRaze(r.id, c)}]});
 }
 function conqAbsorb(id, line){
   const r = rival(id); if(!r || !r.alive) return;
@@ -118,7 +118,7 @@ function conqVassal(id){
   const r = rival(id); if(!r || !r.alive) return;
   r.vassal = true; r.status = 'ally'; r.rel = 95; r.allyT = G.t; r.truceT = 0;
   G.rwars = G.rwars.filter(w => w.a!==id && w.b!==id);
-  banner(r.name, 'Bends the knee'); toast(r.name+' is now your vassal: they keep their land, fight your enemies and pay tribute','good');
+  banner(r.name, 'Bends the knee', KIT.u_vassal); toast(r.name+' is now your vassal: they keep their land, fight your enemies and pay tribute','good');
   SFX.era && SFX.era(); G.stats.vassals = (G.stats.vassals||0) + 1;
   checkVictory();
 }

@@ -50,7 +50,7 @@ function showEvent(ev){
   $('#evKicker').textContent = ev.kicker;
   $('#evTitle').textContent = ev.title;
   $('#evText').textContent = ev.text;
-  $('#evChoices').innerHTML = (ev.opts || [ev.a, ev.b]).map(o => '<button class="choice"><b>'+esc(o.l)+'</b><span>'+esc(o.s)+'</span></button>').join('');
+  $('#evChoices').innerHTML = (ev.opts || [ev.a, ev.b]).map(o => o.ic ? '<button class="choice has-ic"><img src="'+o.ic+'" alt=""><b>'+esc(o.l)+'</b><span>'+esc(o.s)+'</span></button>' : '<button class="choice"><b>'+esc(o.l)+'</b><span>'+esc(o.s)+'</span></button>').join('');
   [...$('#evChoices').children].forEach((el,i) => el.addEventListener('click', () => {
     if(performance.now() - R.openedAt < 350) return;
     resolveEvent(i);

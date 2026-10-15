@@ -89,7 +89,7 @@ function poiSpr(p){
   if(p.k==='shrine') return getSpr('poi_sh_'+p.sub, () => spriteFrom(padRows(POI_ICON.shrine), Object.assign({}, AP, {c:SHRINE[p.sub].c})));
   return getSpr('poi_'+p.k, () => spriteFrom(padRows(POI_ICON[p.k]), AP));
 }
-const poiName = p => p.k==='wonder' ? WONDER[p.sub].n : p.k==='shrine' ? SHRINE[p.sub].n : p.k==='camp' ? (p.big ? 'Barbarian stronghold' : 'Barbarian camp') : POI_NAME[p.k];
+const poiName = p => p.k==='wonder' ? WONDER[p.sub].n : p.k==='shrine' ? SHRINE[p.sub].n : p.k==='camp' ? (p.keep ? 'Pretender’s keep' : p.big ? 'Barbarian stronghold' : 'Barbarian camp') : POI_NAME[p.k];
 
 /* fog of war */
 const fogSee = (x, y) => !R.vis || !G || G.arena || G.demo || !!R.vis[tileAt(x, y)];
@@ -391,6 +391,12 @@ function drawPois(x, vis){
   for(const p of G.pois){
     if(p.dead || !vis(p.x, p.y, 2)) continue;
     if(!G.seen[idx(p.x, p.y)] && !chart) continue;
+    if(p.keep && p.st!=='loot' && kOk('poi_keep')){
+      const im = TINTC.keep || (TINTC.keep = greenTint(KIMG.poi_keep, [196, 52, 40])), w = 3.1, hh = w*im.height/im.width, cx = p.x+.5, by = p.y+1.1;
+      x.fillStyle = 'rgba(0,0,0,.3)'; x.beginPath(); x.ellipse(cx, by-.12, w*.44, w*.13, 0, 0, 6.283); x.fill();
+      x.imageSmoothingEnabled = true; x.drawImage(im, cx - w/2, by - hh, w, hh); x.imageSmoothingEnabled = false;
+      continue;
+    }
     const A = poiArt(p);
     if(A){
       const v = A.v, w = v[2]*KPOI*A.mul, hh = w*v[3]/v[2], cx = p.x+.5, by = p.y+.95;

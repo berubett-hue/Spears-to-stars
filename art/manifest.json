@@ -1,1292 +1,1234 @@
 [
  {
-  "file": "art/fonts/starspix.ttf",
-  "from": "css",
-  "bytes": 10076
- },
- {
-  "file": "art/ui/css_ui-gold.png",
-  "from": "css",
-  "bytes": 6285
- },
- {
-  "file": "art/ui/css_ui-goldh.png",
-  "from": "css",
-  "bytes": 4324
- },
- {
-  "file": "art/ui/css_ui-goldp.png",
-  "from": "css",
-  "bytes": 3846
- },
- {
-  "file": "art/ui/css_ui-goldd.png",
-  "from": "css",
-  "bytes": 3323
- },
- {
-  "file": "art/ui/css_ui-sec.png",
-  "from": "css",
-  "bytes": 4343
- },
- {
-  "file": "art/ui/css_ui-sech.png",
-  "from": "css",
-  "bytes": 4099
- },
- {
-  "file": "art/ui/css_ui-secp.png",
-  "from": "css",
-  "bytes": 3319
- },
- {
-  "file": "art/ui/css_ui-secd.png",
-  "from": "css",
-  "bytes": 3016
- },
- {
-  "file": "art/ui/css_ui-tile.png",
-  "from": "css",
-  "bytes": 15820
- },
- {
-  "file": "art/ui/css_ui-tileh.png",
-  "from": "css",
-  "bytes": 14383
- },
- {
-  "file": "art/ui/css_ui-win.png",
-  "from": "css",
-  "bytes": 27659
- },
- {
-  "file": "art/ui/css_ui-tabon.png",
-  "from": "css",
-  "bytes": 4379
- },
- {
-  "file": "art/ui/css_ui-taboff.png",
-  "from": "css",
-  "bytes": 2682
- },
- {
-  "file": "art/ui/css_ui-card.png",
-  "from": "css",
-  "bytes": 5022
- },
- {
-  "file": "art/ui/css_ui-cardl.png",
-  "from": "css",
-  "bytes": 6124
- },
- {
-  "file": "art/ui/css_ui-cardd.png",
-  "from": "css",
-  "bytes": 6104
- },
- {
-  "file": "art/ui/css_ui-cardn.png",
-  "from": "css",
-  "bytes": 7355
- },
- {
-  "file": "art/ui/css_ui-newrib.png",
-  "from": "css",
-  "bytes": 4338
- },
- {
-  "file": "art/ui/css_ui-coin.png",
-  "from": "css",
-  "bytes": 3742
- },
- {
-  "file": "art/ui/css_ui-coins.png",
-  "from": "css",
-  "bytes": 1769
- },
- {
-  "file": "art/ui/css_ui-star.png",
-  "from": "css",
-  "bytes": 1382
- },
- {
-  "file": "art/ui/css_ui-stare.png",
-  "from": "css",
-  "bytes": 1261
- },
- {
-  "file": "art/ui/css_ui-lock.png",
-  "from": "css",
-  "bytes": 1409
- },
- {
-  "file": "art/ui/css_ui-check.png",
-  "from": "css",
-  "bytes": 1445
- },
- {
-  "file": "art/ui/css_ui-gem.png",
-  "from": "css",
-  "bytes": 1326
- },
- {
-  "file": "art/ui/css_ui-corner.png",
-  "from": "css",
-  "bytes": 8225
- },
- {
-  "file": "art/ui/css_relic-glow.png",
-  "from": "css",
-  "bytes": 27476
- },
- {
-  "file": "art/ui/css_f-main.png",
-  "from": "css",
-  "bytes": 2096
- },
- {
-  "file": "art/ui/css_f-gold.png",
-  "from": "css",
-  "bytes": 2117
- },
- {
-  "file": "art/ui/css_f-red.png",
-  "from": "css",
-  "bytes": 2238
- },
- {
-  "file": "art/ui/css_f-parch.png",
-  "from": "css",
-  "bytes": 2666
- },
- {
-  "file": "art/ui/css_b-n.png",
-  "from": "css",
-  "bytes": 1370
- },
- {
-  "file": "art/ui/css_b-h.png",
-  "from": "css",
-  "bytes": 1451
- },
- {
-  "file": "art/ui/css_b-p.png",
-  "from": "css",
-  "bytes": 1201
- },
- {
-  "file": "art/ui/css_b-d.png",
-  "from": "css",
-  "bytes": 1557
- },
- {
-  "file": "art/ui/css_f-pill.png",
-  "from": "css",
-  "bytes": 937
- },
- {
-  "file": "art/ui/css_f-track.png",
-  "from": "css",
-  "bytes": 650
- },
- {
-  "file": "art/ui/css_f-fill.png",
-  "from": "css",
-  "bytes": 598
- },
- {
-  "file": "art/ui/css_f-tab.png",
-  "from": "css",
-  "bytes": 1038
- },
- {
-  "file": "art/ui/css_i-war.png",
-  "from": "css",
-  "bytes": 1232
- },
- {
-  "file": "art/ui/css_i-pin.png",
-  "from": "css",
-  "bytes": 1035
- },
- {
-  "file": "art/ui/css_i-relic.png",
-  "from": "css",
-  "bytes": 1472
- },
- {
-  "file": "art/ui/favicon.png",
-  "from": "html",
-  "bytes": 9280
- },
- {
-  "file": "art/ui/action_expand.png",
-  "from": "html",
-  "bytes": 14113
- },
- {
-  "file": "art/ui/action_build.png",
-  "from": "html",
-  "bytes": 11051
- },
- {
-  "file": "art/ui/action_defend.png",
-  "from": "html",
-  "bytes": 13846
- },
- {
-  "file": "art/ui/action_mobilize.png",
-  "from": "html",
-  "bytes": 13292
- },
- {
-  "file": "art/ui/action_golden.png",
-  "from": "html",
-  "bytes": 16322
- },
- {
-  "file": "art/ui/action_fortify.png",
-  "from": "html",
-  "bytes": 13405
- },
- {
-  "file": "art/artimg/sunbanner.png",
-  "from": "js",
-  "bytes": 20197
- },
- {
-  "file": "art/artimg/standard.png",
-  "from": "js",
-  "bytes": 20731
- },
- {
-  "file": "art/artimg/cuirass.png",
-  "from": "js",
-  "bytes": 26264
- },
- {
-  "file": "art/artimg/drum.png",
-  "from": "js",
-  "bytes": 23455
- },
- {
-  "file": "art/artimg/chalice.png",
-  "from": "js",
-  "bytes": 24898
- },
- {
-  "file": "art/artimg/aegis.png",
-  "from": "js",
-  "bytes": 24229
- },
- {
-  "file": "art/artimg/blade.png",
-  "from": "js",
-  "bytes": 13957
- },
- {
-  "file": "art/artimg/boots.png",
-  "from": "js",
-  "bytes": 23416
- },
- {
-  "file": "art/artimg/horn.png",
-  "from": "js",
-  "bytes": 18836
- },
- {
-  "file": "art/artimg/lodestone.png",
-  "from": "js",
-  "bytes": 18605
- },
- {
-  "file": "art/artimg/phoenix.png",
-  "from": "js",
-  "bytes": 12785
- },
- {
-  "file": "art/artimg/lens.png",
-  "from": "js",
-  "bytes": 19909
- },
- {
-  "file": "art/artimg/crown.png",
-  "from": "js",
-  "bytes": 23731
- },
- {
-  "file": "art/artimg/plough.png",
-  "from": "js",
-  "bytes": 24915
- },
- {
-  "file": "art/artimg/anvil.png",
-  "from": "js",
-  "bytes": 15063
- },
- {
-  "file": "art/artimg/scroll.png",
-  "from": "js",
-  "bytes": 23626
- },
- {
-  "file": "art/artimg/idol.png",
-  "from": "js",
-  "bytes": 21162
- },
- {
-  "file": "art/artimg/compass.png",
-  "from": "js",
-  "bytes": 24021
- },
- {
-  "file": "art/artimg/chart.png",
-  "from": "js",
-  "bytes": 26210
- },
- {
-  "file": "art/artimg/img.png",
-  "from": "js",
-  "bytes": 25010
- },
- {
-  "file": "art/sprites/fxa.png",
-  "from": "js",
-  "bytes": 478525
- },
- {
-  "file": "art/sprites/hspr.png",
-  "from": "js",
-  "bytes": 428789
- },
- {
-  "file": "art/sprites/uspr.png",
-  "from": "js",
-  "bytes": 1640008
- },
- {
-  "file": "art/sprites/barba.png",
-  "from": "js",
-  "bytes": 813572
- },
- {
-  "file": "art/chests/chest_bronze_0.png",
-  "from": "js",
-  "bytes": 13992
- },
- {
-  "file": "art/chests/chest_bronze_1.png",
-  "from": "js",
-  "bytes": 14675
- },
- {
-  "file": "art/chests/chest_bronze_2.png",
-  "from": "js",
-  "bytes": 15182
- },
- {
-  "file": "art/chests/chest_bronze_3.png",
-  "from": "js",
-  "bytes": 16284
- },
- {
-  "file": "art/chests/chest_bronze_4.png",
-  "from": "js",
-  "bytes": 17193
- },
- {
-  "file": "art/chests/chest_bronze_5.png",
-  "from": "js",
-  "bytes": 15839
- },
- {
-  "file": "art/chests/chest_silver_0.png",
-  "from": "js",
-  "bytes": 15017
- },
- {
-  "file": "art/chests/chest_silver_1.png",
-  "from": "js",
-  "bytes": 16037
- },
- {
-  "file": "art/chests/chest_silver_2.png",
-  "from": "js",
-  "bytes": 15364
- },
- {
-  "file": "art/chests/chest_silver_3.png",
-  "from": "js",
-  "bytes": 18300
- },
- {
-  "file": "art/chests/chest_silver_4.png",
-  "from": "js",
-  "bytes": 18757
- },
- {
-  "file": "art/chests/chest_silver_5.png",
-  "from": "js",
-  "bytes": 17180
- },
- {
-  "file": "art/chests/chest_gold_0.png",
-  "from": "js",
-  "bytes": 16196
- },
- {
-  "file": "art/chests/chest_gold_1.png",
-  "from": "js",
-  "bytes": 16864
- },
- {
-  "file": "art/chests/chest_gold_2.png",
-  "from": "js",
-  "bytes": 18075
- },
- {
-  "file": "art/chests/chest_gold_3.png",
-  "from": "js",
-  "bytes": 20409
- },
- {
-  "file": "art/chests/chest_gold_4.png",
-  "from": "js",
-  "bytes": 20189
- },
- {
-  "file": "art/chests/chest_gold_5.png",
-  "from": "js",
-  "bytes": 19414
- },
- {
-  "file": "art/icons/ic_food.png",
-  "from": "js",
-  "bytes": 12929
- },
- {
-  "file": "art/icons/ic_prod.png",
-  "from": "js",
-  "bytes": 12793
- },
- {
-  "file": "art/icons/ic_sci.png",
-  "from": "js",
-  "bytes": 13509
- },
- {
-  "file": "art/icons/ic_infl.png",
-  "from": "js",
-  "bytes": 13221
- },
- {
-  "file": "art/icons/ic_cities.png",
-  "from": "js",
-  "bytes": 13295
- },
- {
-  "file": "art/icons/ic_army.png",
-  "from": "js",
-  "bytes": 14162
- },
- {
-  "file": "art/abilities/ab_warcry.png",
-  "from": "js",
-  "bytes": 8309
- },
- {
-  "file": "art/abilities/ab_legate.png",
-  "from": "js",
-  "bytes": 8119
- },
- {
-  "file": "art/abilities/ab_khan.png",
-  "from": "js",
-  "bytes": 7448
- },
- {
-  "file": "art/abilities/ab_maharaja.png",
-  "from": "js",
-  "bytes": 8810
- },
- {
-  "file": "art/abilities/ab_ranger.png",
-  "from": "js",
-  "bytes": 7948
- },
- {
-  "file": "art/abilities/ab_oracle.png",
-  "from": "js",
-  "bytes": 6708
- },
- {
-  "file": "art/abilities/ab_goldkhan.png",
-  "from": "js",
-  "bytes": 7148
- },
- {
   "file": "art/abilities/ab_doge.png",
-  "from": "js",
   "bytes": 8038
  },
  {
   "file": "art/abilities/ab_engineer.png",
-  "from": "js",
   "bytes": 9036
  },
  {
-  "file": "art/abilities/ab_warden.png",
-  "from": "js",
-  "bytes": 8628
+  "file": "art/abilities/ab_goldkhan.png",
+  "bytes": 7148
  },
  {
   "file": "art/abilities/ab_jarl.png",
-  "from": "js",
   "bytes": 8518
  },
  {
-  "file": "art/civics/cv_writing.png",
-  "from": "js",
-  "bytes": 13397
+  "file": "art/abilities/ab_khan.png",
+  "bytes": 7448
  },
  {
-  "file": "art/civics/cv_commerce.png",
-  "from": "js",
-  "bytes": 14422
+  "file": "art/abilities/ab_legate.png",
+  "bytes": 8119
  },
  {
-  "file": "art/civics/cv_philosophy.png",
-  "from": "js",
-  "bytes": 12657
+  "file": "art/abilities/ab_maharaja.png",
+  "bytes": 8810
  },
  {
-  "file": "art/civics/cv_engineering.png",
-  "from": "js",
-  "bytes": 16057
+  "file": "art/abilities/ab_oracle.png",
+  "bytes": 6708
  },
  {
-  "file": "art/civics/cv_medicine.png",
-  "from": "js",
-  "bytes": 15203
+  "file": "art/abilities/ab_ranger.png",
+  "bytes": 7948
  },
  {
-  "file": "art/civics/cv_astronomy.png",
-  "from": "js",
-  "bytes": 15158
+  "file": "art/abilities/ab_warcry.png",
+  "bytes": 8309
  },
  {
-  "file": "art/civics/cv_frontier.png",
-  "from": "js",
-  "bytes": 14038
+  "file": "art/abilities/ab_warden.png",
+  "bytes": 8628
  },
  {
-  "file": "art/civics/cv_laws.png",
-  "from": "js",
-  "bytes": 12881
+  "file": "art/artimg/aegis.png",
+  "bytes": 24229
  },
  {
-  "file": "art/civics/cv_agri.png",
-  "from": "js",
-  "bytes": 15353
+  "file": "art/artimg/anvil.png",
+  "bytes": 15063
  },
  {
-  "file": "art/civics/cv_masonry.png",
-  "from": "js",
-  "bytes": 14835
+  "file": "art/artimg/blade.png",
+  "bytes": 13957
  },
  {
-  "file": "art/civics/cv_cartography.png",
-  "from": "js",
-  "bytes": 14305
+  "file": "art/artimg/boots.png",
+  "bytes": 23416
  },
  {
-  "file": "art/civics/cv_trade.png",
-  "from": "js",
-  "bytes": 22591
+  "file": "art/artimg/chalice.png",
+  "bytes": 24898
  },
  {
-  "file": "art/civics/cv_forge.png",
-  "from": "js",
-  "bytes": 16230
+  "file": "art/artimg/chart.png",
+  "bytes": 26210
  },
  {
-  "file": "art/civics/cv_drill.png",
-  "from": "js",
-  "bytes": 11129
+  "file": "art/artimg/compass.png",
+  "bytes": 24021
  },
  {
-  "file": "art/civics/cv_quarter.png",
-  "from": "js",
-  "bytes": 14289
+  "file": "art/artimg/crown.png",
+  "bytes": 23731
  },
  {
-  "file": "art/civics/cv_roads.png",
-  "from": "js",
-  "bytes": 12748
+  "file": "art/artimg/cuirass.png",
+  "bytes": 26264
  },
  {
-  "file": "art/civics/cv_spyglass.png",
-  "from": "js",
-  "bytes": 12225
+  "file": "art/artimg/drum.png",
+  "bytes": 23455
  },
  {
-  "file": "art/civics/cv_college.png",
-  "from": "js",
-  "bytes": 14682
+  "file": "art/artimg/horn.png",
+  "bytes": 18836
  },
  {
-  "file": "art/civics/cv_hall.png",
-  "from": "js",
-  "bytes": 14586
+  "file": "art/artimg/idol.png",
+  "bytes": 21162
  },
  {
-  "file": "art/starship/ship_0.png",
-  "from": "js",
-  "bytes": 47590
+  "file": "art/artimg/img.png",
+  "bytes": 25010
  },
  {
-  "file": "art/starship/ship_1.png",
-  "from": "js",
-  "bytes": 59454
+  "file": "art/artimg/lens.png",
+  "bytes": 19909
  },
  {
-  "file": "art/starship/ship_2.png",
-  "from": "js",
-  "bytes": 53669
+  "file": "art/artimg/lodestone.png",
+  "bytes": 18605
  },
  {
-  "file": "art/starship/lift_0.png",
-  "from": "js",
-  "bytes": 17355
+  "file": "art/artimg/phoenix.png",
+  "bytes": 12785
  },
  {
-  "file": "art/starship/lift_1.png",
-  "from": "js",
-  "bytes": 18186
+  "file": "art/artimg/plough.png",
+  "bytes": 24915
  },
  {
-  "file": "art/starship/lift_2.png",
-  "from": "js",
-  "bytes": 18416
+  "file": "art/artimg/scroll.png",
+  "bytes": 23626
  },
  {
-  "file": "art/starship/lift_3.png",
-  "from": "js",
-  "bytes": 17189
+  "file": "art/artimg/standard.png",
+  "bytes": 20731
  },
  {
-  "file": "art/starship/lift_4.png",
-  "from": "js",
-  "bytes": 16033
+  "file": "art/artimg/sunbanner.png",
+  "bytes": 20197
  },
  {
-  "file": "art/starship/lift_5.png",
-  "from": "js",
-  "bytes": 17006
+  "file": "art/chests/chest_bronze_0.png",
+  "bytes": 13992
  },
  {
-  "file": "art/starship/lift_6.png",
-  "from": "js",
-  "bytes": 14009
+  "file": "art/chests/chest_bronze_1.png",
+  "bytes": 14675
  },
  {
-  "file": "art/fx/fx_smoke0.png",
-  "from": "js",
-  "bytes": 4789
+  "file": "art/chests/chest_bronze_2.png",
+  "bytes": 15182
  },
  {
-  "file": "art/fx/fx_smoke1.png",
-  "from": "js",
-  "bytes": 9856
+  "file": "art/chests/chest_bronze_3.png",
+  "bytes": 16284
  },
  {
-  "file": "art/fx/fx_smoke2.png",
-  "from": "js",
-  "bytes": 18855
+  "file": "art/chests/chest_bronze_4.png",
+  "bytes": 17193
  },
  {
-  "file": "art/fx/fx_flash.png",
-  "from": "js",
-  "bytes": 34226
+  "file": "art/chests/chest_bronze_5.png",
+  "bytes": 15839
  },
  {
-  "file": "art/city-damage/cd_dmg0.png",
-  "from": "js",
-  "bytes": 8534
+  "file": "art/chests/chest_gold_0.png",
+  "bytes": 16196
  },
  {
-  "file": "art/city-damage/cd_dmg1.png",
-  "from": "js",
-  "bytes": 10195
+  "file": "art/chests/chest_gold_1.png",
+  "bytes": 16864
+ },
+ {
+  "file": "art/chests/chest_gold_2.png",
+  "bytes": 18075
+ },
+ {
+  "file": "art/chests/chest_gold_3.png",
+  "bytes": 20409
+ },
+ {
+  "file": "art/chests/chest_gold_4.png",
+  "bytes": 20189
+ },
+ {
+  "file": "art/chests/chest_gold_5.png",
+  "bytes": 19414
+ },
+ {
+  "file": "art/chests/chest_silver_0.png",
+  "bytes": 15017
+ },
+ {
+  "file": "art/chests/chest_silver_1.png",
+  "bytes": 16037
+ },
+ {
+  "file": "art/chests/chest_silver_2.png",
+  "bytes": 15364
+ },
+ {
+  "file": "art/chests/chest_silver_3.png",
+  "bytes": 18300
+ },
+ {
+  "file": "art/chests/chest_silver_4.png",
+  "bytes": 18757
+ },
+ {
+  "file": "art/chests/chest_silver_5.png",
+  "bytes": 17180
+ },
+ {
+  "file": "art/city-damage/cd_breach.png",
+  "bytes": 19306
  },
  {
   "file": "art/city-damage/cd_burn0.png",
-  "from": "js",
   "bytes": 11959
  },
  {
   "file": "art/city-damage/cd_burn1.png",
-  "from": "js",
   "bytes": 17564
  },
  {
   "file": "art/city-damage/cd_burn2.png",
-  "from": "js",
   "bytes": 15401
  },
  {
-  "file": "art/city-damage/cd_breach.png",
-  "from": "js",
-  "bytes": 19306
+  "file": "art/city-damage/cd_dmg0.png",
+  "bytes": 8534
  },
  {
-  "file": "art/city-damage/cd_rubble.png",
-  "from": "js",
-  "bytes": 24447
+  "file": "art/city-damage/cd_dmg1.png",
+  "bytes": 10195
  },
  {
   "file": "art/city-damage/cd_flag0.png",
-  "from": "js",
   "bytes": 8594
  },
  {
   "file": "art/city-damage/cd_flag1.png",
-  "from": "js",
   "bytes": 9851
  },
  {
   "file": "art/city-damage/cd_flag2.png",
-  "from": "js",
   "bytes": 12057
  },
  {
   "file": "art/city-damage/cd_flag3.png",
-  "from": "js",
   "bytes": 13203
  },
  {
-  "file": "art/victory/vic_conquest.png",
-  "from": "js",
-  "bytes": 101259
+  "file": "art/city-damage/cd_rubble.png",
+  "bytes": 24447
  },
  {
-  "file": "art/victory/vic_diplomacy.png",
-  "from": "js",
-  "bytes": 111751
+  "file": "art/civics/cv_agri.png",
+  "bytes": 15353
  },
  {
-  "file": "art/victory/vic_science.png",
-  "from": "js",
-  "bytes": 93633
+  "file": "art/civics/cv_astronomy.png",
+  "bytes": 15158
  },
  {
-  "file": "art/victory/vic_defeat.png",
-  "from": "js",
-  "bytes": 88287
+  "file": "art/civics/cv_cartography.png",
+  "bytes": 14305
  },
  {
-  "file": "art/events/ev_0.png",
-  "from": "js",
-  "bytes": 19073
+  "file": "art/civics/cv_college.png",
+  "bytes": 14682
  },
  {
-  "file": "art/events/ev_1.png",
-  "from": "js",
-  "bytes": 19258
+  "file": "art/civics/cv_commerce.png",
+  "bytes": 14422
  },
  {
-  "file": "art/events/ev_2.png",
-  "from": "js",
-  "bytes": 21140
+  "file": "art/civics/cv_drill.png",
+  "bytes": 11129
  },
  {
-  "file": "art/events/ev_3.png",
-  "from": "js",
-  "bytes": 21485
+  "file": "art/civics/cv_engineering.png",
+  "bytes": 16057
  },
  {
-  "file": "art/events/ev_4.png",
-  "from": "js",
-  "bytes": 25086
+  "file": "art/civics/cv_forge.png",
+  "bytes": 16230
  },
  {
-  "file": "art/events/ev_5.png",
-  "from": "js",
-  "bytes": 22604
+  "file": "art/civics/cv_frontier.png",
+  "bytes": 14038
  },
  {
-  "file": "art/events/ev_6.png",
-  "from": "js",
-  "bytes": 22723
+  "file": "art/civics/cv_hall.png",
+  "bytes": 14586
  },
  {
-  "file": "art/events/ev_7.png",
-  "from": "js",
-  "bytes": 22698
+  "file": "art/civics/cv_laws.png",
+  "bytes": 12881
  },
  {
-  "file": "art/protocols/pr_shield.png",
-  "from": "js",
-  "bytes": 12987
+  "file": "art/civics/cv_masonry.png",
+  "bytes": 14835
  },
  {
-  "file": "art/protocols/pr_bunkers.png",
-  "from": "js",
-  "bytes": 13576
+  "file": "art/civics/cv_medicine.png",
+  "bytes": 15203
  },
  {
-  "file": "art/protocols/pr_militia.png",
-  "from": "js",
-  "bytes": 12861
+  "file": "art/civics/cv_philosophy.png",
+  "bytes": 12657
  },
  {
-  "file": "art/protocols/pr_decoy.png",
-  "from": "js",
-  "bytes": 11064
+  "file": "art/civics/cv_quarter.png",
+  "bytes": 14289
  },
  {
-  "file": "art/protocols/pr_envoys.png",
-  "from": "js",
-  "bytes": 13647
+  "file": "art/civics/cv_roads.png",
+  "bytes": 12748
  },
  {
-  "file": "art/protocols/pr_rally.png",
-  "from": "js",
-  "bytes": 10015
+  "file": "art/civics/cv_spyglass.png",
+  "bytes": 12225
  },
  {
-  "file": "art/protocols/pr_scorched.png",
-  "from": "js",
-  "bytes": 15381
+  "file": "art/civics/cv_trade.png",
+  "bytes": 22591
  },
  {
-  "file": "art/protocols/pr_accel.png",
-  "from": "js",
-  "bytes": 15242
- },
- {
-  "file": "art/protocols/pr_walls.png",
-  "from": "js",
-  "bytes": 16727
- },
- {
-  "file": "art/hud/u_charge.png",
-  "from": "js",
-  "bytes": 1346
- },
- {
-  "file": "art/hud/u_hold.png",
-  "from": "js",
-  "bytes": 1232
- },
- {
-  "file": "art/hud/u_fallback.png",
-  "from": "js",
-  "bytes": 1495
- },
- {
-  "file": "art/hud/u_release.png",
-  "from": "js",
-  "bytes": 1137
- },
- {
-  "file": "art/hud/u_rally.png",
-  "from": "js",
-  "bytes": 1065
- },
- {
-  "file": "art/hud/u_general.png",
-  "from": "js",
-  "bytes": 1280
- },
- {
-  "file": "art/hud/u_raid.png",
-  "from": "js",
-  "bytes": 1290
- },
- {
-  "file": "art/hud/u_levelup.png",
-  "from": "js",
-  "bytes": 990
- },
- {
-  "file": "art/hud/u_hourglass.png",
-  "from": "js",
-  "bytes": 1136
- },
- {
-  "file": "art/hud/u_peace.png",
-  "from": "js",
-  "bytes": 1399
- },
- {
-  "file": "art/hud/u_siege.png",
-  "from": "js",
-  "bytes": 1556
- },
- {
-  "file": "art/hud/u_g_troop.png",
-  "from": "js",
-  "bytes": 1398
- },
- {
-  "file": "art/hud/u_g_people.png",
-  "from": "js",
-  "bytes": 1023
- },
- {
-  "file": "art/hud/u_g_hidden.png",
-  "from": "js",
-  "bytes": 1264
- },
- {
-  "file": "art/hud/u_g_mastery.png",
-  "from": "js",
-  "bytes": 1586
- },
- {
-  "file": "art/hud/u_g_glory.png",
-  "from": "js",
-  "bytes": 1492
- },
- {
-  "file": "art/hud/u_lock.png",
-  "from": "js",
-  "bytes": 1095
- },
- {
-  "file": "art/hud/u_unlock.png",
-  "from": "js",
-  "bytes": 1052
- },
- {
-  "file": "art/hud/u_dmg.png",
-  "from": "js",
-  "bytes": 1075
- },
- {
-  "file": "art/hud/u_goals.png",
-  "from": "js",
-  "bytes": 1210
- },
- {
-  "file": "art/hud/u_chev.png",
-  "from": "js",
-  "bytes": 1011
- },
- {
-  "file": "art/hud/u_book.png",
-  "from": "js",
-  "bytes": 1306
- },
- {
-  "file": "art/hud/u_music.png",
-  "from": "js",
-  "bytes": 1150
- },
- {
-  "file": "art/hud/u_sound.png",
-  "from": "js",
-  "bytes": 1244
- },
- {
-  "file": "art/hud/u_pause.png",
-  "from": "js",
-  "bytes": 1088
- },
- {
-  "file": "art/hud/u_zoom.png",
-  "from": "js",
-  "bytes": 1221
- },
- {
-  "file": "art/hud/u_center.png",
-  "from": "js",
-  "bytes": 1426
- },
- {
-  "file": "art/markers/mk_host.png",
-  "from": "js",
-  "bytes": 4582
- },
- {
-  "file": "art/markers/mk_core.png",
-  "from": "js",
-  "bytes": 8218
- },
- {
-  "file": "art/markers/mk_quest.png",
-  "from": "js",
-  "bytes": 7655
- },
- {
-  "file": "art/markers/mk_unrest.png",
-  "from": "js",
-  "bytes": 8584
- },
- {
-  "file": "art/markers/mk_levy.png",
-  "from": "js",
-  "bytes": 7523
- },
- {
-  "file": "art/markers/mk_rebel.png",
-  "from": "js",
-  "bytes": 6344
- },
- {
-  "file": "art/grades/gr_0.png",
-  "from": "js",
-  "bytes": 15014
- },
- {
-  "file": "art/grades/gr_1.png",
-  "from": "js",
-  "bytes": 16283
- },
- {
-  "file": "art/grades/gr_2.png",
-  "from": "js",
-  "bytes": 17146
- },
- {
-  "file": "art/grades/gr_3.png",
-  "from": "js",
-  "bytes": 14162
+  "file": "art/civics/cv_writing.png",
+  "bytes": 13397
  },
  {
   "file": "art/crowns/cr_1.png",
-  "from": "js",
   "bytes": 16910
  },
  {
   "file": "art/crowns/cr_2.png",
-  "from": "js",
   "bytes": 20646
  },
  {
   "file": "art/crowns/cr_3.png",
-  "from": "js",
   "bytes": 17650
  },
  {
   "file": "art/decline/df_0.webp",
-  "from": "js",
   "bytes": 48424
  },
  {
   "file": "art/decline/df_1.webp",
-  "from": "js",
   "bytes": 54438
  },
  {
   "file": "art/decline/df_2.webp",
-  "from": "js",
   "bytes": 45828
  },
  {
   "file": "art/decline/df_3.webp",
-  "from": "js",
   "bytes": 51852
  },
  {
-  "file": "art/sprites/reba.png",
-  "from": "js",
-  "bytes": 233939
+  "file": "art/events/ev_0.png",
+  "bytes": 19073
  },
  {
-  "file": "art/sprites/cultsty.png",
-  "from": "js",
-  "bytes": 707966
+  "file": "art/events/ev_1.png",
+  "bytes": 19258
+ },
+ {
+  "file": "art/events/ev_2.png",
+  "bytes": 21140
+ },
+ {
+  "file": "art/events/ev_3.png",
+  "bytes": 21485
+ },
+ {
+  "file": "art/events/ev_4.png",
+  "bytes": 25086
+ },
+ {
+  "file": "art/events/ev_5.png",
+  "bytes": 22604
+ },
+ {
+  "file": "art/events/ev_6.png",
+  "bytes": 22723
+ },
+ {
+  "file": "art/events/ev_7.png",
+  "bytes": 22698
+ },
+ {
+  "file": "art/events/ev_hold.webp",
+  "bytes": 34566
+ },
+ {
+  "file": "art/fonts/starspix.ttf",
+  "bytes": 10076
+ },
+ {
+  "file": "art/fx/fx_flash.png",
+  "bytes": 34226
+ },
+ {
+  "file": "art/fx/fx_smoke0.png",
+  "bytes": 4789
+ },
+ {
+  "file": "art/fx/fx_smoke1.png",
+  "bytes": 9856
+ },
+ {
+  "file": "art/fx/fx_smoke2.png",
+  "bytes": 18855
+ },
+ {
+  "file": "art/grades/gr_0.png",
+  "bytes": 15014
+ },
+ {
+  "file": "art/grades/gr_1.png",
+  "bytes": 16283
+ },
+ {
+  "file": "art/grades/gr_2.png",
+  "bytes": 17146
+ },
+ {
+  "file": "art/grades/gr_3.png",
+  "bytes": 14162
+ },
+ {
+  "file": "art/hud/u_absorb.png",
+  "bytes": 17574
+ },
+ {
+  "file": "art/hud/u_banners.png",
+  "bytes": 21910
+ },
+ {
+  "file": "art/hud/u_book.png",
+  "bytes": 1306
+ },
+ {
+  "file": "art/hud/u_center.png",
+  "bytes": 1426
+ },
+ {
+  "file": "art/hud/u_charge.png",
+  "bytes": 1346
+ },
+ {
+  "file": "art/hud/u_chev.png",
+  "bytes": 1011
+ },
+ {
+  "file": "art/hud/u_dmg.png",
+  "bytes": 1075
+ },
+ {
+  "file": "art/hud/u_fallback.png",
+  "bytes": 1495
+ },
+ {
+  "file": "art/hud/u_g_glory.png",
+  "bytes": 1492
+ },
+ {
+  "file": "art/hud/u_g_hidden.png",
+  "bytes": 1264
+ },
+ {
+  "file": "art/hud/u_g_mastery.png",
+  "bytes": 1586
+ },
+ {
+  "file": "art/hud/u_g_people.png",
+  "bytes": 1023
+ },
+ {
+  "file": "art/hud/u_g_troop.png",
+  "bytes": 1398
+ },
+ {
+  "file": "art/hud/u_general.png",
+  "bytes": 1280
+ },
+ {
+  "file": "art/hud/u_goals.png",
+  "bytes": 1210
+ },
+ {
+  "file": "art/hud/u_hold.png",
+  "bytes": 1232
+ },
+ {
+  "file": "art/hud/u_hourglass.png",
+  "bytes": 1136
+ },
+ {
+  "file": "art/hud/u_levelup.png",
+  "bytes": 990
+ },
+ {
+  "file": "art/hud/u_lock.png",
+  "bytes": 1095
+ },
+ {
+  "file": "art/hud/u_music.png",
+  "bytes": 1150
+ },
+ {
+  "file": "art/hud/u_pause.png",
+  "bytes": 1088
+ },
+ {
+  "file": "art/hud/u_peace.png",
+  "bytes": 1399
+ },
+ {
+  "file": "art/hud/u_raid.png",
+  "bytes": 1290
+ },
+ {
+  "file": "art/hud/u_rally.png",
+  "bytes": 1065
+ },
+ {
+  "file": "art/hud/u_raze.png",
+  "bytes": 26959
+ },
+ {
+  "file": "art/hud/u_release.png",
+  "bytes": 1137
+ },
+ {
+  "file": "art/hud/u_siege.png",
+  "bytes": 1556
+ },
+ {
+  "file": "art/hud/u_sound.png",
+  "bytes": 1244
+ },
+ {
+  "file": "art/hud/u_unlock.png",
+  "bytes": 1052
+ },
+ {
+  "file": "art/hud/u_vassal.png",
+  "bytes": 19315
+ },
+ {
+  "file": "art/hud/u_zoom.png",
+  "bytes": 1221
+ },
+ {
+  "file": "art/icons/ic_army.png",
+  "bytes": 14162
+ },
+ {
+  "file": "art/icons/ic_cities.png",
+  "bytes": 13295
+ },
+ {
+  "file": "art/icons/ic_food.png",
+  "bytes": 12929
+ },
+ {
+  "file": "art/icons/ic_infl.png",
+  "bytes": 13221
+ },
+ {
+  "file": "art/icons/ic_prod.png",
+  "bytes": 12793
+ },
+ {
+  "file": "art/icons/ic_sci.png",
+  "bytes": 13509
+ },
+ {
+  "file": "art/legacy/l_exile.png",
+  "bytes": 3636
+ },
+ {
+  "file": "art/legacy/l_fortune.png",
+  "bytes": 3579
+ },
+ {
+  "file": "art/legacy/l_harvest.png",
+  "bytes": 3821
+ },
+ {
+  "file": "art/legacy/l_hero.png",
+  "bytes": 3755
+ },
+ {
+  "file": "art/legacy/l_industry.png",
+  "bytes": 3450
+ },
+ {
+  "file": "art/legacy/l_might.png",
+  "bytes": 3048
+ },
+ {
+  "file": "art/legacy/l_muster.png",
+  "bytes": 3954
+ },
+ {
+  "file": "art/legacy/l_renown.png",
+  "bytes": 3294
+ },
+ {
+  "file": "art/legacy/l_spoils.png",
+  "bytes": 3802
+ },
+ {
+  "file": "art/legacy/l_swift.png",
+  "bytes": 3429
+ },
+ {
+  "file": "art/legacy/l_treasury.png",
+  "bytes": 3934
+ },
+ {
+  "file": "art/legacy/l_vigor.png",
+  "bytes": 3692
+ },
+ {
+  "file": "art/legacy/l_walls.png",
+  "bytes": 3567
+ },
+ {
+  "file": "art/legacy/l_wisdom.png",
+  "bytes": 3803
+ },
+ {
+  "file": "art/map/poi_keep.png",
+  "bytes": 60120
+ },
+ {
+  "file": "art/markers/mk_core.png",
+  "bytes": 8218
+ },
+ {
+  "file": "art/markers/mk_elite.png",
+  "bytes": 15640
+ },
+ {
+  "file": "art/markers/mk_host.png",
+  "bytes": 4582
+ },
+ {
+  "file": "art/markers/mk_levy.png",
+  "bytes": 7523
+ },
+ {
+  "file": "art/markers/mk_quest.png",
+  "bytes": 7655
+ },
+ {
+  "file": "art/markers/mk_rebel.png",
+  "bytes": 6344
+ },
+ {
+  "file": "art/markers/mk_unrest.png",
+  "bytes": 8584
+ },
+ {
+  "file": "art/markers/mk_vassal.png",
+  "bytes": 22622
+ },
+ {
+  "file": "art/menu/i_arena.png",
+  "bytes": 8054
+ },
+ {
+  "file": "art/menu/i_collect.png",
+  "bytes": 7630
+ },
+ {
+  "file": "art/menu/i_cont.png",
+  "bytes": 6821
+ },
+ {
+  "file": "art/menu/i_how.png",
+  "bytes": 7008
+ },
+ {
+  "file": "art/menu/i_legacy.png",
+  "bytes": 6728
+ },
+ {
+  "file": "art/menu/i_opts.png",
+  "bytes": 5968
+ },
+ {
+  "file": "art/menu/i_start.png",
+  "bytes": 7758
+ },
+ {
+  "file": "art/menu/i_unlock.png",
+  "bytes": 6299
+ },
+ {
+  "file": "art/planned/governments/gov_absolute.png",
+  "bytes": 176214
+ },
+ {
+  "file": "art/planned/governments/gov_chiefdom.png",
+  "bytes": 152354
+ },
+ {
+  "file": "art/planned/governments/gov_democracy.png",
+  "bytes": 181489
+ },
+ {
+  "file": "art/planned/governments/gov_elders.png",
+  "bytes": 181013
+ },
+ {
+  "file": "art/planned/governments/gov_empire.png",
+  "bytes": 169338
+ },
+ {
+  "file": "art/planned/governments/gov_federation.png",
+  "bytes": 157559
+ },
+ {
+  "file": "art/planned/governments/gov_feudalism.png",
+  "bytes": 167736
+ },
+ {
+  "file": "art/planned/governments/gov_merchant.png",
+  "bytes": 164378
+ },
+ {
+  "file": "art/planned/governments/gov_monarchy.png",
+  "bytes": 145091
+ },
+ {
+  "file": "art/planned/governments/gov_republic.png",
+  "bytes": 181644
+ },
+ {
+  "file": "art/planned/governments/gov_technocracy.png",
+  "bytes": 171639
+ },
+ {
+  "file": "art/planned/governments/gov_theocracy.png",
+  "bytes": 164026
+ },
+ {
+  "file": "art/planned/horde/ev_horde.png",
+  "bytes": 309597
+ },
+ {
+  "file": "art/planned/horde/horde_banner.png",
+  "bytes": 20749
+ },
+ {
+  "file": "art/planned/horde/horde_capital.png",
+  "bytes": 142506
+ },
+ {
+  "file": "art/planned/horde/horde_khan.png",
+  "bytes": 237722
+ },
+ {
+  "file": "art/planned/horde/horde_tower.png",
+  "bytes": 93638
+ },
+ {
+  "file": "art/planned/horde/horde_town.png",
+  "bytes": 136676
+ },
+ {
+  "file": "art/planned/resources/res_fields.png",
+  "bytes": 108181
+ },
+ {
+  "file": "art/planned/resources/res_gold.png",
+  "bytes": 109839
+ },
+ {
+  "file": "art/planned/resources/res_horses.png",
+  "bytes": 100800
+ },
+ {
+  "file": "art/planned/resources/res_iron.png",
+  "bytes": 115593
+ },
+ {
+  "file": "art/planned/resources/res_relic.png",
+  "bytes": 105958
+ },
+ {
+  "file": "art/planned/resources/res_stone.png",
+  "bytes": 111508
+ },
+ {
+  "file": "art/planned/resources/ri_fields.png",
+  "bytes": 21847
+ },
+ {
+  "file": "art/planned/resources/ri_gold.png",
+  "bytes": 22269
+ },
+ {
+  "file": "art/planned/resources/ri_horses.png",
+  "bytes": 25095
+ },
+ {
+  "file": "art/planned/resources/ri_iron.png",
+  "bytes": 19497
+ },
+ {
+  "file": "art/planned/resources/ri_relic.png",
+  "bytes": 24340
+ },
+ {
+  "file": "art/planned/resources/ri_stone.png",
+  "bytes": 20707
+ },
+ {
+  "file": "art/protocols/pr_accel.png",
+  "bytes": 15242
+ },
+ {
+  "file": "art/protocols/pr_bunkers.png",
+  "bytes": 13576
+ },
+ {
+  "file": "art/protocols/pr_decoy.png",
+  "bytes": 11064
+ },
+ {
+  "file": "art/protocols/pr_envoys.png",
+  "bytes": 13647
+ },
+ {
+  "file": "art/protocols/pr_militia.png",
+  "bytes": 12861
+ },
+ {
+  "file": "art/protocols/pr_rally.png",
+  "bytes": 10015
+ },
+ {
+  "file": "art/protocols/pr_scorched.png",
+  "bytes": 15381
+ },
+ {
+  "file": "art/protocols/pr_shield.png",
+  "bytes": 12987
+ },
+ {
+  "file": "art/protocols/pr_walls.png",
+  "bytes": 16727
+ },
+ {
+  "file": "art/sprites/barba.png",
+  "bytes": 813572
  },
  {
   "file": "art/sprites/cities-by-age.png",
-  "from": "js",
   "bytes": 1484457
  },
  {
+  "file": "art/sprites/cultsty.png",
+  "bytes": 707966
+ },
+ {
+  "file": "art/sprites/fxa.png",
+  "bytes": 478525
+ },
+ {
   "file": "art/sprites/hidden-generals.png",
-  "from": "js",
   "bytes": 1658510
  },
  {
+  "file": "art/sprites/hspr.png",
+  "bytes": 428789
+ },
+ {
+  "file": "art/sprites/reba.png",
+  "bytes": 233939
+ },
+ {
   "file": "art/sprites/rebels-brute.png",
-  "from": "js",
   "bytes": 45891
  },
  {
   "file": "art/sprites/ts.png",
-  "from": "js",
   "bytes": 338733
  },
  {
+  "file": "art/sprites/uspr.png",
+  "bytes": 1640008
+ },
+ {
+  "file": "art/starship/lift_0.png",
+  "bytes": 17355
+ },
+ {
+  "file": "art/starship/lift_1.png",
+  "bytes": 18186
+ },
+ {
+  "file": "art/starship/lift_2.png",
+  "bytes": 18416
+ },
+ {
+  "file": "art/starship/lift_3.png",
+  "bytes": 17189
+ },
+ {
+  "file": "art/starship/lift_4.png",
+  "bytes": 16033
+ },
+ {
+  "file": "art/starship/lift_5.png",
+  "bytes": 17006
+ },
+ {
+  "file": "art/starship/lift_6.png",
+  "bytes": 14009
+ },
+ {
+  "file": "art/starship/ship_0.png",
+  "bytes": 47590
+ },
+ {
+  "file": "art/starship/ship_1.png",
+  "bytes": 59454
+ },
+ {
+  "file": "art/starship/ship_2.png",
+  "bytes": 53669
+ },
+ {
+  "file": "art/store/app_icon_512.png",
+  "bytes": 423181
+ },
+ {
+  "file": "art/store/emblem.png",
+  "bytes": 141639
+ },
+ {
+  "file": "art/store/logo_new.png",
+  "bytes": 393872
+ },
+ {
+  "file": "art/store/store_banner_a.png",
+  "bytes": 359927
+ },
+ {
+  "file": "art/store/store_banner_b.png",
+  "bytes": 557582
+ },
+ {
+  "file": "art/store/store_scene_a.png",
+  "bytes": 132985
+ },
+ {
+  "file": "art/store/store_scene_b.png",
+  "bytes": 122910
+ },
+ {
+  "file": "art/tabs/t_arts.png",
+  "bytes": 3763
+ },
+ {
+  "file": "art/tabs/t_civics.png",
+  "bytes": 3446
+ },
+ {
+  "file": "art/tabs/t_evos.png",
+  "bytes": 3303
+ },
+ {
+  "file": "art/tabs/t_extra.png",
+  "bytes": 3325
+ },
+ {
+  "file": "art/tabs/t_peoples.png",
+  "bytes": 3362
+ },
+ {
+  "file": "art/tabs/t_secrets.png",
+  "bytes": 3742
+ },
+ {
+  "file": "art/tabs/t_troops.png",
+  "bytes": 3856
+ },
+ {
+  "file": "art/ui/action_build.png",
+  "bytes": 11051
+ },
+ {
+  "file": "art/ui/action_defend.png",
+  "bytes": 13846
+ },
+ {
+  "file": "art/ui/action_expand.png",
+  "bytes": 14113
+ },
+ {
+  "file": "art/ui/action_fortify.png",
+  "bytes": 13405
+ },
+ {
+  "file": "art/ui/action_golden.png",
+  "bytes": 16322
+ },
+ {
+  "file": "art/ui/action_mobilize.png",
+  "bytes": 13292
+ },
+ {
+  "file": "art/ui/css_b-d.png",
+  "bytes": 1557
+ },
+ {
+  "file": "art/ui/css_b-h.png",
+  "bytes": 1451
+ },
+ {
+  "file": "art/ui/css_b-n.png",
+  "bytes": 1370
+ },
+ {
+  "file": "art/ui/css_b-p.png",
+  "bytes": 1201
+ },
+ {
+  "file": "art/ui/css_f-fill.png",
+  "bytes": 598
+ },
+ {
+  "file": "art/ui/css_f-gold.png",
+  "bytes": 2117
+ },
+ {
+  "file": "art/ui/css_f-main.png",
+  "bytes": 2096
+ },
+ {
+  "file": "art/ui/css_f-parch.png",
+  "bytes": 2666
+ },
+ {
+  "file": "art/ui/css_f-pill.png",
+  "bytes": 937
+ },
+ {
+  "file": "art/ui/css_f-red.png",
+  "bytes": 2238
+ },
+ {
+  "file": "art/ui/css_f-tab.png",
+  "bytes": 1038
+ },
+ {
+  "file": "art/ui/css_f-track.png",
+  "bytes": 650
+ },
+ {
+  "file": "art/ui/css_i-pin.png",
+  "bytes": 1035
+ },
+ {
+  "file": "art/ui/css_i-relic.png",
+  "bytes": 1472
+ },
+ {
+  "file": "art/ui/css_i-war.png",
+  "bytes": 1232
+ },
+ {
+  "file": "art/ui/css_relic-glow.png",
+  "bytes": 27476
+ },
+ {
+  "file": "art/ui/css_ui-card.png",
+  "bytes": 5022
+ },
+ {
+  "file": "art/ui/css_ui-cardd.png",
+  "bytes": 6104
+ },
+ {
+  "file": "art/ui/css_ui-cardl.png",
+  "bytes": 6124
+ },
+ {
+  "file": "art/ui/css_ui-cardn.png",
+  "bytes": 7355
+ },
+ {
+  "file": "art/ui/css_ui-check.png",
+  "bytes": 1445
+ },
+ {
+  "file": "art/ui/css_ui-coin.png",
+  "bytes": 3742
+ },
+ {
+  "file": "art/ui/css_ui-coins.png",
+  "bytes": 1769
+ },
+ {
+  "file": "art/ui/css_ui-corner.png",
+  "bytes": 8225
+ },
+ {
+  "file": "art/ui/css_ui-gem.png",
+  "bytes": 1326
+ },
+ {
+  "file": "art/ui/css_ui-gold.png",
+  "bytes": 6285
+ },
+ {
+  "file": "art/ui/css_ui-goldd.png",
+  "bytes": 3323
+ },
+ {
+  "file": "art/ui/css_ui-goldh.png",
+  "bytes": 4324
+ },
+ {
+  "file": "art/ui/css_ui-goldp.png",
+  "bytes": 3846
+ },
+ {
+  "file": "art/ui/css_ui-lock.png",
+  "bytes": 1409
+ },
+ {
+  "file": "art/ui/css_ui-newrib.png",
+  "bytes": 4338
+ },
+ {
+  "file": "art/ui/css_ui-sec.png",
+  "bytes": 4343
+ },
+ {
+  "file": "art/ui/css_ui-secd.png",
+  "bytes": 3016
+ },
+ {
+  "file": "art/ui/css_ui-sech.png",
+  "bytes": 4099
+ },
+ {
+  "file": "art/ui/css_ui-secp.png",
+  "bytes": 3319
+ },
+ {
+  "file": "art/ui/css_ui-star.png",
+  "bytes": 1382
+ },
+ {
+  "file": "art/ui/css_ui-stare.png",
+  "bytes": 1261
+ },
+ {
+  "file": "art/ui/css_ui-taboff.png",
+  "bytes": 2682
+ },
+ {
+  "file": "art/ui/css_ui-tabon.png",
+  "bytes": 4379
+ },
+ {
+  "file": "art/ui/css_ui-tile.png",
+  "bytes": 15820
+ },
+ {
+  "file": "art/ui/css_ui-tileh.png",
+  "bytes": 14383
+ },
+ {
+  "file": "art/ui/css_ui-win.png",
+  "bytes": 27659
+ },
+ {
+  "file": "art/ui/favicon.png",
+  "bytes": 11368
+ },
+ {
+  "file": "art/ui/icon_180.png",
+  "bytes": 73433
+ },
+ {
+  "file": "art/ui/icon_192.png",
+  "bytes": 82362
+ },
+ {
+  "file": "art/ui/icon_512.png",
+  "bytes": 423181
+ },
+ {
+  "file": "art/ui/og.jpg",
+  "bytes": 241861
+ },
+ {
+  "file": "art/uia/crest.png",
+  "bytes": 24983
+ },
+ {
+  "file": "art/uia/defeat.png",
+  "bytes": 33704
+ },
+ {
   "file": "art/uia/logo.png",
-  "from": "js",
   "bytes": 90866
  },
  {
   "file": "art/uia/logo2.png",
-  "from": "js",
   "bytes": 48287
  },
  {
-  "file": "art/uia/crest.png",
-  "from": "js",
-  "bytes": 24983
+  "file": "art/uia/logo3.webp",
+  "bytes": 74984
  },
  {
   "file": "art/uia/victory.png",
-  "from": "js",
   "bytes": 38207
  },
  {
-  "file": "art/uia/defeat.png",
-  "from": "js",
-  "bytes": 33704
+  "file": "art/victory/vic_conquest.png",
+  "bytes": 101259
  },
  {
-  "file": "art/menu/i_start.png",
-  "from": "js",
-  "bytes": 7758
+  "file": "art/victory/vic_defeat.png",
+  "bytes": 88287
  },
  {
-  "file": "art/menu/i_cont.png",
-  "from": "js",
-  "bytes": 6821
+  "file": "art/victory/vic_diplomacy.png",
+  "bytes": 111751
  },
  {
-  "file": "art/menu/i_legacy.png",
-  "from": "js",
-  "bytes": 6728
- },
- {
-  "file": "art/menu/i_collect.png",
-  "from": "js",
-  "bytes": 7630
- },
- {
-  "file": "art/menu/i_unlock.png",
-  "from": "js",
-  "bytes": 6299
- },
- {
-  "file": "art/menu/i_arena.png",
-  "from": "js",
-  "bytes": 8054
- },
- {
-  "file": "art/menu/i_how.png",
-  "from": "js",
-  "bytes": 7008
- },
- {
-  "file": "art/menu/i_opts.png",
-  "from": "js",
-  "bytes": 5968
- },
- {
-  "file": "art/tabs/t_troops.png",
-  "from": "js",
-  "bytes": 3856
- },
- {
-  "file": "art/tabs/t_peoples.png",
-  "from": "js",
-  "bytes": 3362
- },
- {
-  "file": "art/tabs/t_evos.png",
-  "from": "js",
-  "bytes": 3303
- },
- {
-  "file": "art/tabs/t_arts.png",
-  "from": "js",
-  "bytes": 3763
- },
- {
-  "file": "art/tabs/t_secrets.png",
-  "from": "js",
-  "bytes": 3742
- },
- {
-  "file": "art/tabs/t_civics.png",
-  "from": "js",
-  "bytes": 3446
- },
- {
-  "file": "art/tabs/t_extra.png",
-  "from": "js",
-  "bytes": 3325
- },
- {
-  "file": "art/legacy/l_might.png",
-  "from": "js",
-  "bytes": 3048
- },
- {
-  "file": "art/legacy/l_vigor.png",
-  "from": "js",
-  "bytes": 3692
- },
- {
-  "file": "art/legacy/l_swift.png",
-  "from": "js",
-  "bytes": 3429
- },
- {
-  "file": "art/legacy/l_hero.png",
-  "from": "js",
-  "bytes": 3755
- },
- {
-  "file": "art/legacy/l_harvest.png",
-  "from": "js",
-  "bytes": 3821
- },
- {
-  "file": "art/legacy/l_industry.png",
-  "from": "js",
-  "bytes": 3450
- },
- {
-  "file": "art/legacy/l_wisdom.png",
-  "from": "js",
-  "bytes": 3803
- },
- {
-  "file": "art/legacy/l_renown.png",
-  "from": "js",
-  "bytes": 3294
- },
- {
-  "file": "art/legacy/l_walls.png",
-  "from": "js",
-  "bytes": 3567
- },
- {
-  "file": "art/legacy/l_treasury.png",
-  "from": "js",
-  "bytes": 3934
- },
- {
-  "file": "art/legacy/l_muster.png",
-  "from": "js",
-  "bytes": 3954
- },
- {
-  "file": "art/legacy/l_fortune.png",
-  "from": "js",
-  "bytes": 3579
- },
- {
-  "file": "art/legacy/l_exile.png",
-  "from": "js",
-  "bytes": 3636
- },
- {
-  "file": "art/legacy/l_spoils.png",
-  "from": "js",
-  "bytes": 3802
+  "file": "art/victory/vic_science.png",
+  "bytes": 93633
  }
 ]
