@@ -60,6 +60,7 @@ tools/            developer tools (Node)
 
 - The JavaScript files share one global scope and must load in numeric order. A function can be *called while the page loads* only if it is defined in the same file or an earlier one.
 - Image loaders that call back into the game are queued with `atBoot(...)` so they start after every file has loaded.
+- Saves are kept across updates. `SAVE_VER` in `js/02-progress.js` wipes everyone's unlocks, Glory and Crowns once when it changes, so it only changes when Tim asks for a reset for a big content update.
 - After changing the order or moving code between files, run the checks:
 
   ```

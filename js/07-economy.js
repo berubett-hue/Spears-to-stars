@@ -351,6 +351,8 @@ function findSite(o){
     let sc = siteScore(o,x,y,inf) + Math.random()*.5 - dz*2;
     if(fl) sc -= Math.hypot(x+.5-fl.x, y+.5-fl.y)*.45;
     else if(cap) sc -= Math.hypot(x-cap.x, y-cap.y)*.12;
+    // your auto-placed towns lean toward the middle of the map and away from its edges
+    if(o===PLAYER && !fl){ sc -= Math.hypot(x+.5-N/2, y+.5-N/2)*.11; const ed = Math.min(x, y, N-1-x, N-1-y); if(ed < 7) sc -= (7-ed)*.7; }
     if(sc > best){ best=sc; bs={x,y}; }
   }
   return bs;

@@ -175,6 +175,8 @@ const ACH = [
   {id:'colossus', secret:1, tier:4, crown:6, d:'Find and conquer the Last Machine (from Crown 6)', prog:() => [LIFE().sh_colossus||0, 1]}
 ];
 /* ---------- Alpha reset: the unlock system changed, so every save starts over once ---------- */
+/* Changing SAVE_VER wipes every player's unlocks, Glory and Crowns once. Only change it when Tim asks for a reset
+   (a big content update). Ordinary updates must keep saves. */
 const SAVE_VER = 'alpha-2';
 let SAVE_RESET = false;
 try { if(localStorage.getItem('eh-ver') !== SAVE_VER){ SAVE_RESET = !!(localStorage.getItem('eh-life') || localStorage.getItem('eh-unlocks')); ['eh-life','eh-unlocks','eh-disc','eh-crown','eh-diff','eh-list','eh-pin'].forEach(k => localStorage.removeItem(k)); localStorage.setItem('eh-ver', SAVE_VER); } } catch(e){}
