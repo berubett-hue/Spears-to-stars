@@ -6,7 +6,7 @@ Built entirely through prompting by Tim Berube.
 
 ## Play it
 
-- **Online:** the published Claude artifact (same link as always, works on phone and PC).
+- **Online:** https://berubett-hue.github.io/Spears-to-stars/ (works on phone and PC, nothing to install).
 - **Locally:** the game is plain HTML, CSS and JavaScript with no build step. Browsers block some features when a page is opened straight from disk, so serve the folder:
 
   ```
@@ -65,3 +65,7 @@ cd tools
 node sim-decline.js .. legion 600    # play to 10:00, hand over the map, run the Decline
 node sim-troops.js .. horde          # army size, spawns and upkeep through the late game
 ```
+
+## License
+
+© 2026 Tim Berube. All rights reserved. You're welcome to play the game and read the source, but not to copy, modify, re-host or redistribute it. See [LICENSE](LICENSE).
