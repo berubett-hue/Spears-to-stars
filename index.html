@@ -5,6 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <link rel="icon" href="art/ui/favicon.png">
 <link rel="apple-touch-icon" href="art/ui/icon_180.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Spears to Stars">
 <meta name="theme-color" content="#0d1420">
 <meta name="description" content="A twenty-minute civilization: lead your people from spears to starships, conquer the map and hold your capital through the Decline and Fall.">
 <meta property="og:type" content="website">
@@ -66,6 +71,7 @@
       <button id="btnHome" aria-label="Center on your capital"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="6"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg></button>
     </div>
     <div id="toasts" aria-live="polite"></div>
+    <div class="joy" id="joy" hidden aria-label="Move your general"><i class="joy-k" id="joyK"></i></div>
     <div class="settle" id="settleBar" hidden><span><b>Settler ready.</b> Tap a lit spot · <span id="settleT">15</span>s</span><button id="btnAutoSettle">Auto</button></div>
     <div class="banner" id="banner"></div>
     <div class="lootpop" id="lootPop"></div>
@@ -81,7 +87,7 @@
 
   <section class="deck" id="deck">
     <button class="fold fold-bot" id="foldBot" aria-label="Collapse the bottom panel" title="Show less"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button>
-    <div class="armywrap"><div class="herocard" id="heroCard"><button class="hc-main" id="hcSel" title="Back to your hero (H)"><img id="hcImg" alt=""><span class="hc-txt"><b id="hcName">Hero</b><i class="hc-hp"><i id="hcHp"></i></i><span id="hcSub">—</span></span></button><button class="hc-act" id="hcAct" title="Hero ability (Space)"><i class="hc-cd" id="hcCd"></i><img id="hcActI" alt=""><b id="hcActN">Ability</b><span>Space</span></button><button class="hc-act hc-rally" id="hcRally" title="Release your band: they guard the nearest city (G)"><img class="ui-ic" data-kit="u_release" alt=""><b id="hcRallyN">Release</b><span id="hcRallyK">G</span></button><button class="hc-act hc-rally hc-ban" id="hcBan" title="Call the Banners (Y): every troop on the map marches to your general. Your cities keep only their towers until you Release (G)"><i class="hc-cd" id="hcBanCd"></i><img class="ui-ic" data-kit="u_banners" data-tint="1" alt=""><b>Banners</b><span id="hcBanK">Y</span></button><div class="orders" id="orders"><button data-o="charge" title="Charge (Q): your Host rushes every enemy nearby"><img class="ui-ic" data-kit="u_charge" alt=""><b>Charge</b><span>Q</span></button><button data-o="hold" title="Hold (E): your Host forms up around you and takes less damage"><img class="ui-ic" data-kit="u_hold" data-tint="1" alt=""><b>Hold</b><span>E</span></button><button data-o="fall" title="Fall back (R): your Host breaks off, runs to you and heals"><img class="ui-ic" data-kit="u_fallback" alt=""><b>Fall back</b><span>R</span></button></div><button class="hc-act hc-arts" id="hcArts" title="Artifacts your hero carries. Find them in ruins and barbarian camps"><i class="hc-artrow" id="hcArtRow"></i><span id="hcArtN">0/6</span></button></div><div class="mclock" id="mclock" title="Your level and era"><b>Lv 0</b><span>Ancient</span></div><div class="armybar" id="armybar" aria-label="Your army slots"></div></div>
+    <div class="armywrap"><div class="herocard" id="heroCard"><button class="hc-main" id="hcSel" title="Back to your hero (H)"><img id="hcImg" alt=""><span class="hc-txt"><b id="hcName">Hero</b><i class="hc-hp"><i id="hcHp"></i></i><span id="hcSub">—</span></span></button><button class="hc-act" id="hcAct" title="Hero ability (Space)"><i class="hc-cd" id="hcCd"></i><img id="hcActI" alt=""><b id="hcActN">Ability</b><span>Space</span></button><button class="hc-act hc-rally" id="hcRally" title="Release your band: they guard the nearest city (G)"><img class="ui-ic" data-kit="u_release" alt=""><b id="hcRallyN">Release</b><span id="hcRallyK">G</span></button><button class="hc-act hc-rally hc-ban" id="hcBan" title="Call the Banners (Y): every troop on the map marches to your general. Your cities keep only their towers until you Release (G)"><i class="hc-cd" id="hcBanCd"></i><img class="ui-ic" data-kit="u_banners" data-tint="1" alt=""><b>Banners</b><span id="hcBanK">Y</span></button><div class="orders" id="orders"><button data-o="charge" title="Charge (Q): your Host rushes every enemy nearby"><img class="ui-ic" data-kit="u_charge" alt=""><b>Charge</b><span>Q</span></button><button data-o="hold" title="Hold (E): your Host forms up around you and takes less damage"><img class="ui-ic" data-kit="u_hold" data-tint="1" alt=""><b>Hold</b><span>E</span></button><button data-o="fall" title="Fall back (R): your Host breaks off, runs to you and heals"><img class="ui-ic" data-kit="u_fallback" alt=""><b>Fall back</b><span>R</span></button></div><button class="hc-act hc-more" id="hcMore" title="More: decrees, troop lines and your level"><i class="hm-dots"><i></i><i></i><i></i></i><b>More</b></button><button class="hc-act hc-arts" id="hcArts" title="Artifacts your hero carries. Find them in ruins and barbarian camps"><i class="hc-artrow" id="hcArtRow"></i><span id="hcArtN">0/6</span></button></div><div class="mclock" id="mclock" title="Your level and era"><b>Lv 0</b><span>Ancient</span></div><div class="armybar" id="armybar" aria-label="Your army slots"></div></div>
     <div class="row3 doctrine" id="doctrine">
       <button data-d="expand" class="on"><b>Expand</b><span>Settlers &amp; riders</span></button>
       <button data-d="build"><b>Build</b><span>Food &amp; science</span></button>
@@ -180,7 +186,7 @@
     <h2>Options</h2>
     <h3>Sound</h3>
     <div class="vols"><label>Battle effects <input type="range" id="optFx" min="0" max="1" step="0.05"></label><label>Music <input type="range" id="optMus" min="0" max="1" step="0.05"></label></div>
-    <div class="opt-row"><label class="chk"><input type="checkbox" id="optSnd"> Sound on</label><label class="chk"><input type="checkbox" id="optMusOn"> Music on</label><label class="chk"><input type="checkbox" id="optDemo"> Live map behind the menu</label></div>
+    <div class="opt-row"><label class="chk"><input type="checkbox" id="optSnd"> Sound on</label><label class="chk"><input type="checkbox" id="optMusOn"> Music on</label><label class="chk"><input type="checkbox" id="optDemo"> Live map behind the menu</label><label class="chk ph-only"><input type="checkbox" id="optJoy"> Thumb joystick</label><label class="chk ph-only"><input type="checkbox" id="optVib"> Vibration</label></div>
     <div class="opt-row"><span>Screen shake</span><span class="seg" id="optShake"><button data-v="0">Off</button><button data-v="1">Low</button><button data-v="2">Full</button></span></div>
     <h3>Progress</h3>
     <p class="lnote" id="optLife"></p>
@@ -272,6 +278,9 @@
   <div class="sheet codex">
     <p class="kicker" id="pauseKicker">Paused</p>
     <h2>Codex</h2>
+    <button class="secondary ph-only ph-ledger" id="pLedger">Open the Ledger</button>
+    <h3 class="ph-only">Recent messages</h3>
+    <div class="cxlog ph-only" id="cxLog"></div>
     <h3>Your army</h3>
     <p class="dip-note" id="cxArmy"></p>
     <h3>Victory</h3>
@@ -389,6 +398,7 @@
 <script src="js/16-hud.js"></script>
 <script src="js/17-arena.js"></script>
 <script src="js/18-menu.js"></script>
+<script src="js/18p-phone.js"></script>
 <script src="js/19-main.js"></script>
 </body>
 </html>

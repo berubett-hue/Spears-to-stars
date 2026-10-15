@@ -10,6 +10,7 @@ function frame(now){
   if(G){
     let kx = 0, ky = 0, ax = 0, ay = 0;
     if(KEYS.has('a')) kx -= 1; if(KEYS.has('d')) kx += 1; if(KEYS.has('w')) ky -= 1; if(KEYS.has('s')) ky += 1;
+    if(R.joy){ kx += R.joy.x; ky += R.joy.y; }
     if(KEYS.has('arrowleft')) ax -= 1; if(KEYS.has('arrowright')) ax += 1; if(KEYS.has('arrowup')) ay -= 1; if(KEYS.has('arrowdown')) ay += 1;
     const hsel = heroOf(PLAYER);
     R.heroDir = hsel ? {x:kx, y:ky} : null;

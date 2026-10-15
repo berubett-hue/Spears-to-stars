@@ -1,8 +1,9 @@
 "use strict";
 /* ---------- FX ---------- */
 function burst(x,y,n,col){
+  if(R.phone) n = Math.ceil(n*.6);
   for(let i=0;i<n;i++){ const a=Math.random()*6.283, s=rnd(.6,2.4); R.parts.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s-.4,life:rnd(.35,.8),max:.8,col,sz:rnd(.06,.12)}); }
-  if(R.parts.length > 800) R.parts.splice(0, R.parts.length-800);
+  { const cap = R.phone ? 450 : 800; if(R.parts.length > cap) R.parts.splice(0, R.parts.length-cap); }
 }
 function float(text,x,y,col,life){ R.floats.push({text,x,y,col,life:life||1.2,max:life||1.2}); }
 function fxStep(dt){
@@ -20,6 +21,9 @@ function fxStep(dt){
 }
 function toast(msg,kind,at){
   if(G && G.demo) return;
+  msgLog(msg, kind, at);
+  if(kind==='bad') buzz(25);
+  if(R.phone){ phoneToast(msg, kind, at); return; }
   const box = $('#toasts'); if(!box || !box.appendChild) return;
   const el = document.createElement('div'); el.className = 'toast '+(kind||'')+(at?' link':''); el.textContent = msg;
   if(at) el.addEventListener('click', () => { if(at.watch && G){ R.follow = {x:at.x, y:at.y, t:.3}; R.camTo = {x:at.x, y:at.y}; R.camZ = 28; syncWatch(); } else focusOn(at.x, at.y); el.remove(); });

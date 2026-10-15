@@ -8,7 +8,7 @@ Built entirely through prompting by Tim Berube.
 
 ## Play it
 
-- **Online:** https://berubett-hue.github.io/Spears-to-stars/ (works on phone and PC, nothing to install).
+- **Online:** https://berubett-hue.github.io/Spears-to-stars/ (works on phone and PC, nothing to install). On a phone, use Share → Add to Home Screen to play it fullscreen like an app.
 - **Locally:** the game is plain HTML, CSS and JavaScript with no build step. Browsers block some features when a page is opened straight from disk, so serve the folder:
 
   ```
@@ -45,6 +45,7 @@ js/               the game, split by system, loaded in this order:
   16-hud.js                HUD, damage meter, goals, battles, diplomacy panel, ledger
   17-arena.js              Proving Grounds
   18-menu.js               main menu
+  18p-phone.js             phones: layout switch, one message at a time, joystick, vibration, battery mode
   19-main.js               game loop, input, boot
 art/              every image and the pixel font, grouped by use
   sprites/                 the big sheets (troops, generals, cities, barbarians, map tiles, effects)

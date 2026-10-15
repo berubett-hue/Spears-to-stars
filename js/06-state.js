@@ -331,6 +331,7 @@ function warringAny(o){
 }
 
 function newGame(demo){
+  R.tlog = []; R.tq = []; R.tcur = null; R.joy = null;
   const seed = (Math.random()*2147483647)|0;
   const ter = genTerrain(seed);
   G = {v:2, seed, ter, own:new Array(N*N).fill(0), bmap:new Array(N*N).fill(0), t:0, cities:[], units:[], rivals:[], rwars:[], techs:[], boons:[], evEffects:[],

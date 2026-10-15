@@ -258,7 +258,7 @@ function bigMoment(o){
 }
 function momNext(){
   const o = (R.momQ||[]).shift(); const el = $('#moment'); if(!o || !el || !el.querySelector){ R.momOn = false; return; }
-  R.momOn = true; const legend = o.tier==='legend';
+  R.momOn = true; const legend = o.tier==='legend'; buzz(legend ? [40, 50, 80] : 35);
   el.className = 'moment '+(legend ? 'legend' : 'epic'); el.style.setProperty('--mc', o.col || '#ffd36a');
   el.innerHTML = '<i class="rays"></i><div class="mbox">'+(o.img ? '<img src="'+o.img+'" alt="">' : '')+'<small>'+esc(o.kick||'')+'</small><b>'+esc(o.title||'')+'</b>'+(o.sub ? '<span>'+esc(o.sub)+'</span>' : '')+'</div>';
   el.hidden = false; void el.offsetWidth; el.classList.add('on');

@@ -131,6 +131,7 @@ function openPause(){
   if(!G || G.ended || modal) return;
   paused = true;
   $('#pauseKicker').textContent = 'Paused at '+fmt(G.t)+' · '+ERAS[G.eraIdx]+' Era';
+  { const lg = $('#cxLog'); if(lg) lg.innerHTML = logHTML(); }
   $('#cxArmy').textContent = armyText(PLAYER)+'. Army budget '+(G.rates.a||0).toFixed(1)+' production/s, upkeep '+(G.rates.u||0).toFixed(1)+'/s. More production, or the Defend doctrine, grows your army.';
   const conq = G.rivals.filter(r => !r.alive).length, ships = G.rivals.filter(r => r.alive && r.proj).map(r => r.name+' '+Math.floor(r.proj.p*100)+'%');
   $('#cxGoal').textContent = 'Conquest: '+conq+' of '+G.rivals.length+' nations conquered or joined. Science: '+(G.proj && G.proj.parts ? 'starship '+Math.floor(shipPct()*100)+'% built'+(G.proj.launching ? ', launching in '+Math.ceil(G.proj.launch)+'s' : '') : 'in the Modern Era, raise Writing to level 5 and Astronomy to level 3 to unlock the Space Program')+'.'+(ships.length ? ' Rival starships: '+ships.join(', ')+'.' : '');

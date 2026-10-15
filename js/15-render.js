@@ -453,7 +453,7 @@ function resize(){
   const st = $('#stage'); if(!st || !cv) return;
   const w = st.clientWidth, h = st.clientHeight;
   if(!isFinite(w) || !isFinite(h) || w < 50 || h < 50) return;
-  VW = w; VH = h; dpr = Math.min(2.5, window.devicePixelRatio || 1);
+  VW = w; VH = h; dpr = Math.min(R.phone ? 2 : 2.5, window.devicePixelRatio || 1);
   { const tb = $('#topbar'), dk = $('#deck'), ov = !!(st && typeof getComputedStyle==='function' && getComputedStyle(st).position==='fixed');
     const th = tb && tb.getBoundingClientRect ? tb.getBoundingClientRect().height : 0, dh = dk && dk.getBoundingClientRect ? dk.getBoundingClientRect().height : 0;
     try { document.documentElement.style.setProperty('--topH', Math.round(th-20)+'px'); document.documentElement.style.setProperty('--deckH', Math.round(dh-14)+'px'); } catch(e){}
