@@ -152,6 +152,8 @@ function calcGlory(won){
     ['Cities taken', 30*(st.captured||0)],
     ['Warlords slain', 40*(st.warlords||0)],
     ['Capitals razed', 60*(G.razed||0)],
+    ['The Red Horde burned', 150*(st.horde||0)],
+    ['Resource sites held', 15*((G.sites||[]).filter(s => s.owner===PLAYER).length)],
     ['Wild sites', 15*((st.ruins||0) + (st.camps||0) + (st.wonders||0))],
     ['Victory', won ? 400 : 0],
     [G.grade ? GRADES[G.grade.i].n+' grade' : '', won && G.grade ? GRADES[G.grade.i].g : 0],

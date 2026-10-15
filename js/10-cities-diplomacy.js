@@ -96,7 +96,7 @@ function openConquest(q){
   const P = NATIONS_P.find(n => n.id===r.people) || {start:[]}, line = P.start[0], C = CARDS[line];
   const has = !!slotOf(line), room = G.cards.length < cardSlots(), nc = citiesOf(r.id).length, trib = (Math.max(1, nc)*.6).toFixed(1);
   const lineTxt = !C ? '' : has ? ' Their veterans swell your '+cardName(PLAYER, line)+'.' : room ? ' '+C.n+' join you as a support line for this game.' : ' Their veterans join you (no free troop slot for their line).';
-  showEvent({kicker:'Conquest', img:KIT.vic_conquest, title:(c ? c.name : 'Their capital')+' is yours', text:'The '+r.name+' still hold '+nc+' cit'+(nc===1 ? 'y' : 'ies')+'. Their leader kneels. What becomes of them?',
+  showEvent({gate:6, kicker:'Conquest', img:KIT.vic_conquest, title:(c ? c.name : 'Their capital')+' is yours', text:'The '+r.name+' still hold '+nc+' cit'+(nc===1 ? 'y' : 'ies')+'. Their leader kneels. What becomes of them?',
     opts:[
       {l:'Absorb them', ic:KIT.u_absorb, s:'Their cities and army join your empire.'+lineTxt+' Their towns are restless for a minute', f:() => conqAbsorb(r.id, line)},
       {l:'Make them a vassal', ic:KIT.u_vassal, s:'They keep their land, fight beside you and pay '+trib+' influence a second. Vassals count as conquered', f:() => conqVassal(r.id)},

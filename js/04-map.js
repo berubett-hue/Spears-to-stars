@@ -89,7 +89,7 @@ function poiSpr(p){
   if(p.k==='shrine') return getSpr('poi_sh_'+p.sub, () => spriteFrom(padRows(POI_ICON.shrine), Object.assign({}, AP, {c:SHRINE[p.sub].c})));
   return getSpr('poi_'+p.k, () => spriteFrom(padRows(POI_ICON[p.k]), AP));
 }
-const poiName = p => p.k==='wonder' ? WONDER[p.sub].n : p.k==='shrine' ? SHRINE[p.sub].n : p.k==='camp' ? (p.keep ? 'Pretender’s keep' : p.big ? 'Barbarian stronghold' : 'Barbarian camp') : POI_NAME[p.k];
+const poiName = p => p.k==='wonder' ? WONDER[p.sub].n : p.k==='shrine' ? SHRINE[p.sub].n : p.k==='camp' ? (p.horde==='cap' ? 'Red Horde capital' : p.horde ? 'Red Horde town' : p.keep ? 'Pretender’s keep' : p.big ? 'Barbarian stronghold' : 'Barbarian camp') : POI_NAME[p.k];
 
 /* fog of war */
 const fogSee = (x, y) => !R.vis || !G || G.arena || G.demo || !!R.vis[tileAt(x, y)];
@@ -196,7 +196,7 @@ function campCheck(id, att){
   const p = G.pois.find(q => q.id===id); if(!p || p.dead || p.st!=='ok') return;
   if(G.units.some(u => u.camp===id && u.hp > 0)) return;
   p.st = 'loot'; burst(p.x+.5, p.y+.5, 14, '#ffd36a'); ring(p.x+.5, p.y+.5, .2, 1.6, '#ffd36a', .7);
-  if(att===PLAYER || fogSee(p.x+.5, p.y+.5)){ toast((p.keep ? 'Pretender’s keep' : p.big ? 'Warcamp' : 'Camp')+' cleared! A loot pile waits: walk your hero onto it','good',{x:p.x+.5, y:p.y+.5}); SFX.found && SFX.found(); float('LOOT!', p.x+.5, p.y-.4, '#ffd36a', 2); R.floats[R.floats.length-1].big = 1; }
+  if(att===PLAYER || fogSee(p.x+.5, p.y+.5)){ toast((p.horde==='cap' ? 'The Khan’s guard is dead! Walk your hero into his capital to burn it' : p.horde ? 'Horde town cleared! Walk your hero in to burn it' : (p.keep ? 'Pretender’s keep' : p.big ? 'Warcamp' : 'Camp')+' cleared! A loot pile waits: walk your hero onto it'),'good',{x:p.x+.5, y:p.y+.5}); SFX.found && SFX.found(); float('LOOT!', p.x+.5, p.y-.4, '#ffd36a', 2); R.floats[R.floats.length-1].big = 1; }
 }
 /* The Host: every troop not guarding a city marches with your general. Garrisons scale with city size and only defend */
 const garQuota = c => Math.max(1, Math.round((1 + Math.floor(c.pop/3) + (c.capital ? 1 : 0))*(G.doctrine==='defend' ? 1.6 : 1)));
@@ -276,6 +276,7 @@ function poiTouch(p, h){
   }
   else if(p.k==='camp'){
     if(p.st!=='loot'){ if(!p.warned){ p.warned = 1; toast('Clear the guards first','warn',at); } return; }
+    if(p.horde){ hordeLoot(p, h); return; }
     p.dead = true; G.stats.camps = (G.stats.camps||0) + 1; lifeAdd('camps'); if(p.big) lifeAdd('holds');
     const v = Math.round((p.big ? 70 : 40)*eraCash()); G.influence = Math.min(600, G.influence + v);
     if(p.big){ const n = (p.keep ? 5 : 4) + Math.min(3, G.eraIdx||0), before = G.units.length; joinBand(h, n, true);
@@ -317,7 +318,7 @@ function poiTick(dt){
     if(p.dead) continue;
     const o = G.own[idx(p.x, p.y)];
     if(p.k==='wonder'){ if(o===PLAYER){ wm[WONDER[p.sub].e] *= 1.15; if(!p.mine){ p.mine = 1; toast(WONDER[p.sub].n+' lies inside your borders. '+WONDER[p.sub].d,'good',{x:p.x+.5, y:p.y+.5}); } } else p.mine = 0; }
-    else if(o && o!==PLAYER){ p.dead = true; for(const u of G.units) if(u.camp===p.id) u.camp = 0; continue; }
+    else if(o && o!==PLAYER && !p.horde){ p.dead = true; for(const u of G.units) if(u.camp===p.id) u.camp = 0; continue; }
     if(p.k==='camp' && !p.armed && R.vis && R.vis[idx(p.x, p.y)]){ p.armed = 1; campGuards(p); }
     if(p.k==='shrine' && p.st==='cd' && G.t >= p.rt) p.st = 'ok';
     if(!h) { p.near = false; continue; }
@@ -391,6 +392,7 @@ function drawPois(x, vis){
   for(const p of G.pois){
     if(p.dead || !vis(p.x, p.y, 2)) continue;
     if(!G.seen[idx(p.x, p.y)] && !chart) continue;
+    if(p.horde && p.st!=='loot' && hordeDraw(x, p)) continue;
     if(p.keep && p.st!=='loot' && kOk('poi_keep')){
       const im = TINTC.keep || (TINTC.keep = greenTint(KIMG.poi_keep, [196, 52, 40])), w = 3.1, hh = w*im.height/im.width, cx = p.x+.5, by = p.y+1.1;
       x.fillStyle = 'rgba(0,0,0,.3)'; x.beginPath(); x.ellipse(cx, by-.12, w*.44, w*.13, 0, 0, 6.283); x.fill();

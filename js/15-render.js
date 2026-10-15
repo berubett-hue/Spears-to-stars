@@ -655,7 +655,7 @@ function draw(){
     if(!BSPR.ok && (c.owner===PLAYER ? (relicLv('masonry') > 0 || G.eraIdx >= 2) : rEra() >= 1)) drawWalls(x, c);
   }
   // Cities
-  drawPois(x, vis);
+  drawPois(x, vis); drawSites(x, vis);
   if(R.rubble){ R.rubble = R.rubble.filter(r => G.t - r.t < 60); for(const r of R.rubble) if(vis(r.x, r.y, 2)) kitDraw(x, 'cd_rubble', r.x, r.y, 1.1, Math.min(1, (60 - (G.t - r.t))/10)); }
   const cs = G.cities.filter(c => vis(c.x,c.y,2) && fogSeen(c.x,c.y)).sort((a,b) => a.y-b.y);
   for(const c of cs){
@@ -795,7 +795,7 @@ function draw(){
   // Screen-space text
   x.setTransform(dpr,0,0,dpr,0,0);
   x.textAlign = 'center'; x.textBaseline = 'top'; x.lineJoin = 'round';
-  drawPoiLabels(x, sx, sy);
+  drawPoiLabels(x, sx, sy); drawSiteLabels(x, sx, sy);
   if(z >= 7) for(const c of cs){
     const [bx,by] = toScreen(c.x+1.05, c.y-.15), r = z >= 20 ? 9 : 7, col = c.owner===PLAYER ? R.pal[1].L : ocol(c.owner);
     x.fillStyle = 'rgba(8,12,14,.9)'; x.beginPath(); x.arc(bx+sx, by+sy, r+1.5, 0, 6.283); x.fill();
@@ -855,7 +855,7 @@ function drawMini(){
     m.drawImage(miniOwn, 0, 0, W, W);
   }
   if(R.fogCv && G.seen){ m.imageSmoothingEnabled = true; m.drawImage(R.fogCv, 0, 0, W, W); m.imageSmoothingEnabled = false; }
-  drawPoiMini(m, s);
+  drawPoiMini(m, s); drawSiteMini(m, s);
   for(const [key,f] of R.fights){
     const a = R.now - f.t; if(a > 1.2){ R.fights.delete(key); continue; } if(!fogSeen(f.x, f.y)) continue;
     m.fillStyle = 'rgba(255,190,90,'+(1-a/1.2)+')'; m.beginPath(); m.arc(f.x*s, f.y*s, (2+a*3)*dpr, 0, 6.283); m.fill();

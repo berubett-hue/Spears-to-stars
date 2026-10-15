@@ -50,7 +50,7 @@ function showEvent(ev){
   $('#evKicker').textContent = ev.kicker;
   $('#evTitle').textContent = ev.title;
   $('#evText').textContent = ev.text;
-  $('#evChoices').innerHTML = (ev.opts || [ev.a, ev.b]).map(o => o.ic ? '<button class="choice has-ic"><img src="'+o.ic+'" alt=""><b>'+esc(o.l)+'</b><span>'+esc(o.s)+'</span></button>' : '<button class="choice"><b>'+esc(o.l)+'</b><span>'+esc(o.s)+'</span></button>').join('');
+  $('#evChoices').innerHTML = (ev.opts || [ev.a, ev.b]).map(o => o.pic ? '<button class="choice has-pic"><img src="'+o.pic+'" alt=""><b>'+esc(o.l)+'</b><span>'+esc(o.s)+'</span></button>' : o.ic ? '<button class="choice has-ic"><img src="'+o.ic+'" alt=""><b>'+esc(o.l)+'</b><span>'+esc(o.s)+'</span></button>' : '<button class="choice"><b>'+esc(o.l)+'</b><span>'+esc(o.s)+'</span></button>').join('');
   [...$('#evChoices').children].forEach((el,i) => el.addEventListener('click', () => {
     if(performance.now() - R.openedAt < 350) return;
     resolveEvent(i);
@@ -64,7 +64,7 @@ function resolveEvent(i){
   (ev.opts ? ev.opts[i] : (i===0 ? ev.a : ev.b)).f();
   G.rivals.forEach(r => r.rel = clamp(r.rel,-100,100));
   refreshStats();
-  modal = null; R.event = null; G.gate = G.t + 15;
+  modal = null; R.event = null; G.gate = G.t + (ev.gate ?? 15);
   const ov = $('#ovEvent'); if(ov) ov.hidden = true;
   SFX.pick();
 }

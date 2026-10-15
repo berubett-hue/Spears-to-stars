@@ -67,6 +67,7 @@ function goalsLive(){
     if(st.state==='ready') out.push({id:'e:'+sl.id, ic:'u_g_relic', name:known(st.ev) ? st.ev.n : 'Something stirs', d:'Ready · slay a rival general to awaken it', v:1, g:1, ready:1});
     else if(st.state==='path' && st.ev && st.ev.from===sl.id){ const L = evLv(st.ev); out.push({id:'e:'+sl.id, ic:'u_g_relic', name:st.ev.n, d:st.txt, v:Math.min(sl.lvl, L), g:L}); } }
   try { out.push(...holdGoals()); } catch(e){}
+  try { out.push(...hordeGoals()); } catch(e){}
   out.forEach(o => { o.f = Math.min(1, o.v/Math.max(1, o.g)); });
   out.sort((a,b) => (b.id===R.pin) - (a.id===R.pin) || (b.ready||0) - (a.ready||0) || b.f - a.f);
   return out;
@@ -198,7 +199,8 @@ function hud(){
   el('vInfl').textContent = Math.floor(G.influence);
   el('vCities').textContent = citiesOf(PLAYER).length+'/'+cityCap();
   el('vArmy').textContent = Math.round(G.armySup ?? armySup(PLAYER))+'/'+(G.armyCap||0);
-  const mc = el('mclock'); if(mc){ mc.querySelector('b').textContent = 'Lv '+(G.level||0)+(G.maxed ? ' MAX' : ''); mc.querySelector('span').textContent = ERAS[G.eraIdx]; }
+  resHud();
+  const mc = el('mclock'); if(mc){ mc.querySelector('b').textContent = 'Lv '+(G.level||0)+(G.maxed ? ' MAX' : ''); const gv = govOf(); mc.querySelector('span').textContent = gv ? gv.n : ERAS[G.eraIdx]; mc.title = gv ? 'Lv '+(G.level||0)+' · '+ERAS[G.eraIdx]+' Age · '+gv.n+': '+gv.d+' ('+gv.c+')' : 'Your level and era'; }
   const cost = researchCost(), pct = clamp(G.sci/cost,0,1);
   el('rFill').style.width = (pct*100).toFixed(1)+'%';
   const eta = G.rates.s > 0 ? Math.max(0, Math.ceil((cost - G.sci)/G.rates.s)) : 0;
@@ -403,7 +405,7 @@ function ledgerEmpire(){
   B.push(['Unit level cap', String(lvlCap(PLAYER))]);
   const nat = NATIONS_P.find(n => n.id===G.perk);
   let h = '<h3>Bonuses</h3><div class="bgrid">'+B.map(([l,v]) => '<div><span>'+l+'</span><b>'+v+'</b></div>').join('')+'</div>';
-  if(nat) h += '<p class="lnote"><b style="color:var(--fg)">'+nat.n+':</b> '+nat.perk+'. Doctrine: '+G.doctrine+'.</p>';
+  if(nat) h += '<p class="lnote"><b style="color:var(--fg)">'+nat.n+':</b> '+nat.perk+'. Doctrine: '+G.doctrine+'.'+(govOf() ? ' Government: '+govOf().n+' ('+govOf().d+'; '+govOf().c+').' : '')+'</p>';
   // army
   h += '<h3>Army</h3><div class="chiprow">'+G.cards.map(sl => '<span class="uchip">'+cardName(PLAYER, sl.id)+'<em>Lv '+sl.lvl+'</em></span>').join('')+(G.relics||[]).map(r => '<span class="uchip" style="border-color:rgba(180,138,224,.5)">'+RELICS[r.id].n+'<em>Lv '+r.lvl+'</em></span>').join('')+'</div>';
   const syn = R.syn, synOn = []; for(const g in SYN) for(const [need, txt] of SYN[g]) if((syn[g]||0) >= need) synOn.push(g+': '+txt);

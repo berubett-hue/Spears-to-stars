@@ -2,11 +2,12 @@
 /* ---------- Update ---------- */
 function update(dt){
   if(R.conqQ && !modal && !G.ended){ const q = R.conqQ; R.conqQ = null; openConquest(q); if(modal) return; }
+  if(G.govQ != null && !modal && !G.ended && !G.demo && !G.arena){ const a = G.govQ; G.govQ = null; openGov(a); if(modal) return; }
   G.t += dt;
   for(const k in G.cd) G.cd[k] = Math.max(0, G.cd[k]-dt);
   for(const k in G.buff) G.buff[k] = Math.max(0, G.buff[k]-dt);
   G.econAcc += dt;
-  while(G.econAcc >= .5){ G.econAcc -= .5; if(R.bdirty) rebuildB(); econ(.5); rivalEcon(.5); if(!G.arena){ moraleTick(.5); battleTick(.5); focusTick(); levyTick(.5); unrestTick(); if(G.decline) declineTick(); } diplomacy(.5); constructBuildings(.5); if(!G.arena){ hostTick(); holdTick(); } }
+  while(G.econAcc >= .5){ G.econAcc -= .5; if(R.bdirty) rebuildB(); econ(.5); rivalEcon(.5); if(!G.arena){ moraleTick(.5); battleTick(.5); focusTick(); levyTick(.5); unrestTick(); if(G.decline) declineTick(); } diplomacy(.5); constructBuildings(.5); if(!G.arena){ hostTick(); holdTick(); govTick(); siteTick(.5); hordeTick(.5); } }
   if(!G.arena && !modal){ G.eraT = (G.eraT||0) + dt; if(G.eraT > 1){ G.eraT = 0; const o = G.eraIdx; if(Math.min(eraOfLevel(G.level||0), timeEra(G.t)) > o){ refreshStats(); if(G.eraIdx > o) eraUp(o); } } }
   const dm = DOCT[G.doctrine];
   G.borderAcc += (.45 + .12*citiesOf(PLAYER).length) * (1+S.border) * dm.border * dt;
@@ -479,5 +480,6 @@ function eraUp(oldEra){
     else if(G.eraIdx===2) toast((G.core && !CR(8) ? 'A second support slot and a civic slot open' : 'A civic slot opens'),'good');
     else if(G.eraIdx===4) toast('A civic slot opens','good');
     if(G.core && !G.demo && G.cards.length < cardSlots()) G.supQ = true;
+    if(!G.demo && !G.arena && G.govAsked) G.govQ = G.eraIdx;
   }
 }

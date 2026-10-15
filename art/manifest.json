@@ -400,6 +400,54 @@
   "bytes": 18855
  },
  {
+  "file": "art/governments/gov_absolute.webp",
+  "bytes": 33220
+ },
+ {
+  "file": "art/governments/gov_chiefdom.webp",
+  "bytes": 29746
+ },
+ {
+  "file": "art/governments/gov_democracy.webp",
+  "bytes": 31902
+ },
+ {
+  "file": "art/governments/gov_elders.webp",
+  "bytes": 32162
+ },
+ {
+  "file": "art/governments/gov_empire.webp",
+  "bytes": 31424
+ },
+ {
+  "file": "art/governments/gov_federation.webp",
+  "bytes": 31388
+ },
+ {
+  "file": "art/governments/gov_feudalism.webp",
+  "bytes": 31188
+ },
+ {
+  "file": "art/governments/gov_merchant.webp",
+  "bytes": 32432
+ },
+ {
+  "file": "art/governments/gov_monarchy.webp",
+  "bytes": 28324
+ },
+ {
+  "file": "art/governments/gov_republic.webp",
+  "bytes": 32998
+ },
+ {
+  "file": "art/governments/gov_technocracy.webp",
+  "bytes": 32898
+ },
+ {
+  "file": "art/governments/gov_theocracy.webp",
+  "bytes": 27024
+ },
+ {
   "file": "art/grades/gr_0.png",
   "bytes": 15014
  },
@@ -414,6 +462,30 @@
  {
   "file": "art/grades/gr_3.png",
   "bytes": 14162
+ },
+ {
+  "file": "art/horde/ev_horde.webp",
+  "bytes": 51360
+ },
+ {
+  "file": "art/horde/horde_banner.webp",
+  "bytes": 5312
+ },
+ {
+  "file": "art/horde/horde_capital.webp",
+  "bytes": 32694
+ },
+ {
+  "file": "art/horde/horde_khan.webp",
+  "bytes": 41482
+ },
+ {
+  "file": "art/horde/horde_tower.webp",
+  "bytes": 21406
+ },
+ {
+  "file": "art/horde/horde_town.webp",
+  "bytes": 30400
  },
  {
   "file": "art/hud/u_absorb.png",
@@ -688,126 +760,6 @@
   "bytes": 6299
  },
  {
-  "file": "art/planned/governments/gov_absolute.png",
-  "bytes": 176214
- },
- {
-  "file": "art/planned/governments/gov_chiefdom.png",
-  "bytes": 152354
- },
- {
-  "file": "art/planned/governments/gov_democracy.png",
-  "bytes": 181489
- },
- {
-  "file": "art/planned/governments/gov_elders.png",
-  "bytes": 181013
- },
- {
-  "file": "art/planned/governments/gov_empire.png",
-  "bytes": 169338
- },
- {
-  "file": "art/planned/governments/gov_federation.png",
-  "bytes": 157559
- },
- {
-  "file": "art/planned/governments/gov_feudalism.png",
-  "bytes": 167736
- },
- {
-  "file": "art/planned/governments/gov_merchant.png",
-  "bytes": 164378
- },
- {
-  "file": "art/planned/governments/gov_monarchy.png",
-  "bytes": 145091
- },
- {
-  "file": "art/planned/governments/gov_republic.png",
-  "bytes": 181644
- },
- {
-  "file": "art/planned/governments/gov_technocracy.png",
-  "bytes": 171639
- },
- {
-  "file": "art/planned/governments/gov_theocracy.png",
-  "bytes": 164026
- },
- {
-  "file": "art/planned/horde/ev_horde.png",
-  "bytes": 309597
- },
- {
-  "file": "art/planned/horde/horde_banner.png",
-  "bytes": 20749
- },
- {
-  "file": "art/planned/horde/horde_capital.png",
-  "bytes": 142506
- },
- {
-  "file": "art/planned/horde/horde_khan.png",
-  "bytes": 237722
- },
- {
-  "file": "art/planned/horde/horde_tower.png",
-  "bytes": 93638
- },
- {
-  "file": "art/planned/horde/horde_town.png",
-  "bytes": 136676
- },
- {
-  "file": "art/planned/resources/res_fields.png",
-  "bytes": 108181
- },
- {
-  "file": "art/planned/resources/res_gold.png",
-  "bytes": 109839
- },
- {
-  "file": "art/planned/resources/res_horses.png",
-  "bytes": 100800
- },
- {
-  "file": "art/planned/resources/res_iron.png",
-  "bytes": 115593
- },
- {
-  "file": "art/planned/resources/res_relic.png",
-  "bytes": 105958
- },
- {
-  "file": "art/planned/resources/res_stone.png",
-  "bytes": 111508
- },
- {
-  "file": "art/planned/resources/ri_fields.png",
-  "bytes": 21847
- },
- {
-  "file": "art/planned/resources/ri_gold.png",
-  "bytes": 22269
- },
- {
-  "file": "art/planned/resources/ri_horses.png",
-  "bytes": 25095
- },
- {
-  "file": "art/planned/resources/ri_iron.png",
-  "bytes": 19497
- },
- {
-  "file": "art/planned/resources/ri_relic.png",
-  "bytes": 24340
- },
- {
-  "file": "art/planned/resources/ri_stone.png",
-  "bytes": 20707
- },
- {
   "file": "art/protocols/pr_accel.png",
   "bytes": 15242
  },
@@ -842,6 +794,54 @@
  {
   "file": "art/protocols/pr_walls.png",
   "bytes": 16727
+ },
+ {
+  "file": "art/resources/res_fields.webp",
+  "bytes": 24524
+ },
+ {
+  "file": "art/resources/res_gold.webp",
+  "bytes": 23446
+ },
+ {
+  "file": "art/resources/res_horses.webp",
+  "bytes": 22108
+ },
+ {
+  "file": "art/resources/res_iron.webp",
+  "bytes": 24332
+ },
+ {
+  "file": "art/resources/res_relic.webp",
+  "bytes": 22990
+ },
+ {
+  "file": "art/resources/res_stone.webp",
+  "bytes": 23866
+ },
+ {
+  "file": "art/resources/ri_fields.png",
+  "bytes": 10475
+ },
+ {
+  "file": "art/resources/ri_gold.png",
+  "bytes": 10784
+ },
+ {
+  "file": "art/resources/ri_horses.png",
+  "bytes": 11784
+ },
+ {
+  "file": "art/resources/ri_iron.png",
+  "bytes": 9336
+ },
+ {
+  "file": "art/resources/ri_relic.png",
+  "bytes": 11679
+ },
+ {
+  "file": "art/resources/ri_stone.png",
+  "bytes": 9923
  },
  {
   "file": "art/sprites/barba.png",

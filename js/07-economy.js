@@ -330,7 +330,7 @@ function siteInfo(o,x,y){
   const coast = [[1,0],[-1,0],[0,1],[0,-1]].some(([a,b]) => G.ter[idx(x+a,y+b)]===WATER);
   return {f, p, s, hill:t===HILLS, dmin, foreign, coast};
 }
-const siteScore = (o,x,y,inf) => (inf.f*1.1 + inf.p + inf.s*1.2)*.3 - inf.foreign + (G.own[idx(x,y)]===o ? 1.5 : 0) - Math.abs(inf.dmin-6)*.4 + (inf.hill ? 1.2 : 0);
+const siteScore = (o,x,y,inf) => (inf.f*1.1 + inf.p + inf.s*1.2)*.3 - inf.foreign + (G.own[idx(x,y)]===o ? 1.5 : 0) - Math.abs(inf.dmin-6)*.4 + (inf.hill ? 1.2 : 0) + resPull(x, y);
 function cityBox(o, pad){
   let x0=N, y0=N, x1=0, y1=0;
   for(const c of G.cities) if(c.owner===o){ x0=Math.min(x0,c.x); y0=Math.min(y0,c.y); x1=Math.max(x1,c.x); y1=Math.max(y1,c.y); }

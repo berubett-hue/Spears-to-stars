@@ -12,6 +12,7 @@ function computeStats(){
   if(G.perk==='merchant'){ s.infl += .3; s.tradeBoost += .5; } if(G.perk==='star') s.sci += .15; if(G.perk==='bastion') s.cityhp += .4;
   (G.relics||[]).forEach(r => { const e = RELICS[r.id] && RELICS[r.id].e; if(e) for(const k in e) s[k] = (s[k]||0) + e[k]*r.lvl; });
   s.cities += Math.floor((relicLv('frontier')+1)/2);
+  { const ge = govEffects(); if(ge) add(ge); siteEffects(add); }
   const er = G.eraIdx||0;
   add({all:.1*er, popCap:2*er, cityhp:.3*er, towerDmg:.25*er, regen:.25*er, tower:1, mining:er>=1?1:0, coastal:er>=2?1:0});
   s.tiers = {guard:0, rider:0, archer:0, siege:0};
@@ -192,7 +193,7 @@ function uStat(u){
   if(u.owner===PLAYER && G && !G.arena && u.card===G.core && SBAL[G.perk] && !u.hero){ s0.dmg *= SBAL[G.perk]; s0.hp *= Math.sqrt(SBAL[G.perk]); }
   if(u.elite){ s0.hp *= 1.8; s0.dmg *= 1.5; }
   if(u.owner===PLAYER && G && G.focus && u.card===G.core && !u.hero){ s0.hp *= 1 + .15*G.focus; s0.dmg *= 1 + .15*G.focus; }
-  if(u.owner > 1 && G && !G.arena && G.rivals){ const rv = G.rivals[u.owner-2]; const m = rv ? (rv.morale ?? 70) : 70; if(m < 40) s0.dmg *= m < 20 ? .75 : .87; }
+  if(u.owner > 1 && G && !G.arena && G.rivals){ const rv = G.rivals[u.owner-2]; const m = rv ? (rv.morale ?? 70) : 70; if(m < 40) s0.dmg *= m < 20 ? .75 : .87; if(G.siteN && G.siteN[u.owner]) s0.dmg *= siteDmg(u.owner); }
   return s0;
 }
 function uStat0(u){
@@ -374,7 +375,7 @@ function newGame(demo){
     spawnUnit(r.id, c, r.cards[0]); spawnUnit(r.id, c, r.cards[1] || r.cards[0]);
   });
   if(CR(1)) for(const r of G.rivals){ const s2 = findSite(r.id); if(s2){ const c2 = foundCity(s2.x, s2.y, r.id, false); if(c2) spawnUnit(r.id, c2, r.cards[0]); } }
-  fogInit(); reveal(home.x+.5, home.y+.5, 10); placePois(); placeHolds();
+  fogInit(); reveal(home.x+.5, home.y+.5, 10); placePois(); placeHolds(); placeSites(); hordeInit(); R.resKey = '';
   if(!demo) progSnap();
   R.cb=new Map(); R.towers=[]; R.tcd=new Map(); R.bnew=new Map(); R.corpses=[]; R.fights=new Map(); R.bdirty=true; R.heroArts=null; R.wmul=null;
   R.parts=[]; R.projs=[]; R.floats=[]; R.conqQ = null; R.gPrev = {}; R.gInit = false; R.gDone = []; R.gDot = null; R.uiTintC = null; R.flash.clear(); R.shake=0; R.dirty=true; R.raidT.clear(); R.raidS.clear(); R.raidGo.clear(); R.danger.clear(); R.rings=[]; R.fires=[]; R.warArm=null; R.lastLayers=-1;

@@ -108,7 +108,8 @@ function barbStep(b, dt, cityById){
   let city = cityById.get(b.tc);
   if(!city || city.dead || b.rt<=0){
     b.rt = .5; let best=1e9; city=null;
-    for(const c of G.cities){ if(c.dead) continue; const d=(c.x+.5-b.x)**2+(c.y+.5-b.y)**2; if(d<best){ best=d; city=c; } }
+    for(const c of G.cities){ if(c.dead || (b.hr && c.owner!==PLAYER)) continue; const d=(c.x+.5-b.x)**2+(c.y+.5-b.y)**2; if(d<best){ best=d; city=c; } }
+    if(!city && b.hr){ b.hr = 0; b.rt = 0; return; }
     b.tc = city ? city.id : 0;
   }
   if(!city) return;

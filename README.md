@@ -37,6 +37,9 @@ js/               the game, split by system, loaded in this order:
   12-events-meta.js        events, decrees, morale, grades, quests, unlock progress, artifacts
   13-decline.js            Decline and Fall
   13s-strongholds.js       hidden strongholds of the six hidden peoples
+  13g-governments.js       a government choice at the start and each new age
+  13r-sites.js             resource sites worth fighting over
+  13h-horde.js             the Red Horde, a rare barbarian empire
   14-fx-audio.js           effects, sound, generative music
   15-render.js             pixel art, troop forms, map rendering
   16-hud.js                HUD, damage meter, goals, battles, diplomacy panel, ledger
@@ -47,7 +50,7 @@ art/              every image and the pixel font, grouped by use
   sprites/                 the big sheets (troops, generals, cities, barbarians, map tiles, effects)
   hud/  ui/                in-game HUD icons and frames
   manifest.json            list of every art file and its size
-  planned/                 finished art for features not built yet (governments, resource sites, the Horde)
+  governments/ resources/ horde/   art for governments, resource sites and the Red Horde
   store/                   logo, app icon and wide banners for store pages and sharing
 tools/            developer tools (Node)
 ```
