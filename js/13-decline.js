@@ -158,6 +158,7 @@ function calcGlory(won){
     ['Victory', won ? 400 : 0],
     [G.grade ? GRADES[G.grade.i].n+' grade' : '', won && G.grade ? GRADES[G.grade.i].g : 0],
     ['First Crown '+(G.crown||0)+' win as '+(G.natName||'this people'), won && G.firstClear ? 100 + 40*(G.crown||0) : 0],
+    ['First '+(G.winKind||'')+' win as '+(G.natName||'this people'), won && G.firstKind ? FIRST_KIND_GLORY : 0],
     ...((G.decline && G.decline.done && G.decline.parts) ? G.decline.parts : [])
   ].filter(p => p[1] > 0);
   const sub = parts.reduce((a,p) => a+p[1], 0), total = Math.round(sub*dm);

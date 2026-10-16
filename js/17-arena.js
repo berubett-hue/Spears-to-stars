@@ -220,7 +220,7 @@ function openCollect(){
       h += '<div class="tr-card locked"><div class="tr-top">'+pic+'<div><b>??? troop line</b><span class="tr-role">Unlock: '+esc(a ? a.d : '')+'</span>'+(p ? bar(p[0], p[1])+'<small>'+Math.min(p[0], p[1]).toLocaleString()+' / '+p[1].toLocaleString()+'</small>' : '')+'</div></div></div>';
     }
   }
-  h += '</div><h3>Peoples</h3><p class="lnote col-how">Each people brings its own <b>general</b>, a hero you steer yourself, plus a starting troop and a bonus.</p><div class="tr-grid">'+NATIONS_P.map(n => {
+  h += '</div><h3>Peoples</h3><p class="lnote col-how">Each people brings its own <b>general</b>, a hero you steer yourself, plus a starting troop and a bonus.</p>'+recordHTML()+'<div class="tr-grid">'+NATIONS_P.map(n => {
     const ok = natOK(n), a = n.lock ? ACH.find(x => x.id==='nat:'+n.id) : null, H = HEROES[n.id] || {}, u = HSPR.ok && (HSPR.m[n.id] || HEROES[n.id]) ? hsprPortrait(n.id) : '';
     const pic = u ? '<img class="tr-pic hero" src="'+u+'" alt="" style="--pc:'+PEOPLE[n.id].col+'">' : '<i class="tr-pic"></i>';
     if(ok) return '<div class="tr-card"><div class="tr-top">'+pic+'<div><b><i class="sw" style="background:'+PEOPLE[n.id].col+'"></i>'+esc(n.n)+'</b><span class="tr-gen">'+esc(H.n || '')+'</span><span class="tr-role">'+esc(n.perk)+'</span><span class="tr-ab"><em>'+esc(H.act || '')+'</em> · '+esc(H.ad || '')+'</span><span class="tr-ab">Always: '+esc(H.sig || '')+'</span><span class="tr-ab">Starts with '+n.start.map(id => CARDS[id].n).join(' and ')+'</span></div></div>'+
@@ -245,6 +245,16 @@ function openCollect(){
   h += '<p class="lnote">Recipes stay hidden until you discover one. Max a troop line, pair it with the right civic or line, and open a War Chest to find out. Each rival nation guards one legendary union, which it fields late in the game: defeat that nation to learn it. Unions and evolutions happen when you open a War Chest. Only bosses carry them: barbarian Warlords and rival heroes. Conquering a nation or accepting its surrender also earns one.</p>';
   $('#colBody').innerHTML = h; $('#ovCollect').hidden = false; SFX.tick();
   colTabs(); META.colSeen = colSig(); saveLife(); refreshHome();
+}
+/* Your record: every people you can lead, the four ways you have won with them, and their best Crown */
+function recordHTML(){
+  const ps = NATIONS_P.filter(natOK); if(!ps.length) return '';
+  const ic = k => KIT[k] ? '<img src="'+KIT[k]+'" alt="">' : '';
+  let full = 0, cells = 0;
+  const rows = ps.map(n => { const wk = kindsWon(n.id), pb = META.pb[n.id] ?? -1;
+    cells += 4; full += WIN_KINDS.filter(w => wk[w[0]]).length;
+    return '<div class="rec-r"><b><i class="sw" style="background:'+((PEOPLE[n.id]||{}).col || '#ccc')+'"></i>'+esc(n.n)+'</b><span class="rec-k">'+WIN_KINDS.map(w => '<i class="'+(wk[w[0]] ? 'on' : '')+'" title="'+w[1]+(wk[w[0]] ? ': won' : ': not yet')+'">'+ic(w[2])+'</i>').join('')+'</span><span class="rec-c" title="'+(pb < 0 ? 'No King win yet' : 'Best win: '+(pb ? 'Crown '+pb : 'King'))+'">'+Array.from({length:11}, (_, i) => '<s class="'+(i <= pb ? 'on' : '')+'">'+(i===0 ? 'K' : i)+'</s>').join('')+'</span></div>'; }).join('');
+  return '<div class="record"><h4>Your record · '+full+' of '+cells+' wins of every kind</h4><p class="lnote">A first win of each kind with each people pays +'+FIRST_KIND_GLORY+' Glory, and a first win at each Crown pays more. The four icons are conquest, diplomacy, science and prosperity; the squares show each people’s best Crown.</p><div class="rec-h"><span></span><span>Ways won</span><span>Best Crown</span></div>'+rows+'</div>';
 }
 const COL_TABS = [['troops','Troops'],['peoples','Peoples'],['evos','Evolutions'],['arts','Artifacts'],['secrets','Secrets'],['civics','Civics']];
 function colTabs(){
@@ -294,6 +304,7 @@ function buildNatPick(){
     dp.innerHTML = '<button data-d="0" class="'+(on ? '' : 'on')+'"><b>Chieftain</b><span>Learning mode. Gentler rivals and smaller raids. Glory ×0.8, and wins do not count for Crowns</span></button>'+
       '<button data-d="1" class="'+(on ? 'on' : '')+'"><b>'+(c ? kImg('cr_'+crTier(c))+'Crown '+c+' · '+CROWNS[c].n : 'King · Crown 0')+'</b><span>'+(c ? 'Glory ×'+crownMul(c)+'. Every twist up to Crown '+c+' is in play' : 'The intended challenge. Rivals counter your army. Win to open Crown 1')+'</span></button>'+
       '<div class="crownrow">'+Array.from({length:11}, (_, i) => '<button data-c="'+i+'" class="'+(on && i===c ? 'on' : '')+(i > mc ? ' locked' : '')+'"'+(i > mc ? ' disabled title="Win at Crown '+(i-1)+' to open"' : ' title="'+esc(CROWNS[i].n)+'"')+'>'+(i > mc ? '🔒' : i===0 ? 'K' : i)+'</button>').join('')+'</div>'+
+      (on && c && REGALIA[c] ? '<p class="lnote crreg">'+((LIFE().topCrown ?? -1) >= c ? '✓ Won at Crown '+c+': ' : 'Win at Crown '+c+' for: ')+'<b>'+esc(REGALIA[c].n)+'</b> · '+esc(REGALIA[c].d)+'</p>' : '')+
       '<div class="crowntw">'+(on && c ? CROWNS.slice(1, c+1).map((cr, i) => '<span><b>'+(i+1)+' · '+esc(cr.n)+'</b> '+esc(cr.d)+'</span>').join('') : mc ? '<span>Pick a Crown above. Each one adds a twist on top of the ones below it, and pays more Glory.</span>' : '<span>Win on King to open the Crown ladder: ten Crowns, each adding a twist and more Glory.</span>')+'</div>';
     dp.querySelectorAll('button[data-d]').forEach(b => b.addEventListener('click', () => { R.diff = +b.dataset.d; try { localStorage.setItem('eh-diff', String(R.diff)); } catch(e){} buildNatPick(); }));
     dp.querySelectorAll('button[data-c]:not([disabled])').forEach(b => b.addEventListener('click', () => { R.crown = +b.dataset.c; R.diff = 1; try { localStorage.setItem('eh-crown', String(R.crown)); localStorage.setItem('eh-diff', '1'); } catch(e){} buildNatPick(); }));

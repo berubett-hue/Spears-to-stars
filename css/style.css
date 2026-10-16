@@ -1371,3 +1371,29 @@ html.phone .host:not(.open) .hb{display:none}
 html.phone .host.open{border-radius:8px}
 html.phone .host.open .hh{flex-wrap:wrap;white-space:normal}
 html.phone .host .hb button{padding:6px 2px;font-size:12px}
+
+/* ---- Crown rewards and your record ---- */
+.crreg{grid-column:1/-1;margin:0 0 4px;font-size:13px}.crreg b{color:var(--lamp-2)}
+.crownup.reg{border-color:#ffe08a;background:linear-gradient(90deg,rgba(255,211,106,.18),rgba(255,211,106,.05))}
+.crownup.kind{border-color:rgba(159,208,255,.6);background:rgba(159,208,255,.08)}.crownup.kind b{color:#cfe6ff}
+.record{border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:10px 12px;margin:4px 0 14px;background:rgba(0,0,0,.18)}
+.record h4{margin:0 0 2px;font-family:var(--display);font-weight:400;font-size:19px;color:var(--lamp-2)}
+.record .lnote{margin:0 0 8px}
+.rec-h,.rec-r{display:grid;grid-template-columns:minmax(110px,1fr) auto auto;gap:10px;align-items:center}
+.rec-h{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;padding-bottom:3px;border-bottom:1px solid rgba(255,255,255,.08)}
+.rec-h em{font-style:normal;width:26px;text-align:center;display:inline-block}
+.rec-r{padding:4px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:14px}
+.rec-r b{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.rec-r .sw{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:6px;vertical-align:middle}
+.rec-k{display:flex;gap:4px}
+.rec-k i{width:26px;height:26px;display:grid;place-items:center;border-radius:6px;background:rgba(255,255,255,.05);opacity:.32;filter:grayscale(1)}
+.rec-k i.on{opacity:1;filter:none;background:rgba(255,211,106,.18);box-shadow:inset 0 0 0 1px rgba(255,211,106,.5)}
+.rec-k img{width:20px;height:20px;object-fit:contain}
+.rec-c{display:flex;gap:2px}
+.rec-c s{text-decoration:none;width:15px;height:18px;border-radius:3px;display:grid;place-items:center;font-size:10px;color:rgba(255,255,255,.35);background:rgba(255,255,255,.05)}
+.rec-c s.on{background:linear-gradient(#ffe08a,#d9a43c);color:#2a1d0a;font-weight:700}
+@media (max-width:620px){
+  .rec-h,.rec-r{grid-template-columns:1fr auto;row-gap:4px}
+  .rec-h>span:last-child{display:none}
+  .rec-r .rec-c{grid-column:1/-1}
+  .rec-c s{width:auto;flex:1}
+}

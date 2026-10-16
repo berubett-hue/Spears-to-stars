@@ -149,7 +149,7 @@ function spawnHero(o){
   const key = o===PLAYER ? (HEROES[G.perk] ? G.perk : 'legion') : rivalHeroKey(rival(o)), H = HEROES[key];
   const u = spawnUnit(o, cap, H.line); if(!u) return null;
   u.hero = key; u.hlv = heroLv(o, key); u.r = .42; u.acd = 6; u.rage = 0;
-  u.name = o===PLAYER ? H.n : GEN_NAMES[rint(GEN_NAMES.length)]+' '+H.n.replace(/^The /, 'the ');
+  u.name = o===PLAYER ? (REG(9) ? H.n.replace(/^The /, 'The Imperial ') : H.n) : GEN_NAMES[rint(GEN_NAMES.length)]+' '+H.n.replace(/^The /, 'the ');
   u.hp = uStat(u).hp;
   if(o===PLAYER){ G.hero = {id:u.id, key, t:0}; }
   else { const r = rival(o); r.hero = {id:u.id, key, t:0}; }

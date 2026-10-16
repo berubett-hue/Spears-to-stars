@@ -37,13 +37,13 @@ function demoTick(dt){
 function refreshHome(){
   const gl = $('#hGlory'); if(!gl) return;
   gl.textContent = (META.glory||0).toLocaleString();
-  const L = META.life; $('#hStats').textContent = L.games ? L.games+' game'+(L.games===1 ? '' : 's')+' · '+L.wins+' win'+(L.wins===1 ? '' : 's') : 'Your first empire awaits';
+  const L = META.life; $('#hStats').textContent = (L.games ? L.games+' game'+(L.games===1 ? '' : 's')+' · '+L.wins+' win'+(L.wins===1 ? '' : 's') : 'Your first empire awaits')+((L.topCrown ?? -1) >= 10 ? ' · Ruler of the World' : '');
   $('#hContinue').hidden = !R.keepG;
   const dot = (id, on) => { const b = $(id), d = b && b.querySelector && b.querySelector('.dot'); if(d) d.hidden = !on; };
   dot('#hLegacy', lgCan());
   dot('#hUnlocks', !!META.ack && [...META.unl].some(id => !META.ack.has(id) && !BASE_UNLOCKED.includes(id)));
   dot('#btnCollect', (META.colSeen||'') !== colSig() && META.life.games > 0);
-  { const hn = $('#hNext'); if(hn){ const note = SAVE_RESET ? '<div class="nextun alpha-note"><h4>Alpha update · fresh start</h4><span>Progress was reset for the new unlock system. Peoples now arrive with their troop line through feats inside a game, wins, the Crown ladder, and hidden strongholds on the map. Check Unlocks to see every goal.</span></div>' : ''; hn.innerHTML = note + (META.life.games > 0 ? nextHTML(2, 'Closest unlocks') : ''); } }
+  { const hn = $('#hNext'); if(hn){ const note = SAVE_RESET ? '<div class="nextun alpha-note"><h4>Alpha update · fresh start</h4><span>Progress was reset for the new unlock pace. Each of the four ways to win brings a new people, feats count from Crown 1, every Crown win now earns a reward, and the Collection keeps your record: win all four ways with every people. Check Unlocks to see every goal.</span></div>' : ''; hn.innerHTML = note + (META.life.games > 0 ? nextHTML(2, 'Closest unlocks') : ''); } }
 }
 function openMenuOv(id){ R.menuOv = id; const e = $('#'+id); if(e) e.hidden = false; SFX.init(); SFX.tick && SFX.tick(); }
 function closeMenuOv(){ const id = R.menuOv; R.menuOv = null; if(id){ const e = $('#'+id); if(e) e.hidden = true; } if(R.howGame){ R.howGame = false; paused = false; return; } if(id==='ovStart' || id==='ovWiz'){} refreshHome(); }
@@ -63,7 +63,14 @@ function wizSummary(){
   el.innerHTML = '<h3>Your empire</h3><div class="sum-row">'+(HSPR.ok && (HSPR.m[nat.id] || HEROES[nat.id]) ? '<img src="'+hsprPortrait(nat.id)+'" alt="">' : '')+'<div><b>'+esc(nat.n)+'</b><span>'+esc(HEROES[nat.id].n)+' · '+esc(nat.perk)+'</span></div></div>'+
     '<p class="lnote"><b>Core:</b> '+CARDS[coreOf(nat)].n+' <em class="stars">'+mStars(coreOf(nat))+'</em>'+(nat.start.length > 1 ? ' · plus '+nat.start.filter(id => id!==coreOf(nat)).map(id => CARDS[id].n).join(', ')+' as a free support' : '')+'. <b>Supports:</b> chosen when the Classical and Medieval Ages dawn, from every line you have unlocked</p>'+
     '<p class="lnote"><b>Legacy:</b> '+(lg.length ? lg.join(' · ') : 'none yet. Spend Glory in Legacy from the main menu')+'</p>'+
-    '<p class="lnote"><b>Challenge:</b> '+(R.diff===0 ? 'Chieftain' : 'Crown '+(R.crown||0)+' · '+CROWNS[R.crown||0].n)+(questAll(nat.id) ? ' · <b>Quests done:</b> starting troops at Lv 2' : '')+'</p>';
+    '<p class="lnote"><b>Challenge:</b> '+(R.diff===0 ? 'Chieftain' : 'Crown '+(R.crown||0)+' · '+CROWNS[R.crown||0].n)+(questAll(nat.id) ? ' · <b>Quests done:</b> starting troops at Lv 2' : '')+'</p>'+
+    (() => { const wk = kindsWon(nat.id), left = WIN_KINDS.filter(w => !wk[w[0]]), pb = META.pb[nat.id], cc = R.diff===0 ? -1 : (R.crown||0);
+      const bits = [];
+      if(left.length) bits.push('First '+left.map(w => w[1].toLowerCase()).join(', ')+' win'+(left.length > 1 ? 's' : '')+' as the '+esc(nat.n)+': +'+FIRST_KIND_GLORY+' Glory'+(left.length > 1 ? ' each' : ''));
+      else bits.push('Won all four ways as the '+esc(nat.n));
+      if(cc >= 0 && (pb == null || pb < cc)) bits.push('First Crown '+cc+' win with them: +'+(100 + 40*cc)+' Glory');
+      if(cc >= 1 && REGALIA[cc] && (LIFE().topCrown ?? -1) < cc) bits.push('Win at Crown '+cc+' for '+REGALIA[cc].n);
+      return '<p class="lnote"><b>Up for grabs:</b> '+bits.join(' · ')+'</p>'; })();
 }
 function renderLegacy(){
   $('#lgGlory').textContent = (META.glory||0).toLocaleString();
@@ -90,7 +97,7 @@ function unlRows(){
   }
   for(const n of NATIONS_P) if(!n.lock && !n.secret && n.start.every(id => BASE_UNLOCKED.includes(id))) rows.push({id:'nat:'+n.id, kind:'Peoples', name:n.n+' + '+n.start.map(id => CARDS[id].n).join(' + '), d:'Ready from the start', done:true, p:null, frac:1, fresh:false, troop:n.start[0]});
   for(const n of NATIONS_P) if(natOK(n)) QUESTS[n.id].forEach((q, k) => { const id = n.id+':'+k, dn = META.qd.has(id), b = Math.min(q.g, META.q[id]||0); rows.push({id:'q:'+id, kind:'Quests', name:n.n+' · quest '+(k+1), d:q.d+' · +'+Q_REW[k]+' Glory', done:dn, p:q.g > 1 ? [b, q.g] : null, frac:dn ? 1 : b/q.g, fresh:false}); });
-  { const c = META.crown||0; for(let i=1;i<=10;i++) rows.push({id:'cr:'+i, kind:'Crowns', name:'Crown '+i+' · '+CROWNS[i].n, d:i <= c ? CROWNS[i].d : 'Win at Crown '+(i-1)+' to open it', done:i <= c, p:null, frac:i <= c ? 1 : 0, fresh:false}); }
+  { const c = META.crown||0, top = LIFE().topCrown ?? -1; for(let i=1;i<=10;i++){ const won = top >= i; rows.push({id:'cr:'+i, kind:'Crowns', name:'Crown '+i+' · '+CROWNS[i].n+' → '+REGALIA[i].n, d:(i <= c ? CROWNS[i].d+'. ' : 'Opens when you win at Crown '+(i-1)+'. ')+(won ? 'Won: ' : 'Win it for: ')+REGALIA[i].d, done:won, p:null, frac:won ? 1 : i <= c ? .5 : 0, fresh:false}); } }
   for(const id of Object.keys(CARDS).filter(isUnlocked)){ const r = mRank(id); if(r >= MX_T.length) continue; const xp = META.mx[id]||0, lo = MX_T[r-1]||0; rows.push({id:'mx:'+id, kind:'Mastery', name:CARDS[id].n+' · rank '+(r+1), d:mPerk(r+1), done:false, p:[xp, MX_T[r]], frac:(xp-lo)/(MX_T[r]-lo), fresh:false, troop:id}); }
   return rows;
 }

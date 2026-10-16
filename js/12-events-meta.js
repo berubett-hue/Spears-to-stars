@@ -188,7 +188,7 @@ const QUESTS = {
   khanate:[{d:'Capture 3 cities before 8:00', g:3, v:() => G.stats.capEarly||0}, {d:'Field 2 evolved troop lines at once', g:2, v:() => G.stats.peakEvo||0}, {d:'Win by conquest before 14:00', g:1, win:1, v:() => G.won && G.winKind==='conquest' && G.t < 840 ? 1 : 0}],
   merchant:[{d:'Hold 3 trade deals at once', g:3, v:() => G.stats.peakTrade||0}, {d:'Reach 60 science per second', g:60, v:() => Math.floor(G.stats.peakSci||0)}, {d:'Win by diplomacy at Crown 1 or higher', g:1, win:1, v:() => G.won && G.winKind==='diplomacy' && CR(1) ? 1 : 0}],
   star:[{d:'Reach the Modern Age before 12:00', g:1, v:() => (G.stats.modernT ?? 1e9) < 720 ? 1 : 0}, {d:'Discover an evolution or union during a game', g:1, v:() => Math.min(1, G.stats.disc||0)}, {d:'Win by launching the starship at Crown 2 or higher', g:1, win:1, v:() => G.won && G.winKind==='science' && CR(2) ? 1 : 0}],
-  bastion:[{d:'Hold 7 cities at once', g:7, v:() => G.stats.peakCities||0}, {d:'Defeat 3,000 enemies in one game', g:3000, v:kills}, {d:'Win without losing a city at Crown 2 or higher', g:1, win:1, v:() => G.won && !G.stats.lost && CR(2) ? 1 : 0}],
+  bastion:[{d:'Hold 7 cities at once', g:7, v:() => G.stats.peakCities||0}, {d:'Defeat 3,000 enemies in one game', g:3000, v:kills}, {d:'Win by prosperity at Crown 2 or higher', g:1, win:1, v:() => G.won && G.winKind==='prosperity' && CR(2) ? 1 : 0}],
   wolves:[{d:'Field 120 troops at once', g:120, v:() => G.stats.peakArmy||0}, {d:'Your Mounted troops defeat 800 enemies in one game', g:800, v:() => tk('Mounted')}, {d:'Win by conquest before 14:00', g:1, win:1, v:() => G.won && G.winKind==='conquest' && G.t < 840 ? 1 : 0}],
   firemonks:[{d:'Your Fire troops defeat 600 enemies in one game', g:600, v:() => tk('Fire')}, {d:'Lose no city in the first 12 minutes', g:720, v:() => Math.min(720, Math.floor(G.stats.firstLostT ?? G.t))}, {d:'Win at Crown 2 or higher', g:1, win:1, v:() => G.won && CR(2) ? 1 : 0}],
   golems:[{d:'Take 8 cities by force in one game', g:8, v:() => G.stats.forced||0}, {d:'Your Titans defeat 500 enemies in one game', g:500, v:() => tk('Titan')}, {d:'Win without losing a city', g:1, win:1, v:() => G.won && !G.stats.lost ? 1 : 0}],
@@ -205,7 +205,7 @@ function statTick(){
   if(G.eraIdx >= 5 && st.modernT == null) st.modernT = G.t;
   if(G.eraIdx >= 2 && !st.medC){ st.medC = 1; lifeAdd('med'); }
   if((st.warlords||0) > (META.life.bestWl||0)){ META.life.bestWl = st.warlords; lifeDirty = true; }
-  { const bb = (k, v) => { if((v||0) > (META.life['b_'+k]||0)){ META.life['b_'+k] = v; lifeDirty = true; } }; bb('cities', st.peakCities); bb('wl', st.warlords); bb('sling', ((G.dmg||{})[PLAYER+':slingers']||{}).k); }
+  { const bb = (k, v) => { if((v||0) > (META.life['b_'+k]||0)){ META.life['b_'+k] = v; lifeDirty = true; } }; bb('cities', st.peakCities); bb('wl', st.warlords); bb('sling', ((G.dmg||{})[PLAYER+':slingers']||{}).k); if(CR(1)){ bb('wl1', st.warlords); bb('sling1', ((G.dmg||{})[PLAYER+':slingers']||{}).k); } }
   // riddles sharpen when you field the right line high enough
   for(const e of UEVO){
     if(e.legend || known(e) || (META.hint[e.id]||0) >= 1) continue;
@@ -231,9 +231,10 @@ function endMeta(won){
   const nat = G.perk, c = G.crown||0;
   if(won){
     if(G.winKind==='conquest') lifeAdd('wConq'); else if(G.winKind==='diplomacy') lifeAdd('wDip'); else if(G.winKind==='prosperity') lifeAdd('wPros'); else lifeAdd('wSci');
-    if(!(G.stats.lost||0)) lifeAdd('wNoLoss');
+    if(!(G.stats.lost||0)){ lifeAdd('wNoLoss'); if(CR(2)) lifeAdd('wNoLoss2'); }
+    { const rec = META.wk[nat] || (META.wk[nat] = {}); G.firstKind = !rec[G.winKind]; rec[G.winKind] = 1; lifeDirty = true; }
     if(G.diff !== 0){
-      if(c > (META.life.topCrown ?? -1)){ META.life.topCrown = c; lifeDirty = true; }
+      { const was = META.life.topCrown ?? -1; if(c > was){ META.life.topCrown = c; lifeDirty = true; G.newReg = []; for(let i=Math.max(1, was+1); i<=c; i++) if(REGALIA[i] && !REGALIA[i].unl) G.newReg.push(i); } }
       lifeAdd('wKing'); if(c >= 1) lifeAdd('wC1');
       G.grade = gradeOf();
       const pb = META.pb[nat]; G.firstClear = pb == null || pb < c; if(G.firstClear) META.pb[nat] = c;
@@ -269,6 +270,8 @@ function endCrownHTML(){
   if(G.won && G.grade){ const gr = GRADES[G.grade.i]; h += '<div class="grade" style="--gc:'+gr.c+'">'+kImg('gr_'+G.grade.i, 'gimg')+'<b>'+gr.n+' grade</b><span>'+(G.grade.why.length ? G.grade.why.join(' · ') : 'Win faster, lose no cities and bring every nation down for a better grade')+'</span></div>'; }
   if(G.newCrown) h += '<div class="crownup">'+kImg('cr_'+crTier(G.newCrown), 'gimg')+'<b>Crown '+G.newCrown+' unlocked · '+esc(CROWNS[G.newCrown].n)+'</b><span>'+esc(CROWNS[G.newCrown].d)+'. Glory ×'+crownMul(G.newCrown)+'</span></div>';
   else if(G.won && G.diff===0) h += '<p class="lnote">Chieftain wins do not open Crowns. Win on King to climb.</p>';
+  for(const i of (G.newReg||[])) h += '<div class="crownup reg">'+kImg('cr_'+(i >= 8 ? 3 : i >= 6 ? 2 : 1), 'gimg')+'<b>Crown '+i+' reward · '+esc(REGALIA[i].n)+'</b><span>'+esc(REGALIA[i].d)+'</span></div>';
+  if(G.won && G.firstKind){ const wk = WIN_KINDS.find(w => w[0]===G.winKind); if(wk) h += '<div class="crownup kind">'+kImg(wk[2], 'gimg')+'<b>First '+wk[1].toLowerCase()+' win as the '+esc(G.natName||'')+'</b><span>+'+FIRST_KIND_GLORY+' Glory. Win all four ways with every people to fill your record in the Collection</span></div>'; }
   return h;
 }
 function endMovedHTML(){

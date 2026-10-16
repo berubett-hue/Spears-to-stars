@@ -160,7 +160,7 @@ function heroHud(){
   const lv = h ? h.hlv : heroLv(PLAYER, key), fol = h ? G.units.filter(v => v.fol===h.id && v.hp>0).length : 0;
   const k2 = key+lv+(HSPR2.ok ? 'b' : '')+(HSPR3.ok ? 'c' : '');
   if(R.heroArt !== k2){ R.heroArt = k2; const img = document.getElementById('hcImg'); if(img) img.src = (HSPR.ok && hsprPortrait(key, heroTier(lv))) || artURL('hero_'+key+'_'+lv, () => unitSprite({owner:PLAYER, card:H.line, lvl:lv}).n); }
-  document.getElementById('hcName').textContent = H.n;
+  document.getElementById('hcName').textContent = (h && h.name) || H.n;
   document.getElementById('hcHp').style.width = (h ? clamp(h.hp/uStat(h).hp, 0, 1)*100 : 0)+'%';
   document.getElementById('hcSub').textContent = h ? formOf(H.line, lv).n+' · band of '+fol : 'Returns in '+Math.max(0, Math.ceil(G.hero.t - G.t))+'s';
   const act = document.getElementById('hcAct'), cd = h ? (h.acd||0) : H.cd;

@@ -155,14 +155,16 @@ const RUN = f => { try { return (G && !G.demo && !G.arena && G.stats) ? (f() || 
 const BEST = (k, cur) => Math.max(META.life['b_'+k]||0, cur||0);
 const TOPC = () => LIFE().topCrown ?? -1;
 const ACH = [
-  {id:'priests', tier:1, d:'Hold 6 cities at once in one game', prog:() => [BEST('cities', RUN(() => G.stats.peakCities)), 6]},
-  {id:'longbow', tier:1, d:'Your Skirmishers defeat 500 enemies in one game', prog:() => [BEST('sling', RUN(() => ((G.dmg||{})[PLAYER+':slingers']||{}).k)), 500]},
-  {id:'elephant', tier:1, d:'Slay 3 Warlords in one game', prog:() => [BEST('wl', RUN(() => G.stats.warlords)), 3]},
   {id:'diff:2', d:'Win on King (Crown 0)', prog:() => [LIFE().wKing||0, 1]},
+  /* the four ways to win each bring a people: these teach the game, so they come first */
   {id:'nat:khanate', pair:'knights', tier:2, d:'Win by conquest', prog:() => [LIFE().wConq||0, 1]},
   {id:'nat:merchant', pair:'crossbow', tier:2, d:'Win by diplomacy, with most nations joining you', prog:() => [LIFE().wDip||0, 1]},
   {id:'nat:star', pair:'catapult', tier:2, d:'Win by launching the starship', prog:() => [LIFE().wSci||0, 1]},
-  {id:'nat:bastion', pair:'shieldwall', tier:2, d:'Win without losing a single city', prog:() => [LIFE().wNoLoss||0, 1]},
+  {id:'priests', tier:2, d:'Win by prosperity: hold a Golden Age for 90 seconds', prog:() => [LIFE().wPros||0, 1]},
+  /* feats inside a game count from Crown 1 up, so they land after the first few wins */
+  {id:'longbow', tier:1, d:'Your Skirmishers defeat 500 enemies in one game at Crown 1 or higher', prog:() => [BEST('sling1', RUN(() => CR(1) ? ((G.dmg||{})[PLAYER+':slingers']||{}).k : 0)), 500]},
+  {id:'elephant', tier:1, d:'Slay 4 Warlords in one game at Crown 1 or higher', prog:() => [BEST('wl1', RUN(() => CR(1) ? G.stats.warlords : 0)), 4]},
+  {id:'nat:bastion', pair:'shieldwall', tier:2, d:'Win without losing a single city at Crown 2 or higher', prog:() => [LIFE().wNoLoss2||0, 1]},
   {id:'nat:northmen', tier:2, d:'Win at Crown 1 or higher', prog:() => [TOPC() >= 1 ? 1 : 0, 1]},
   {id:'grenadiers', tier:3, d:'Win at Crown 2 or higher', prog:() => [Math.max(0, Math.min(2, TOPC())), 2]},
   {id:'banner', tier:3, d:'Discover 3 unions or evolutions', prog:() => [Math.min(3, META.disc.size), 3]},
@@ -177,14 +179,14 @@ const ACH = [
 /* ---------- Alpha reset: the unlock system changed, so every save starts over once ---------- */
 /* Changing SAVE_VER wipes every player's unlocks, Glory and Crowns once. Only change it when Tim asks for a reset
    (a big content update). Ordinary updates must keep saves. */
-const SAVE_VER = 'alpha-2';
+const SAVE_VER = 'alpha-3';
 let SAVE_RESET = false;
 try { if(localStorage.getItem('eh-ver') !== SAVE_VER){ SAVE_RESET = !!(localStorage.getItem('eh-life') || localStorage.getItem('eh-unlocks')); ['eh-life','eh-unlocks','eh-disc','eh-crown','eh-diff','eh-list','eh-pin'].forEach(k => localStorage.removeItem(k)); localStorage.setItem('eh-ver', SAVE_VER); } } catch(e){}
 const META = {unl:new Set(BASE_UNLOCKED), disc:new Set(), seen:new Set(), leg:new Set(), arts:new Set(), life:{games:0, wins:0, kills:0, warlords:0, captured:0, founded:0, ruins:0, ck:{}}, mx:{}, hint:{}};
-try { const v = JSON.parse(localStorage.getItem('eh-life') || '{}'); if(v.life) Object.assign(META.life, v.life); META.life.ck = META.life.ck || {}; if(v.mx) META.mx = v.mx; if(v.hint) META.hint = v.hint; META.glory = v.glory||0; META.gloryT = v.gt||0; META.lg = v.lg||{}; META.ack = v.ack ? new Set(v.ack) : null; META.colSeen = v.cs||''; META.noDemo = !!v.nd; META.crown = v.cr ?? null; META.pb = v.pb||{}; META.pg = v.pg||{}; META.q = v.q||{}; META.qd = new Set(v.qd||[]); META.stir = v.st||[]; META.df = v.df||{}; META.met = v.met||[]; } catch(e){}
-if(!META.lg) META.lg = {}; if(!META.pb) META.pb = {}; if(!META.pg) META.pg = {}; if(!META.q) META.q = {}; if(!META.qd) META.qd = new Set(); if(!META.stir) META.stir = []; if(META.glory == null) META.glory = 0; if(META.gloryT == null) META.gloryT = 0;
+try { const v = JSON.parse(localStorage.getItem('eh-life') || '{}'); if(v.life) Object.assign(META.life, v.life); META.life.ck = META.life.ck || {}; if(v.mx) META.mx = v.mx; if(v.hint) META.hint = v.hint; META.glory = v.glory||0; META.gloryT = v.gt||0; META.lg = v.lg||{}; META.ack = v.ack ? new Set(v.ack) : null; META.colSeen = v.cs||''; META.noDemo = !!v.nd; META.crown = v.cr ?? null; META.pb = v.pb||{}; META.pg = v.pg||{}; META.q = v.q||{}; META.qd = new Set(v.qd||[]); META.stir = v.st||[]; META.df = v.df||{}; META.met = v.met||[]; META.wk = v.wk||{}; } catch(e){}
+if(!META.lg) META.lg = {}; if(!META.wk) META.wk = {}; if(!META.pb) META.pb = {}; if(!META.pg) META.pg = {}; if(!META.q) META.q = {}; if(!META.qd) META.qd = new Set(); if(!META.stir) META.stir = []; if(META.glory == null) META.glory = 0; if(META.gloryT == null) META.gloryT = 0;
 let lifeDirty = false;
-function saveLife(){ lifeDirty = false; try { localStorage.setItem('eh-life', JSON.stringify({life:META.life, mx:META.mx, hint:META.hint, glory:META.glory, gt:META.gloryT, lg:META.lg, ack:[...(META.ack||[])], cs:META.colSeen||'', nd:META.noDemo ? 1 : 0, cr:META.crown||0, pb:META.pb, pg:META.pg, q:META.q, qd:[...(META.qd||[])], st:META.stir||[], df:META.df||{}, met:META.met||[]})); } catch(e){} }
+function saveLife(){ lifeDirty = false; try { localStorage.setItem('eh-life', JSON.stringify({life:META.life, mx:META.mx, hint:META.hint, glory:META.glory, gt:META.gloryT, lg:META.lg, ack:[...(META.ack||[])], cs:META.colSeen||'', nd:META.noDemo ? 1 : 0, cr:META.crown||0, pb:META.pb, pg:META.pg, q:META.q, qd:[...(META.qd||[])], st:META.stir||[], df:META.df||{}, met:META.met||[], wk:META.wk||{}})); } catch(e){} }
 /* ---------- Legacy: Glory buys permanent ranks ---------- */
 const LEGACY = [
   {k:'might', n:'Might', ic:'⚔', d:r => '+'+5*r+'% troop damage', max:5, base:200},
@@ -270,6 +272,26 @@ const CROWNS = [
   {n:'World Against You', d:'The coalition forms when 3 nations fall instead of 4, and rivals trust you less'}
 ];
 const crownMul = c => +(1 + .15*c).toFixed(2);
+/* What a win at each Crown earns for good. Crowns 1, 2 and 4 bring a people or troop line (see ACH);
+   the rest are regalia you can see in every game. Crowns 1 to 6 also hide a stronghold on the map. */
+const REGALIA = [null,
+  {n:'Northmen', d:'A new people: the Jarl and his raiders', unl:'nat:northmen'},
+  {n:'Grenadiers', d:'A new troop line', unl:'grenadiers'},
+  {n:'Golden Crown', d:'A gold crown rides above your general in every game'},
+  {n:'Airships', d:'A new troop line', unl:'airships'},
+  {n:'Gilded Capital', d:'Your capital flies a gold banner and shines on the map'},
+  {n:'Jeweled Crown', d:'Your general’s crown is set with rubies and sapphires'},
+  {n:'Royal Host', d:'Your general’s ring and gathering circle burn gold'},
+  {n:'Radiant Crown', d:'Your general wears a crown of white gold and starlight'},
+  {n:'Imperial Title', d:'Your general is hailed as Imperial in every game'},
+  {n:'Crown of the World', d:'Your crown blazes with light, and the main menu names you Ruler of the World'}
+];
+const REG = n => !!G && !G.demo && (LIFE().topCrown ?? -1) >= n;
+const regCrown = () => REG(8) ? 'cr_3' : REG(6) ? 'cr_2' : REG(3) ? 'cr_1' : null;
+/* the four ways to win, per people: a first win of each kind with each people pays Glory */
+const WIN_KINDS = [['conquest','Conquest','u_charge'], ['diplomacy','Diplomacy','u_peace'], ['science','Science','cv_astronomy'], ['prosperity','Prosperity','u_g_glory']];
+const FIRST_KIND_GLORY = 100;
+const kindsWon = id => (META.wk && META.wk[id]) || {};
 function crownDF(c){ const d = Object.assign({}, DIFFS[1]); if(c >= 2) d.barb *= 1.3; if(c >= 3) d.rival *= 1.08; if(c >= 4){ d.counter = 3; d.extra = .5; } if(c >= 7) d.rival *= 1.08; if(c >= 9) d.barb *= 1.3; return d; }
 const natOK = n => n.lock ? META.unl.has('nat:'+n.id) : n.start.every(isUnlocked);
 const achName = a => { if(a.id.startsWith('nat:')){ const n = NATIONS_P.find(x => 'nat:'+x.id===a.id); return n.n+(a.pair ? ' + '+CARDS[a.pair].n : ''); } if(a.id.startsWith('diff:')) return 'The Crown ladder'; const np = typeof linePeople === 'function' ? linePeople(a.id) : null; return np ? np.n+' + '+CARDS[a.id].n : CARDS[a.id].n; };
