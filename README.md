@@ -42,6 +42,7 @@ js/               the game, split by system, loaded in this order:
   13r-sites.js             resource sites worth fighting over
   13h-horde.js             the Red Horde, a rare barbarian empire
   13v-prosperity.js        the Prosperity victory (a Golden Age you hold for 90 seconds)
+  13n-renown.js            Renown: three ranks a game for your general, each a choice of two boons
   14-fx-audio.js           effects, sound, generative music
   15-render.js             pixel art, troop forms, map rendering
   16-hud.js                HUD, damage meter, goals, battles, diplomacy panel, ledger

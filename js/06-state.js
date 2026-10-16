@@ -191,6 +191,7 @@ const PACE = {mov:1.7, atk:1.6, hp:2.6};
 function uStat(u){
   const s0 = uStat0(u);
   s0.hp *= PACE.hp; s0.spd *= PACE.mov; s0.cd /= PACE.atk;
+  if(u.hero && u.owner===PLAYER && G && G.ren){ if(hasRen('hide')) s0.hp *= 1.25; if(hasRen('blade')) s0.dmg *= 1.25; if(hasRen('stride')) s0.spd *= 1.15; }
   if(u.hero){ s0.cleave = Math.max(s0.cleave||0, 2); if(u.enr){ s0.dmg *= 1.3; s0.cd *= .8; } if(u.owner > 1 && CR(5)){ s0.hp *= 1.4; s0.dmg *= 1.3; } }
   if(u.owner===PLAYER && G && !G.arena && SPERK[G.perk]) SPERK[G.perk](u, s0);
   if(u.owner===PLAYER && G && !G.arena && u.card===G.core && SBAL[G.perk] && !u.hero){ s0.dmg *= SBAL[G.perk]; s0.hp *= Math.sqrt(SBAL[G.perk]); }

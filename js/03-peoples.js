@@ -172,8 +172,9 @@ function heroAuras(u){
   for(const h of R.heroes){
     if(h.owner!==u.owner || h.hp<=0) continue;
     if(u.fol===h.id && h.owner===PLAYER){ if(hasArt('sunbanner')) out.dmg *= 1.15; if(hasArt('drum')) out.cd *= .85; if(hasArt('standard')) out.def *= .85; if(hasArt('boots')) out.spd *= 1.15; if(G.bless && G.bless.k==='war') out.dmg *= 1.3; }
-    const d2 = (h.x-u.x)**2+(h.y-u.y)**2; if(d2 > 9) continue;
+    const d2 = (h.x-u.x)**2+(h.y-u.y)**2; if(d2 > (h.owner===PLAYER && hasRen('legend') ? 20.25 : 9)) continue;
     const a = HEROES[h.hero].aura;
+    if(h.owner===PLAYER && u.fol===h.id){ if(hasRen('muster')) out.dmg *= 1.1; if(hasRen('stride')) out.spd *= 1.15; }
     if(a==='warcry') out.cd *= .74; else if(a==='khan') out.spd *= 1.25; else if(a==='maharaja') out.dmg *= 1.15; else if(a==='legate') out.def *= .7;
     if(h.raid > 0 && u.fol===h.id){ out.spd *= 1.8; out.cd *= .75; }
     if(u.fol===h.id && h.owner===PLAYER && proto('rally')) out.dmg *= 1.2;
@@ -183,20 +184,20 @@ function heroAuras(u){
 }
 function heroActive(u){
   if(!u || u.hp<=0 || (u.acd||0) > 0) return false;
-  const H = HEROES[u.hero], own = u.owner, st = uStat(u);
+  const H = HEROES[u.hero], own = u.owner, st = uStat(u), P = own===PLAYER && hasRen('mighty') ? 1.5 : 1, Pr = Math.sqrt(P);
   const allies = r => G.units.filter(v => v.owner===own && v.hp>0 && v.card && (v.x-u.x)**2+(v.y-u.y)**2 < r*r);
   const foes = r => G.units.filter(v => v.hp>0 && atWar(own, v.owner) && (v.x-u.x)**2+(v.y-u.y)**2 < r*r);
   const a = H.aura;
-  if(a==='warcry'){ allies(4).forEach(v => { if(!v.ab) v.ab = {}; v.frenzy = 6; }); ring(u.x, u.y, .2, 4, '#ff7a5a', .7); }
-  else if(a==='legate'){ allies(3.5).forEach(v => v.brace = 5); ring(u.x, u.y, .2, 3.5, '#d8e4f0', .7); }
-  else if(a==='khan'){ u.raid = 6; ring(u.x, u.y, .2, 2.5, '#ffe9a0', .6); }
-  else if(a==='maharaja'){ foes(3).forEach(v => { v.slow = 3; hitUnit(v, st.dmg*3, own, false); }); ring(u.x, u.y, .3, 3, '#c8a878', .7); burst(u.x, u.y, 18, '#a08868'); R.shake = Math.min(6, (R.shake||0) + 3); }
-  else if(a==='ranger'){ const fs = foes(5).slice(0, 12); if(!fs.length) return false; fs.forEach(v => { R.projs.push({sk:formOf(u.card, u.hlv||1).sh || 'arrow', x0:u.x, y0:u.y-.2, x1:v.x, y1:v.y-.1, life:.3, max:.3, col:'#fff1cf', w:1, kind:'arrow'}); hitUnit(v, st.dmg*1.5, own, false); v.mark = 5; }); }
-  else if(a==='oracle'){ allies(5).forEach(v => { const mx = uStat(v).hp; v.hp = Math.min(mx, v.hp + mx*.6); }); ring(u.x, u.y, .3, 5, '#7ae08a', .8); burst(u.x, u.y-.4, 14, '#7ae08a'); }
+  if(a==='warcry'){ allies(4*Pr).forEach(v => { if(!v.ab) v.ab = {}; v.frenzy = 6*P; }); ring(u.x, u.y, .2, 4*Pr, '#ff7a5a', .7); }
+  else if(a==='legate'){ allies(3.5*Pr).forEach(v => v.brace = 5*P); ring(u.x, u.y, .2, 3.5*Pr, '#d8e4f0', .7); }
+  else if(a==='khan'){ u.raid = 6*P; ring(u.x, u.y, .2, 2.5, '#ffe9a0', .6); }
+  else if(a==='maharaja'){ foes(3*Pr).forEach(v => { v.slow = 3; hitUnit(v, st.dmg*3*P, own, false); }); ring(u.x, u.y, .3, 3*Pr, '#c8a878', .7); burst(u.x, u.y, 18, '#a08868'); R.shake = Math.min(6, (R.shake||0) + 3); }
+  else if(a==='ranger'){ const fs = foes(5*Pr).slice(0, Math.round(12*P)); if(!fs.length) return false; fs.forEach(v => { R.projs.push({sk:formOf(u.card, u.hlv||1).sh || 'arrow', x0:u.x, y0:u.y-.2, x1:v.x, y1:v.y-.1, life:.3, max:.3, col:'#fff1cf', w:1, kind:'arrow'}); hitUnit(v, st.dmg*1.5*P, own, false); v.mark = 5; }); }
+  else if(a==='oracle'){ allies(5*Pr).forEach(v => { healBy(v, uStat(v).hp*.6*P, own, 'hero'); }); ring(u.x, u.y, .3, 5*Pr, '#7ae08a', .8); burst(u.x, u.y-.4, 14, '#7ae08a'); }
   else if(a==='goldkhan'){
     const t = foes(5).sort((p,q) => ((p.x-u.x)**2+(p.y-u.y)**2) - ((q.x-u.x)**2+(q.y-u.y)**2))[0]; if(!t) return false;
     const d = Math.hypot(t.x-u.x, t.y-u.y) || 1, dx = (t.x-u.x)/d, dy = (t.y-u.y)/d, len = Math.min(d+1.5, 4.5), sx = u.x, sy = u.y, ex = clamp(u.x+dx*len, .5, N-.5), ey = clamp(u.y+dy*len, .5, N-.5), L = Math.hypot(ex-sx, ey-sy) || 1;
-    for(const v of G.units){ if(v.hp<=0 || !atWar(own, v.owner)) continue; const k = clamp(((v.x-sx)*(ex-sx)+(v.y-sy)*(ey-sy))/(L*L), 0, 1); if((v.x-sx-(ex-sx)*k)**2+(v.y-sy-(ey-sy)*k)**2 < .5){ hitUnit(v, st.dmg*4, own, false); v.slow = 2.5; } }
+    for(const v of G.units){ if(v.hp<=0 || !atWar(own, v.owner)) continue; const k = clamp(((v.x-sx)*(ex-sx)+(v.y-sy)*(ey-sy))/(L*L), 0, 1); if((v.x-sx-(ex-sx)*k)**2+(v.y-sy-(ey-sy)*k)**2 < .5){ hitUnit(v, st.dmg*4*P, own, false); v.slow = 2.5; } }
     for(let k=0;k<7;k++) burst(sx+(ex-sx)*k/6, sy+(ey-sy)*k/6, 3, '#ffd36a');
     u.lastCharge = {mx:(sx+ex)/2, my:(sy+ey)/2, ang:Math.atan2(ey-sy, ex-sx)};
     u.x = ex; u.y = ey;
@@ -204,21 +205,22 @@ function heroActive(u){
   else if(a==='doge'){
     if(own===PLAYER){ if(G.influence < 50){ if(own===PLAYER) toast('Hiring mercenaries needs 50 influence','warn'); return false; } G.influence -= 50; }
     const cap = capitalOf(own), ids = ownerCards(own).filter(id => CARDS[id].role!=='support'); if(!ids.length) return false;
-    for(let k=0;k<4;k++){ const m = spawnUnit(own, {x:u.x-.5, y:u.y-.5, id:cap ? cap.id : 0}, ids[rint(ids.length)]); if(m){ m.home = cap ? cap.id : 0; m.fol = u.id; } }
+    for(let k=0;k<Math.round(4*P);k++){ const m = spawnUnit(own, {x:u.x-.5, y:u.y-.5, id:cap ? cap.id : 0}, ids[rint(ids.length)]); if(m){ m.home = cap ? cap.id : 0; m.fol = u.id; } }
     ring(u.x, u.y, .2, 2, '#ffd36a', .6); burst(u.x, u.y-.3, 10, '#ffd36a');
   }
   else if(a==='engineer'){
     const fs = foes(st.rng + 1); if(!fs.length) return false;
     let best = fs[0], bn = 0; for(const v of fs){ let n = 0; for(const w of fs) if((w.x-v.x)**2+(w.y-v.y)**2 < 2.25) n++; if(n > bn){ bn = n; best = v; } }
-    R.barrage = R.barrage || []; for(let k=0;k<6;k++) R.barrage.push({x:best.x+rnd(-1,1), y:best.y+rnd(-1,1), t:k*.3, own, dmg:st.dmg*1.6, ux:u.x, uy:u.y, card:u.card, lv:u.hlv});
+    R.barrage = R.barrage || []; for(let k=0;k<Math.round(6*P);k++) R.barrage.push({x:best.x+rnd(-1,1), y:best.y+rnd(-1,1), t:k*.3, own, dmg:st.dmg*1.6, ux:u.x, uy:u.y, card:u.card, lv:u.hlv});
   }
-  else if(a==='warden'){ u.inv = 5; ring(u.x, u.y, .2, 5, '#d8e4f0', .8); }
-  else if(a==='jarl'){ u.berserk = 8; ring(u.x, u.y, .2, 2, '#ff5a4a', .6); burst(u.x, u.y-.3, 10, '#ff5a4a'); }
+  else if(a==='warden'){ u.inv = 5*P; ring(u.x, u.y, .2, 5, '#d8e4f0', .8); }
+  else if(a==='jarl'){ u.berserk = 8*P; ring(u.x, u.y, .2, 2, '#ff5a4a', .6); burst(u.x, u.y-.3, 10, '#ff5a4a'); }
   { const AS = ABIL_SPR[a]; if(AS && onScr(u.x, u.y, 4)){ let ax = u.x, ay = u.y, ang = 0;
       if(a==='engineer' && R.barrage && R.barrage.length){ const b = R.barrage[R.barrage.length-1]; ax = b.x; ay = b.y; }
       if(a==='goldkhan' && u.lastCharge){ ax = u.lastCharge.mx; ay = u.lastCharge.my; ang = u.lastCharge.ang; }
       sAnim({n:AS[0], x:ax, y:ay, s:AS[1], ang, life:AS[2] ? 1.4 : 1, max:AS[2] ? 1.4 : 1, fol:AS[2] ? u : null, fade:1}); } }
-  u.acd = H.cd*(own===PLAYER && hasArt('horn') ? .75 : 1); u.abT = R.now;
+  u.acd = H.cd*(own===PLAYER && hasArt('horn') ? .75 : 1)*(own===PLAYER && hasRen('swift') ? .7 : 1); u.abT = R.now;
+  if(own===PLAYER && hasRen('echo') && !u.echoing) u.echoT = G.t + 2;
   float(H.act+'!', u.x, u.y-1.3, own===PLAYER ? '#ffe3a3' : '#ffb7a8', 1.4);
   if(own===PLAYER) SFX.pick && SFX.pick();
   return true;
@@ -261,6 +263,7 @@ function heroAI(u, cityById){
   if(tid){ u.tcity = tid; u.goal = null; }
 }
 function heroStep(u, dt, cityById, unitById){
+  if(u.echoT) renTick(u);
   const own = u.owner, H = HEROES[u.hero];
   u.hlv = heroLv(own, u.hero); u.card = H.line; u.kind = CARDS[H.line].role;
   if(u.acd > 0) u.acd -= dt; if(u.inv > 0) u.inv -= dt; if(u.raid > 0) u.raid -= dt; if(u.berserk > 0) u.berserk -= dt;

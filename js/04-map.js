@@ -77,7 +77,7 @@ const SHRINE = {war:{n:'Shrine of War', c:'#ff6a4a', d:'Your band deals 30% more
 const WONDER = {falls:{n:'The Sky Falls', e:'f', d:'+15% food while it lies inside your borders'}, tree:{n:'The Elder Tree', e:'p', d:'+15% production while it lies inside your borders'}, spire:{n:'The Crystal Spire', e:'s', d:'+15% science while it lies inside your borders'}};
 const POI_NAME = {ruins:'Ancient ruins', camp:'Barbarian camp', merc:'Mercenary camp', tribe:'Lost tribe', shrine:'Shrine', wonder:'Natural wonder'};
 const hasArt = k => !!(G && G.arts && G.arts.includes(k));
-const gatherR = o => o===PLAYER && hasArt('lodestone') ? 5 : 3;
+const gatherR = o => (o===PLAYER && hasArt('lodestone') ? 5 : 3) + (o===PLAYER && hasRen('muster') ? 1.5 : 0);
 const padRows = rows => { const w = Math.max(...rows.map(r => r.length)); return rows.map(r => r.padEnd(w, '.')); };
 const artSpr = k => getSpr('art_'+k, () => spriteFrom(padRows(ARTS[k].i), AP));
 const ARTIMG = {"sunbanner":"art/artimg/sunbanner.png","standard":"art/artimg/standard.png","cuirass":"art/artimg/cuirass.png","drum":"art/artimg/drum.png","chalice":"art/artimg/chalice.png","aegis":"art/artimg/aegis.png","blade":"art/artimg/blade.png","boots":"art/artimg/boots.png","horn":"art/artimg/horn.png","lodestone":"art/artimg/lodestone.png","phoenix":"art/artimg/phoenix.png","lens":"art/artimg/lens.png","crown":"art/artimg/crown.png","plough":"art/artimg/plough.png","anvil":"art/artimg/anvil.png","scroll":"art/artimg/scroll.png","idol":"art/artimg/idol.png","compass":"art/artimg/compass.png","chart":"art/artimg/chart.png"};

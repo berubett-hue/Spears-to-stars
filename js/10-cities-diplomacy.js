@@ -28,7 +28,7 @@ function captureCity(c, nw){
   const at = {x:c.x+.5, y:c.y+.5};
   burst(c.x+.5, c.y+.5, 22, ocol(nw));
   if(nw===PLAYER){
-    G.stats.captured++; G.stats.forced = (G.stats.forced||0) + 1; if(G.stats.firstCapT == null) G.stats.firstCapT = G.t; if(G.t < 480) G.stats.capEarly = (G.stats.capEarly||0) + 1; lifeAdd('captured'); rival(old).lost++; rival(old).lastBy = PLAYER;
+    G.stats.captured++; G.stats.forced = (G.stats.forced||0) + 1; renCity(c); if(G.stats.firstCapT == null) G.stats.firstCapT = G.t; if(G.t < 480) G.stats.capEarly = (G.stats.capEarly||0) + 1; lifeAdd('captured'); rival(old).lost++; rival(old).lastBy = PLAYER;
     c.unrest = G.t + 60; c.prevOwner = old; G.warmon = (G.warmon||0) + 1;
     toast('You captured '+c.name+'. It is restless for 60s: no output, and it may rise up if '+rival(old).name+'’s troops return', 'good', at);
     if(G.warmon === 3 || G.warmon === 8) toast('Your conquests alarm the world. Every nation trusts you less', 'warn'); float(c.name+' is yours', c.x+.5, c.y-.4, '#ffd98a', 1.8); SFX.found();

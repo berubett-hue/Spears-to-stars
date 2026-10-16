@@ -303,9 +303,12 @@ function rankSprite(src, rk, ev, pal){
     return c;
   } catch(e){ return src; }
 }
+const TROOP_VIS = 1.22;
 function unitLook(u){
   const sp = unitSprite(u), img = u.fl>0 ? sp.w : sp.n;
   let scl = u.owner===0 ? BSCALE[u.kind] : CARDS[u.card] ? formSize(u.card, u.hero ? (u.hlv||1) : cardLevel(u.owner, u.card))*(u.hero ? 1.7 : 1) : 1;
+  // troops are drawn ~22% larger than their footprint so you can see who is who; small lines get a floor
+  if(u.owner > 0 && !u.hero) scl = Math.max(scl, .95)*TROOP_VIS; else if(u.hero) scl *= 1.1; else scl *= 1.12;
   let rk = 0, ev = null;
   if(u.owner>0 && u.card && !u.hero){ rk = rankOf(cardLevel(u.owner, u.card)); ev = cardEvo(u.owner, u.card); scl *= (ev ? 1.22 : 1) * (rk >= 3 ? 1.1 : 1); }
   const pad = sp.n.pad || {x:0, y:0};

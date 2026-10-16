@@ -29,6 +29,7 @@ function hitUnit(v,dmg,att,splash){
   if(v.mark > 0) dmg *= 1.25;
   if(v.rout > 0) dmg *= 1.3;
   if(v.hero && v.owner===PLAYER && hasArt('aegis') && !G.arena) dmg *= .75;
+  if(v.hero && v.owner===PLAYER && !v.swUsed && hasRen('second') && v.hp - dmg < uStat(v).hp*.25){ v.swUsed = 1; healBy(v, uStat(v).hp*.5, PLAYER, 'hero'); ring(v.x, v.y, .2, 1.4, '#7ae08a', .7); float('Second Wind!', v.x, v.y-1.3, '#9af0a8', 1.3); }
   if(v.hero){ const now = G.t; if(now - (v.dwT||0) > .5){ v.dwT = now; v.dw = 0; } const capd = Math.max(0, uStat(v).hp*.045 - (v.dw||0)); dmg = Math.min(dmg, capd); v.dw = (v.dw||0) + dmg; v.lastHit = now; }
   if(v.owner > 0 && !v.hero && R.heroes && R.heroes.length){ const A = heroAuras(v); dmg *= A.def; }
   const h0 = v.hp; v.hp -= dmg; v.fl = .08; v.hitT = G.t; recDmg(att, Math.min(h0, dmg), v.hp<=0); recTaken(v, Math.min(h0, dmg));
@@ -44,7 +45,7 @@ function killUnit(v,att){
   if(v.dead) return;
   v.dead = true; v.hp = 0;
   if(v.owner===PLAYER && !G.arena && !G.demo){ const k = v.hero ? 'hero' : v.card; if(k){ const D = G.dth || (G.dth = {}); D[k] = (D[k]||0) + 1; } }
-  if(att===PLAYER && !G.arena && !G.demo) streakKill(v);
+  if(att===PLAYER && !G.arena && !G.demo){ streakKill(v); renKill(v, att); }
   if(v.owner > 0 && v.card && CARDS[v.card] && CARDS[v.card].tags.includes('Holy') && unitAbil(v)){
     for(const o of G.units){ if(o.owner!==v.owner || o.hp<=0 || !o.card || (o.x-v.x)**2+(o.y-v.y)**2 > 2.25) continue; healBy(o, uStat(o).hp*.25, v.owner, v.card); }
     ring(v.x, v.y, .2, 1.5, '#ffe9a0'); burst(v.x, v.y-.3, 6, '#fff3c0');
@@ -70,7 +71,7 @@ function killUnit(v,att){
       for(const f of G.units) if(f.fol===v.id) f.fol = 0;
       R.shake = Math.min(8, R.shake+4);
       if(v.owner===PLAYER){
-        const rs = Math.min(proto('rally') ? 20 : HERO_RESPAWN, hasArt('phoenix') ? 30 : 99); G.stats.heroFalls = (G.stats.heroFalls||0) + 1; G.hero.id = 0; G.hero.t = G.t + rs; banner(v.name, 'Has fallen'); toast(v.name+' has fallen. Back at the capital in '+rs+' seconds','bad',{x:v.x,y:v.y});
+        const rs = Math.round(Math.min(proto('rally') ? 20 : HERO_RESPAWN, hasArt('phoenix') ? 30 : 99)*(hasRen('recover') ? .5 : 1)); G.stats.heroFalls = (G.stats.heroFalls||0) + 1; G.hero.id = 0; G.hero.t = G.t + rs; banner(v.name, 'Has fallen'); toast(v.name+' has fallen. Back at the capital in '+rs+' seconds','bad',{x:v.x,y:v.y});
         if(att > 1 && rival(att) && rival(att).alive){ rivalPick(rival(att)); toast(rival(att).name+' grows bolder after felling your hero','warn'); }
       } else if(v.owner > 1){
         const rv = rival(v.owner); rv.hero.id = 0; rv.hero.t = G.t + (CR(5) ? 40 : HERO_RESPAWN);

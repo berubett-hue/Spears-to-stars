@@ -17,6 +17,12 @@ function frame(now){
     if(!hsel){ ax += kx; ay += ky; }
     if(hsel && (kx || ky)){ if(R.follow){ R.follow = null; R.camZ = null; syncWatch(); } if(R.camFree){ R.camFree = false; R.camTo = null; } }
     if(ax || ay){ const sp = 720/CAM.z*dtr; CAM.x += ax*sp; CAM.y += ay*sp; R.camTo = null; R.camFree = true; if(R.follow){ R.follow = null; R.camZ = null; syncWatch(); } clampCam(); }
+    /* battle zoom (Options, off by default): ease in while your general's band is fighting, back out after */
+    { let tgt = 1;
+      if(R.bzOn && hsel && !G.demo && !R.camFree && !R.follow && running && !paused && !G.ended){
+        if(G.t >= (R.bzT||0)){ R.bzT = G.t + .4; let f = false; for(const v of G.units){ if(v.hp > 0 && (v.owner===0 || atWar(PLAYER, v.owner)) && (v.x-hsel.x)**2 + (v.y-hsel.y)**2 < 30){ f = true; break; } } if(f) R.bzLast = G.t; }
+        if(G.t - (R.bzLast ?? -99) < 4) tgt = 1.3; }
+      const prev = R.bz || 1; if(Math.abs(tgt - prev) > .002){ const nb = prev + (tgt - prev)*(1 - Math.pow(tgt > prev ? .3 : .5, dtr)); const L = zLimits(); CAM.z = clamp(CAM.z/prev*nb, L.min, L.max); R.bz = nb; } }
     if(hsel && !R.camFree && !R.follow && running && !G.ended){ const k = 1 - Math.pow(.02, dtr), ty = hsel.y + (R.camOffY||0)/CAM.z; CAM.x += (hsel.x - CAM.x)*k; CAM.y += (ty - CAM.y)*k; R.camTo = null; clampCam(); }
 
     if(R.camTo){
@@ -51,8 +57,8 @@ function begin(){
   newGame(); meterDefault();
   resize();
   const cap = capitalOf(PLAYER);
-  CAM.z = clamp(Math.min(VW,VH)/18, zLimits().min, zLimits().max);
-  CAM.x = cap.x+.5; CAM.y = cap.y+.5; clampCam(); R.camTo = null; R.camFree = false; R.follow = null;
+  CAM.z = clamp(Math.min(VW,VH)/(R.phone ? 13.5 : 16.5), zLimits().min, zLimits().max);   // phones start closer so troops read
+  CAM.x = cap.x+.5; CAM.y = cap.y+.5; clampCam(); R.camTo = null; R.camFree = false; R.follow = null; R.bz = 1; R.bzLast = -99;
   running = true; paused = false; modal = null; R.keepG = null; R.menuOv = null;
   MENU_OV.concat(['#ovHome']).forEach(s => { const e = $(s); if(e) e.hidden = true; });
   $('#app').classList.remove('demo'); resize();
@@ -160,7 +166,7 @@ function heroHud(){
   const lv = h ? h.hlv : heroLv(PLAYER, key), fol = h ? G.units.filter(v => v.fol===h.id && v.hp>0).length : 0;
   const k2 = key+lv+(HSPR2.ok ? 'b' : '')+(HSPR3.ok ? 'c' : '');
   if(R.heroArt !== k2){ R.heroArt = k2; const img = document.getElementById('hcImg'); if(img) img.src = (HSPR.ok && hsprPortrait(key, heroTier(lv))) || artURL('hero_'+key+'_'+lv, () => unitSprite({owner:PLAYER, card:H.line, lvl:lv}).n); }
-  document.getElementById('hcName').textContent = (h && h.name) || H.n;
+  document.getElementById('hcName').textContent = (h && h.name) || H.n; renHud();
   document.getElementById('hcHp').style.width = (h ? clamp(h.hp/uStat(h).hp, 0, 1)*100 : 0)+'%';
   document.getElementById('hcSub').textContent = h ? formOf(H.line, lv).n+' · band of '+fol : 'Returns in '+Math.max(0, Math.ceil(G.hero.t - G.t))+'s';
   const act = document.getElementById('hcAct'), cd = h ? (h.acd||0) : H.cd;
@@ -263,6 +269,8 @@ function bind(){
   $('#armybar').addEventListener('click', openArmy);
   $('#btnAutoSettle').addEventListener('click', () => { if(G && G.settle) autoSettle(); });
   { const aa = $('#btnAutoAlways'); if(aa && aa.addEventListener) aa.addEventListener('click', () => { setAutoCity(true); if(G && G.settle) autoSettle(); toast('New cities will be placed automatically. Turn it off in Options','good'); }); }
+  renBind();
+  { try { R.bzOn = localStorage.getItem('eh-bzoom') === '1'; } catch(e){} const ob = $('#optBZoom'); if(ob && ob.addEventListener){ ob.checked = !!R.bzOn; ob.addEventListener('change', e => { R.bzOn = e.target.checked; try { localStorage.setItem('eh-bzoom', R.bzOn ? '1' : '0'); } catch(er){} }); } }
   { const oa = $('#optAutoCity'); if(oa && oa.addEventListener){ oa.checked = autoCityOn(); oa.addEventListener('change', e => setAutoCity(e.target.checked)); } }
   $('#dipOffers').addEventListener('click', e => {
     const b = e.target.closest && e.target.closest('button[data-off]'); if(!b) return;
