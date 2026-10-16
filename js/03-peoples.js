@@ -344,9 +344,10 @@ function followerTarget(u, h){
   if(h.owner===PLAYER && G.order==='fall') return null;
   const ac = h.owner===PLAYER && h.tcity ? G.cities.find(c => c.id===h.tcity && !c.dead) : null;
   if(ac && u.kind==='siege') return null;
+  if(u.kind==='siege' && enemyCityNear(u.owner, h.x, h.y, 6)) return null;
   let best = 1e9, t = null; const okm = navOk(u.owner);
   if(ac){ for(const v of G.units){ if(v.hp<=0 || !atWar(u.owner, v.owner) || !okm[G.own[tileAt(v.x, v.y)]]) continue; const dc = Math.hypot(v.x-ac.x-.5, v.y-ac.y-.5), d = Math.hypot(v.x-u.x, v.y-u.y); if(dc > 3.2 && d > 1.2) continue; if(d < best){ best = d; t = v; } } return t; }
-  for(const v of G.units){ if(v.hp<=0 || !atWar(u.owner, v.owner) || !okm[G.own[tileAt(v.x, v.y)]]) continue; const dh = Math.hypot(v.x-h.x, v.y-h.y); if(dh > (h.owner===PLAYER ? ORD_R[G.order||'charge'] : 4.5)) continue; const d = Math.hypot(v.x-u.x, v.y-u.y) - (v.hero==='bastion' ? 3 : 0); if(d < best){ best = d; t = v; } }
+  for(const v of G.units){ if(v.hp<=0 || !atWar(u.owner, v.owner) || !okm[G.own[tileAt(v.x, v.y)]]) continue; const dh = Math.hypot(v.x-h.x, v.y-h.y); if(dh > (h.owner===PLAYER ? ORD_R[G.order||'charge'] : 4.5) + (u.kind==='rider' ? 2 : 0)) continue; const d = roleScore(u, v, Math.hypot(v.x-u.x, v.y-u.y)) - (v.hero==='bastion' ? 3 : 0); if(d < best){ best = d; t = v; } }
   return t;
 }
 

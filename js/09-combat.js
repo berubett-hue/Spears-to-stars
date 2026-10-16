@@ -26,7 +26,7 @@ function hitUnit(v,dmg,att,splash){
   if(v.hero && v.owner===PLAYER && hasArt('aegis') && !G.arena) dmg *= .75;
   if(v.hero){ const now = G.t; if(now - (v.dwT||0) > .5){ v.dwT = now; v.dw = 0; } const capd = Math.max(0, uStat(v).hp*.045 - (v.dw||0)); dmg = Math.min(dmg, capd); v.dw = (v.dw||0) + dmg; v.lastHit = now; }
   if(v.owner > 0 && !v.hero && R.heroes && R.heroes.length){ const A = heroAuras(v); dmg *= A.def; }
-  const h0 = v.hp; v.hp -= dmg; v.fl = .08; recDmg(att, Math.min(h0, dmg), v.hp<=0);
+  const h0 = v.hp; v.hp -= dmg; v.fl = .08; v.hitT = G.t; recDmg(att, Math.min(h0, dmg), v.hp<=0);
   if(splash){
     for(const o of G.units){
       if(o===v || o.hp<=0 || !atWar(att,o.owner)) continue;
@@ -76,8 +76,9 @@ function killUnit(v,att){
 }
 
 function updateUnits(dt, cityById, unitById){
-  R.pc = new Map(); R.pt = new Map(); R.heroes = G.units.filter(u => u.hero && u.hp > 0);
+  R.pc = new Map(); R.pt = new Map(); R.heroes = G.units.filter(u => u.hero && u.hp > 0); R.ubi = unitById; R.bandC = new Map();
   for(const u of G.units){
+    if(u.fol && u.hp > 0) R.bandC.set(u.fol, (R.bandC.get(u.fol)||0) + 1);
     if(u.owner<=0 || u.hp<=0 || !u.card) continue;
     const k = u.owner+':'+u.card; let a = R.pc.get(k); if(!a){ a = []; R.pc.set(k, a); } a.push(u);
     for(const tg of CARDS[u.card].tags){ const kk = u.owner+':'+tg; let b = R.pt.get(kk); if(!b){ b = []; R.pt.set(kk, b); } b.push(u); }
@@ -540,6 +541,55 @@ function updateFires(dt){
   }
   R.fires = R.fires.filter(f => f.life > 0);
 }
+/* ---------- Battle line and battle sense ----------
+   A band forms up around its general facing the enemy: melee in front, archers behind, riders on the
+   flanks, siege and healers at the back. Each role picks targets its own way, the badly hurt step behind
+   the line to bind their wounds, and troops regroup before assaulting a city. Rivals use the same rules. */
+const ROLE_OF = {raider:'rider', warband:'guard', brute:'titan', ram:'siege', warlord:'titan'};
+const roleOf = v => v.owner===0 ? (ROLE_OF[v.kind]||'guard') : v.hero ? 'titan' : (v.kind||'guard');
+const isRangedU = u => u.kind==='archer' || u.kind==='siege';
+function bandFront(h){
+  if(h.fT > G.t && h.front) return h.front;
+  h.fT = G.t + .3;
+  let sx = 0, sy = 0, n = 0;
+  for(const v of G.units){
+    if(v.hp<=0 || v.owner===h.owner || !(v.owner===0 || atWar(h.owner, v.owner))) continue;
+    const dx = v.x-h.x, dy = v.y-h.y, d2 = dx*dx + dy*dy; if(d2 > 81) continue;
+    const w = 1/(1 + d2); sx += dx*w; sy += dy*w; n++;
+  }
+  let fx, fy;
+  if(n){ const L = Math.hypot(sx, sy) || 1; fx = sx/L; fy = sy/L; h.fight = true; }
+  else {
+    h.fight = false; const mx = h.x - (h.lx ?? h.x), my = h.y - (h.ly ?? h.y), L = Math.hypot(mx, my);
+    if(L > .05){ fx = mx/L; fy = my/L; } else if(h.front){ fx = h.front.x; fy = h.front.y; } else { fx = 0; fy = -1; }
+  }
+  h.lx = h.x; h.ly = h.y;
+  if(h.front){ fx = h.front.x*.45 + fx*.55; fy = h.front.y*.45 + fy*.55; const L = Math.hypot(fx, fy) || 1; fx /= L; fy /= L; }
+  return h.front = {x:fx, y:fy};
+}
+/* where this soldier stands in its general's battle line */
+function bandSlot(u, h){
+  const f = bandFront(h), px = -f.y, py = f.x, n = Math.max(6, (R.bandC && R.bandC.get(h.id)) || h.bandN || 8);
+  const k = ((u.id*7919) % 101)/101, row = u.id % 4, W = clamp(1.4 + Math.sqrt(n)*.32, 1.8, 6.5);
+  let fwd, side;
+  if(u.kind==='guard' || u.kind==='titan'){ fwd = .9 + row*.42; side = (k - .5)*2*W; }
+  else if(u.kind==='rider'){ fwd = .4 + (row % 2)*.5; side = (k < .5 ? -1 : 1)*(W + .5 + (row >> 1)*.5); }
+  else if(u.kind==='archer'){ fwd = -.9 - (row % 2)*.45; side = (k - .5)*1.7*W; }
+  else { fwd = -1.9 - (row % 2)*.45; side = (k - .5)*1.2*W; }
+  const s = h.owner===PLAYER && G.order==='hold' ? .8 : 1;
+  return {x:h.x + (f.x*fwd + px*side)*s, y:h.y + (f.y*fwd + py*side)*s};
+}
+/* role-aware target score: a lower number is a better target */
+function roleScore(u, v, d){
+  const rv = roleOf(v), att = v.tgt && R.ubi ? R.ubi.get(v.tgt) : null, onMe = att && att.owner===u.owner;
+  switch(u.kind){
+    case 'archer': return d - (onMe ? 1.6 : 0) - (rv==='archer' || rv==='siege' ? .6 : 0);
+    case 'rider':  return d - (rv==='archer' || rv==='siege' || rv==='support' ? 3 : 0) + (rv==='titan' ? 1 : 0);
+    case 'siege':  return d - (rv==='titan' ? 1 : 0);
+    default:       return d - (onMe && att && isRangedU(att) ? 1.3 : 0) - (onMe ? .4 : 0);
+  }
+}
+const enemyCityNear = (o, x, y, r) => { let best = null, bd = r*r; for(const c of G.cities){ if(c.dead || c.owner===o || !atWar(o, c.owner)) continue; const d = (c.x+.5-x)**2 + (c.y+.5-y)**2; if(d < bd){ bd = d; best = c; } } return best; };
 function nationStep(u, dt, cityById, unitById){
   const own = u.owner, B = ROLE[u.kind];
   if(!B || !CARDS[u.card]){ u.hp = 0; return; }
@@ -566,7 +616,7 @@ function nationStep(u, dt, cityById, unitById){
       u.rt = .5; let best = 81, f = null;
       let fr = null, br = 81; for(const v of G.units){ if(v.owner!==own || v.hp<=0 || v===u || v.kind==='support' || !v.card) continue; const d=(v.x-u.x)**2+(v.y-u.y)**2; if(v.kind==='rider'){ if(d<br){ br=d; fr=v; } } else if(d<best){ best=d; f=v; } } if(!f || best > 36) f = f || fr;
       u.tgt = f ? f.id : 0;
-      if(u.fol){ const h = unitById.get(u.fol); if(h && h.hp>0 && h.owner===own) u.tgt = h.id; else u.fol = 0; }
+      if(u.fol){ const h = unitById.get(u.fol); if(h && h.hp>0 && h.owner===own){ u.tgt = h.id; let wb = .75, wv = null; for(const v of G.units){ if(v.owner!==own || v.hp<=0 || !v.card || v===u || v.kind==='support' || (v.x-h.x)**2 + (v.y-h.y)**2 > 25) continue; const fr = v.hp/uStat(v).hp; if(fr < wb){ wb = fr; wv = v; } } if(wv) u.tgt = wv.id; } else u.fol = 0; }
     }
     const f = unitById.get(u.tgt);
     if(f && f.hp>0 && f.owner===own){ const d = Math.hypot(f.x-u.x, f.y-u.y); if(d > 1.1) step(f.x, f.y, d, 1); }
@@ -591,6 +641,17 @@ function nationStep(u, dt, cityById, unitById){
   let fh = null;
   if(u.fol){ fh = unitById.get(u.fol); if(!fh || fh.hp<=0 || fh.owner!==own){ u.fol = 0; fh = null; } }
   const raiding = !fh && isRaider(u);
+  if(!G.arena && !u.gar && !(u.fmT > G.t) && !CARDS[u.card].tags.includes('Swarm') && !(own===PLAYER && G.order==='fall')){
+    if(u.wnd){ if(u.hp >= st.hp*.62 || G.t - u.wnd > 14) u.wnd = 0; }
+    else if(u.hp < st.hp*.28 && G.t - (u.hitT ?? -99) < 2.5) u.wnd = G.t;
+    if(u.wnd){
+      u.tgt = 0; u.tcity = 0; u.eng = false;
+      let rx, ry; if(fh){ const f = bandFront(fh); rx = fh.x - f.x*2.8; ry = fh.y - f.y*2.8; } else { rx = home.x+.5; ry = home.y+.5; }
+      const d = Math.hypot(rx-u.x, ry-u.y); if(d > .35) step(rx, ry, d, 1.05);
+      if(G.t - (u.hitT ?? -99) > 1.5) u.hp = Math.min(st.hp, u.hp + st.hp*.06*dt);
+      return;
+    }
+  }
   if(fh && u.fmT > G.t && (fh.x-u.x)**2 + (fh.y-u.y)**2 > 36){ u.tgt = 0; u.tcity = 0; u.eng = false; u.rt = .35; }  // forced march: answer the banners first, fight later
   else if(fh){ if(u.rt<=0){ u.rt = .35;
     // once the band engages it stays in the fight until the enemy (or the soldier) is dead, then rejoins the general
@@ -607,8 +668,9 @@ function nationStep(u, dt, cityById, unitById){
       else if(acx && !acx.dead && atWar(own, acx.owner)) tc = acx.id;
       else if(cc && !cc.dead && cc.owner!==own && atWar(own, cc.owner)) tc = cc.id;
       else if(fh.tcity) tc = fh.tcity;
-      else if(own===PLAYER){ let bd = 4.5*4.5; for(const c of G.cities){ if(c.dead || c.owner===own || !atWar(own, c.owner)) continue; const d = (c.x+.5-fh.x)**2 + (c.y+.5-fh.y)**2; if(d < bd){ bd = d; tc = c.id; } } }
+      else if(own===PLAYER || u.kind==='siege'){ let bd = (u.kind==='siege' ? 6 : 4.5)**2; for(const c of G.cities){ if(c.dead || c.owner===own || !atWar(own, c.owner)) continue; const d = (c.x+.5-fh.x)**2 + (c.y+.5-fh.y)**2; if(d < bd){ bd = d; tc = c.id; } } }
     }
+    if(tc && !t && (u.x-fh.x)**2 + (u.y-fh.y)**2 > 30) tc = 0;   // too far ahead or behind: form up on the general first
     u.tgt = t ? t.id : 0; u.tcity = tc; u.eng = !!(t || tc);
   } }
   else if(u.rt<=0 && G.arena){
@@ -621,7 +683,7 @@ function nationStep(u, dt, cityById, unitById){
     for(const v of G.units){
       if(v.hp<=0 || !atWar(own,v.owner) || !okm[G.own[tileAt(v.x, v.y)]]) continue;
       const ds = Math.hypot(v.x-u.x, v.y-u.y);
-      const eff = ds - (v.card && CARDS[v.card].tags.includes('Line') ? 1.5 : 0);
+      const eff = roleScore(u, v, ds) - (v.card && CARDS[v.card].tags.includes('Line') ? 1.5 : 0);
       if(reach){ if(ds<reach && eff<best){ best=eff; t=v; } }
       else { const dh = Math.hypot(v.x-home.x-.5, v.y-home.y-.5), inB = own===PLAYER && !u.gar && dh < 11 && G.own[tileAt(v.x, v.y)]===own; if((dh<B.home || ds<Math.min(3.5,B.home) || inB) && eff<best){ best=eff; t=v; } }
     }
@@ -635,6 +697,7 @@ function nationStep(u, dt, cityById, unitById){
     if(CARDS[u.card].tags.some(g => ABIL[g] && ABIL[g].cd)) useAbilities(u, st, tgt, d, own);
     if(tgt.hp <= 0) return;
     if(u.kind==='siege' && d < 1 && !CARDS[u.card].tags.includes('Titan')){ step(u.x*2 - tgt.x, u.y*2 - tgt.y, 1, .8); return; }
+    if(u.kind==='archer' && st.rng > 1.6 && d < .85 && u.cd > 0 && fh){ const f = bandFront(fh), bx = u.x - f.x*.9, by = u.y - f.y*.9; step(bx, by, .9, .9); return; }
     if(d > st.rng + tgt.r*.5) step(tgt.x, tgt.y, d, 1);
     else if(u.cd<=0){
       u.cd = st.cd*(u.frenzy > 0 ? .59 : 1); strike(u, tgt, st, own);
@@ -653,7 +716,8 @@ function nationStep(u, dt, cityById, unitById){
     if(c && !c.dead && atWar(own,c.owner)){
       const d = Math.hypot(c.x+.5-u.x, c.y+.5-u.y);
       const reach = st.rng > 1.2 ? st.rng : .8, sp = R.raidS.get(own);
-      if(sp && sp.c===c.id && !R.raidGo.get(own) && d > 4.2 && !fh){
+      const late = sp && sp.c===c.id && R.raidGo.get(own) && d > 8 && !(R.raidLate && R.raidLate.get(own)) && G.t - (u.stC===c.id ? u.stT : G.t) < 15;
+      if(sp && sp.c===c.id && (!R.raidGo.get(own) || late) && d > 4.2 && !fh){ if((sp.x-u.x)**2 + (sp.y-u.y)**2 < 2 && u.stC !== c.id){ u.stT = G.t; u.stC = c.id; }
         const ds = Math.hypot(sp.x-u.x, sp.y-u.y);
         if(ds > 1.2) step(sp.x, sp.y, ds, 1); else { u.fx = c.x+.5<u.x ? -1 : 1; u.hp = Math.min(st.hp, u.hp + st.hp*.05*dt); }
       }
@@ -669,7 +733,7 @@ function nationStep(u, dt, cityById, unitById){
     }
     u.tcity = 0;
   }
-  if(fh){ const bn = Math.max(6, fh.bandN||8), an = (u.id*2.399) % 6.283, rr = .8 + Math.sqrt(((u.id*13) % bn) + 1)*.3*(own===PLAYER && G.order==='hold' ? .8 : 1), gx = fh.x + Math.cos(an)*rr, gy = fh.y + Math.sin(an)*rr, d = Math.hypot(gx-u.x, gy-u.y); if(d > .2) step(gx, gy, d, d > 2 ? 1.2 : .9); u.hp = Math.min(st.hp, u.hp + st.hp*.02*dt); return; }
+  if(fh){ const sl = bandSlot(u, fh), gx = sl.x, gy = sl.y, d = Math.hypot(gx-u.x, gy-u.y); if(d > .2) step(gx, gy, d, d > 2 ? 1.2 : .9); u.hp = Math.min(st.hp, u.hp + st.hp*.02*dt); return; }
   u.ang += dt*.45;
   const gx=home.x+.5+Math.cos(u.ang)*B.orbit, gy=home.y+.5+Math.sin(u.ang)*B.orbit, d=Math.hypot(gx-u.x, gy-u.y);
   if(d>.05) step(gx, gy, d, .6);

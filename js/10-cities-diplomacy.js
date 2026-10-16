@@ -400,6 +400,7 @@ function computeRaidTargets(){
       if((u.x-bc.x-.5)**2+(u.y-bc.y-.5)**2 < 42) atC++;
     }
     const go = R.raidGo.get(o);
+    (R.raidLate || (R.raidLate = new Map())).set(o, atS >= 3);
     if(!go && tot && atS >= Math.max(3, Math.ceil(tot*.6))){ R.raidGo.set(o, true); hostWarn(o, bc, atS); }
     if(o!==PLAYER && bc.owner===PLAYER) hostNote(o, bc, sx, sy);
     else if(go && atC < Math.max(2, tot*.2)) R.raidGo.set(o, false);
