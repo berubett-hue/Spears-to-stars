@@ -59,6 +59,40 @@ function joyBind(){
   const end = e => { if(e.pointerId !== id) return; id = null; R.joy = null; k.style.transform = ''; j.classList.remove('on'); };
   j.addEventListener('pointerup', end); j.addEventListener('pointercancel', end);
 }
+/* while a finger is down on a button, panels that redraw themselves wait, so the tap lands on the
+   same button it started on (a redraw mid-tap was eating taps: the "tap twice" problem) */
+const holdUI = () => !!R.touching && performance.now() - (R.touchT||0) < 900;
+function tapGuard(){
+  /* Fast taps: on touch screens a button fires on finger-up instead of waiting for the browser's own
+     click. iPhones sometimes swallow that click while the game is redrawing (so a button "needs two
+     taps"); this makes every tap count once, and the browser's late click for the same tap is dropped. */
+  let td = null;
+  const down = e => {
+    const t = e.target, btn = t && t.closest ? t.closest('button') : null;
+    if(btn || (t && t.closest && t.closest('.gl-r, [data-tab], .resb, .vicchip'))){ R.touching = true; R.touchT = performance.now(); }
+    td = (e.pointerType === 'touch' && btn && !btn.disabled) ? {id:e.pointerId, btn, x:e.clientX, y:e.clientY, key:btnKey(btn)} : null;
+  };
+  const up = e => {
+    setTimeout(() => { R.touching = false; }, 60);
+    if(!td || e.type !== 'pointerup' || e.pointerId !== td.id){ td = null; return; }
+    const d = td; td = null;
+    if(Math.hypot(e.clientX - d.x, e.clientY - d.y) > 14) return;
+    let btn = d.btn.isConnected ? d.btn : null;
+    if(!btn){ const at = document.elementFromPoint(e.clientX, e.clientY), b2 = at && at.closest ? at.closest('button') : null; if(b2 && btnKey(b2) === d.key) btn = b2; }
+    if(!btn || btn.disabled) return;
+    R.fastTap = {t:performance.now(), key:d.key};
+    btn.click();
+  };
+  // the browser's own click for a tap we already handled is dropped
+  document.addEventListener('click', e => {
+    const f = R.fastTap; if(!f || !e.isTrusted || performance.now() - f.t > 500) return;
+    // whatever it lands on (the layout may have shifted under the finger), it belongs to the tap we already handled
+    e.stopImmediatePropagation(); e.preventDefault(); R.fastTap = null;
+  }, true);
+  document.addEventListener('pointerdown', down, true); document.addEventListener('pointerup', up, true); document.addEventListener('pointercancel', up, true);
+}
+const btnKey = b => b.id || (b.dataset && (b.dataset.tab || b.dataset.o || b.dataset.k || b.dataset.d || b.dataset.ht || b.dataset.pin || b.dataset.r || b.dataset.a || b.dataset.close)) || (b.className+'|'+(b.textContent||'').slice(0, 24));
+atBoot(tapGuard);
 function phoneInit(){
   try { R.joyOn = localStorage.getItem('eh-joy') !== '0'; R.vibOff = localStorage.getItem('eh-vib') === '0'; } catch(e){ R.joyOn = true; }
   phoneSync();

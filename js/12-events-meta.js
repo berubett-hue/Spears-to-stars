@@ -52,7 +52,7 @@ function showEvent(ev){
   $('#evText').textContent = ev.text;
   $('#evChoices').innerHTML = (ev.opts || [ev.a, ev.b]).map(o => o.pic ? '<button class="choice has-pic"><img src="'+o.pic+'" alt=""><b>'+esc(o.l)+'</b><span>'+esc(o.s)+'</span></button>' : o.ic ? '<button class="choice has-ic"><img src="'+o.ic+'" alt=""><b>'+esc(o.l)+'</b><span>'+esc(o.s)+'</span></button>' : '<button class="choice"><b>'+esc(o.l)+'</b><span>'+esc(o.s)+'</span></button>').join('');
   [...$('#evChoices').children].forEach((el,i) => el.addEventListener('click', () => {
-    if(performance.now() - R.openedAt < 350) return;
+    if(performance.now() - R.openedAt < 220) return;
     resolveEvent(i);
   }));
   R.openedAt = performance.now();

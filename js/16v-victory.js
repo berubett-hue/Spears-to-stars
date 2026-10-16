@@ -50,7 +50,7 @@ function vicHTML(){
 }
 /* the closest win, on the rivals row */
 function vicChip(){
-  const el = $('#vicChip'); if(!el || !el.querySelector || !G || G.demo || G.arena) return;
+  const el = $('#vicChip'); if(!el || !el.querySelector || !G || G.demo || G.arena || holdUI()) return;
   if(G.decline || G.won){ el.hidden = true; return; }
   const b = vicBest(); if(!b){ el.hidden = true; return; }
   const txt = b.n+' '+Math.round(b.f*100)+'%';

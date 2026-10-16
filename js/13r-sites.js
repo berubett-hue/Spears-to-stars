@@ -123,7 +123,7 @@ function resHud(){
   const el = $('#resRow'); if(!el || !el.querySelector || !G || !G.sites) return;
   const chart = hasArt('chart'), seen = G.sites.filter(s => G.seen[idx(s.x, s.y)] || chart);
   const key = seen.map(s => s.k+s.owner).join(',');
-  if(key === R.resKey) return; R.resKey = key;
+  if(key === R.resKey || holdUI()) return; R.resKey = key;
   el.hidden = !seen.length;
   el.innerHTML = seen.map(s => '<button class="resb'+(s.owner===PLAYER ? ' on' : '')+'" data-x="'+s.x+'" data-y="'+s.y+'" title="'+RES[s.k].n+': '+RES[s.k].d+(s.owner===PLAYER ? ' (yours)' : s.owner ? ' (held by the '+rival(s.owner).name+')' : ' (unclaimed)')+'"><img src="'+resIcon(s.k)+'" alt=""></button>').join('');
   el.querySelectorAll('.resb').forEach(b => b.addEventListener('click', () => { CAM.x = +b.dataset.x + .5; CAM.y = +b.dataset.y + .5; R.camFree = true; }));

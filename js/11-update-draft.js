@@ -186,7 +186,7 @@ function renderChoices(){
   const el = $('#cards');
   { const bs = $('#buildStrip'); if(bs) bs.innerHTML = R.shipPick ? '' : buildStripHTML(); }
   el.innerHTML = R.choices.map(t => { const p = pillarOf(t); let h = cardHTML(t); const bt = buildTagsHTML(t); if(bt) h = h.replace('<span class="era">', bt+'<span class="era">'); if(isBuildPick(t)) h = h.replace(/^<button class="card/, '<button class="card buildpick'); if((t.ucard==='lvl' && slotOf(t.id) && slotOf(t.id).lvl + 1 >= 8) || buildTags(t).some(x => x.k==='ready')) h = h.replace(/^<button class="card/, '<button class="card legendpick'); return p ? h.replace(/<span class="btags">|<span class="era">/, m => '<span class="pillar p-'+p+'">'+PILLARS[p]+'</span>'+m) : h; }).join(''); el.classList.remove('done');
-  [...el.children].forEach((c,i) => c.addEventListener('click', () => { if(performance.now() - R.openedAt < 350) return; if(R.banMode){ draftBanish(R.choices[i]); return; } choose(R.choices[i]); }));
+  [...el.children].forEach((c,i) => c.addEventListener('click', () => { if(performance.now() - R.openedAt < 220) return; if(R.banMode){ draftBanish(R.choices[i]); return; } choose(R.choices[i]); }));
   el.classList.toggle('banmode', !!R.banMode); draftTools();
 }
 function pickDone(){ R.banMode = false; { const d = document.getElementById('dtools'); if(d) d.hidden = true; } modal = null; const ov = $('#ovDraft'); if(ov) ov.hidden = true; G.gate = G.t + 8; playRankFx(); }
@@ -348,7 +348,7 @@ function openChest(){
   if(!ov || !ov.querySelector) return;
   $('#chestTitle').textContent = 'Pick one free upgrade';
   $('#chestList').innerHTML = '<div class="cards">'+opts.map(cardHTML).join('')+'</div>';
-  [...$('#chestList .cards').children].forEach((el,i) => el.addEventListener('click', () => { if(performance.now() - R.openedAt < 350) return; pickChest(i); }));
+  [...$('#chestList .cards').children].forEach((el,i) => el.addEventListener('click', () => { if(performance.now() - R.openedAt < 220) return; pickChest(i); }));
   $('#btnChest').hidden = true;
   ov.hidden = false; SFX.era();
 }

@@ -17,6 +17,7 @@ function meterTick(){
   if(!H.length || now - H[H.length-1].t >= 1){ const snap = {}; for(const k in (G.dmg||{})) if(k.startsWith(PLAYER+':')) snap[k] = G.dmg[k].d; H.push({t:now, d:snap}); while(H.length > 12) H.shift(); }
   const mk = String(G.cards.length)+(R.meterOff ? 'x' : '')+R.lTab+(R.gAll ? 'a' : '')+R.pin;
   if(now - (R.meterT||-9) < .5 && el.dataset.k === mk) return;
+  if(holdUI()) return;
   R.meterT = now; el.dataset.k = mk;
   let GL = []; try { GL = goalsLive(); goalsTrack(GL); } catch(e){}
   el.classList.toggle('off', !!R.meterOff);
@@ -29,8 +30,9 @@ function meterTick(){
   rows.sort((a,b) => b.d - a.d);
   const mx = Math.max(1, ...rows.map(r => r.d)), tot = rows.reduce((a,r) => a + r.d, 0), tdps = rows.reduce((a,r) => a + r.dps, 0);
   const gt = R.lTab==='goals', vt = R.lTab==='vic', dot = !gt && R.gDot != null && now - R.gDot < 4;
-  el.innerHTML = '<div class="lp-h"><button class="lp-t'+(gt || vt ? '' : ' on')+'" data-tab="dmg" title="Damage meter"><img class="ui-ic" src="'+KIT.u_dmg+'" alt=""><b>Damage</b><span>'+fmtK(tdps)+'/s</span></button><button class="lp-t'+(gt ? ' on' : '')+'" data-tab="goals" title="Goals you can reach this game"><img class="ui-ic" src="'+KIT.u_goals+'" alt=""><b>Goals</b>'+(dot ? '<i class="dot"></i>' : '<span>'+GL.length+'</span>')+'</button><button class="lp-t'+(vt ? ' on' : '')+'" data-tab="vic" title="How close you are to each way to win"><img class="ui-ic" src="'+KIT.u_g_glory+'" alt=""><b>Win</b></button><button class="lp-c" id="dmToggle" title="Show or hide (T)">'+(R.meterOff ? '▸' : '▾')+'</button></div>'+
+  const html = '<div class="lp-h"><button class="lp-t'+(gt || vt ? '' : ' on')+'" data-tab="dmg" title="Damage meter"><img class="ui-ic" src="'+KIT.u_dmg+'" alt=""><b>Damage</b><span>'+fmtK(tdps)+'/s</span></button><button class="lp-t'+(gt ? ' on' : '')+'" data-tab="goals" title="Goals you can reach this game"><img class="ui-ic" src="'+KIT.u_goals+'" alt=""><b>Goals</b>'+(dot ? '<i class="dot"></i>' : '<span>'+GL.length+'</span>')+'</button><button class="lp-t'+(vt ? ' on' : '')+'" data-tab="vic" title="How close you are to each way to win"><img class="ui-ic" src="'+KIT.u_g_glory+'" alt=""><b>Win</b></button><button class="lp-c" id="dmToggle" title="Show or hide (T)">'+(R.meterOff ? '▸' : '▾')+'</button></div>'+
     (R.meterOff ? '' : vt ? vicHTML() : gt ? goalsHTML(GL) : rows.map(r => '<div class="dm-r'+(r.ev ? ' ev' : '')+'" title="'+esc(r.name)+': '+Math.round(r.d).toLocaleString()+' damage · '+r.k.toLocaleString()+' kills"><span class="dm-i">'+(r.img ? '<img src="'+r.img+'" alt="">' : '<i>'+(r.key==='tower' ? '▲' : '?')+'</i>')+'</span><span class="dm-n">'+esc(r.name)+'</span><span class="dm-v">'+fmtK(r.dps)+'/s <small>'+fmtK(r.d)+'</small></span><span class="dm-b"><s style="width:'+(r.d/mx*100).toFixed(1)+'%"></s></span></div>').join(''));
+  if(html !== el._html){ el._html = html; el.innerHTML = html; }
   const tg = el.querySelector('#dmToggle'); if(tg) tg.onclick = e => { e.stopPropagation(); toggleMeter(); };
   el.onclick = e => { const t = e.target.closest ? e.target.closest('[data-tab],[data-pin],[data-more]') : null; if(!t) return; e.stopPropagation();
     if(t.dataset.tab){ R.lTab = t.dataset.tab; if(R.meterOff) R.meterOff = false; try { localStorage.setItem('eh-ltab', R.lTab); } catch(er){} }
@@ -124,7 +126,7 @@ function hostHud(){
   const small = innerWidth < 760, inBat = !!(R.bat && G && G.t - R.bat.last < 3);
   const L = (!G || G.demo || G.arena || modal==='end' || (small && inBat)) ? [] : (R.hosts||[]).slice().sort((a,b) => (b.go - a.go) || (b.n - a.n)).slice(0, small ? 1 : 2);
   const key = L.map(H => H.o+':'+H.n+':'+H.go+':'+(H.eta == null ? '' : Math.ceil(H.eta/5))+':'+H.c).join('|');
-  if(key === R.hostKey) return; R.hostKey = key;
+  if(key === R.hostKey || holdUI()) return; R.hostKey = key;
   el.hidden = !L.length;
   el.innerHTML = L.map(H => { const r = rival(H.o), i = (R.hosts||[]).indexOf(H); return '<div class="host'+(H.go ? ' go' : '')+'" style="--hc:'+r.col+'"><div class="hh"><b>'+(H.go ? '⚔ ' : '⚑ ')+esc(r.name)+' host · '+H.n+'</b><span>'+(H.go ? 'Marching on '+esc(H.cn)+(H.eta != null ? ' · about '+H.eta+'s' : '') : 'Gathering to strike '+esc(H.cn))+'</span><small>'+H.comp.map(esc).join(' · ')+'</small></div>'+
     '<div class="hb"><button data-i="'+i+'" data-a="meet" title="Ride out and meet them in the field">Meet</button><button data-i="'+i+'" data-a="hold" title="Hold the city with its towers and garrison">Hold city</button><button data-i="'+i+'" data-a="strike" title="Hit their homeland while the host is away">Strike back</button></div></div>'; }).join('');
@@ -294,7 +296,7 @@ function renderDiplo(){
 function renderArmyBar(){
   const el = $('#armybar'); if(!el || !G || !el.querySelectorAll) return;
   const slots = cardSlots(), key = slots+JSON.stringify(G.cards)+JSON.stringify(G.relics||[]);
-  if(key===R.armyKey) return; R.armyKey = key;
+  if(key===R.armyKey || holdUI()) return; R.armyKey = key;
   let h = '';
   for(let i=0;i<slots;i++){
     const sl = G.cards[i];

@@ -348,8 +348,8 @@ function openFind(o){
   $('#findKick').textContent = o.kick || 'Discovery'; $('#findTitle').textContent = o.title || '';
   $('#findBody').innerHTML = o.body || '';
   const bt = $('#findBtns'); bt.innerHTML = (o.btns||[]).map((b,i) => '<button class="'+(b.cls||'primary')+'" data-i="'+i+'"'+(b.off ? ' disabled' : '')+'>'+esc(b.t)+'</button>').join('');
-  [...bt.querySelectorAll('button')].forEach(el => el.addEventListener('click', () => { if(performance.now() - R.openedAt < 300) return; const b = o.btns[+el.dataset.i]; if(b && b.fn) b.fn(); }));
-  if(o.swap) [...$('#findBody').querySelectorAll('[data-sw]')].forEach(el => el.addEventListener('click', () => { if(performance.now() - R.openedAt < 300) return; o.swap(+el.dataset.sw); }));
+  [...bt.querySelectorAll('button')].forEach(el => el.addEventListener('click', () => { if(performance.now() - R.openedAt < 220) return; const b = o.btns[+el.dataset.i]; if(b && b.fn) b.fn(); }));
+  if(o.swap) [...$('#findBody').querySelectorAll('[data-sw]')].forEach(el => el.addEventListener('click', () => { if(performance.now() - R.openedAt < 220) return; o.swap(+el.dataset.sw); }));
   } catch(e){}
   ov.hidden = false; SFX.open && SFX.open();
 }
