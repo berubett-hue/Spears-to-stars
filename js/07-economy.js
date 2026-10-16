@@ -50,13 +50,18 @@ function econ(dt){
   G.settler += pr*dm.settler; G.army += pr*dm.army;
   let rep = pr*dm.repair;
   const sc = settlerCost();
-  if(mine.length >= cityCap()){
+  if(G.decline && !G.decline.done){
+    /* no new cities during the Decline and Fall: settler work goes into repairs instead */
+    G.settle = null; R.sites = null; G.settler = Math.max(0, G.settler - pr*dm.settler); rep += pr*dm.settler;
+  } else if(mine.length >= cityCap()){
     G.settle = null; R.sites = null;
     if(G.settler > sc){ rep += G.settler - sc; G.settler = sc; }
     if(G.settler >= sc && G.capNote !== G.eraIdx){ G.capNote = G.eraIdx; toast('City limit reached. The next era allows more, or take cities by war','warn'); }
   } else if(G.settler >= sc){
     if(G.settler > sc){ rep += G.settler - sc; G.settler = sc; }
-    if(!G.settle){ G.settle = {t:G.t}; R.sites = null; toast('A settler is ready. Tap a lit spot to found a city','good'); SFX.open(); }
+    if(!G.settle){ G.settle = {t:G.t}; R.sites = null;
+      if(autoCityOn()){ const n0 = citiesOf(PLAYER).length; autoSettle(); if(citiesOf(PLAYER).length > n0){ const c = G.cities[G.cities.length-1]; toast('A settler founded '+c.name+' (auto placement is on in Options)','good', {x:c.x+.5, y:c.y+.5}); } }
+      else { toast('A settler is ready. Tap a lit spot to found a city, or tap Always auto','good'); SFX.open(); } }
     else if(G.t - G.settle.t > 15) autoSettle();
   }
   /* during the Decline your realm's levies march without pay: no upkeep, no disbanding, a steady trickle of troops */
@@ -376,6 +381,9 @@ function placeCity(x,y){
   foundCity(x, y, PLAYER, false);
   return true;
 }
+/* place new cities automatically: on by default on phones, a toggle on the settler bar and in Options */
+function autoCityOn(){ if(R.autoCity == null){ let v = null; try { v = localStorage.getItem('eh-autocity'); } catch(e){} R.autoCity = v == null ? !!R.phone : v === '1'; } return R.autoCity; }
+function setAutoCity(on){ R.autoCity = !!on; try { localStorage.setItem('eh-autocity', on ? '1' : '0'); } catch(e){} const o = document.getElementById('optAutoCity'); if(o) o.checked = !!on; }
 function autoSettle(){
   if(!G.settle) return;
   const s = findSite(PLAYER);

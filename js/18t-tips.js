@@ -9,7 +9,7 @@ const TIPS = [
   {id:'level',   when:() => (G.level||0) >= 1, tab:'army', sel:() => '.research',
     t:() => 'Science fills this bar. Every level you pick one of three cards: a new troop line, an upgrade or a civic.'},
   {id:'settle',  when:() => !!G.settle, urgent:1, tab:'empire', sel:() => '#settleBar',
-    t:() => 'A settler is ready. Tap one of the lit spots on the map to found a city there, or tap Auto and it picks one for you.'},
+    t:() => 'A settler is ready. Tap a lit spot to found a city there, or tap Auto to let it pick. Always auto places every new city for you.'},
   {id:'orders',  when:() => bandSize() >= 5, tab:'army', sel:() => '#orders',
     t:() => 'Your band follows your general. Charge sends it at nearby enemies, Hold keeps it tight around him, Fall back pulls it out to heal.'},
   {id:'ability', when:() => G.t > 70 && !!heroOf(PLAYER), tab:'army', sel:() => '#hcAct',

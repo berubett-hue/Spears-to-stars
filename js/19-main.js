@@ -258,6 +258,8 @@ function bind(){
   document.querySelectorAll('.ltabs button').forEach(b => b.addEventListener('click', () => { R.ledgerTab = b.dataset.t; renderLedger(); SFX.tick(); }));
   $('#armybar').addEventListener('click', openArmy);
   $('#btnAutoSettle').addEventListener('click', () => { if(G && G.settle) autoSettle(); });
+  { const aa = $('#btnAutoAlways'); if(aa && aa.addEventListener) aa.addEventListener('click', () => { setAutoCity(true); if(G && G.settle) autoSettle(); toast('New cities will be placed automatically. Turn it off in Options','good'); }); }
+  { const oa = $('#optAutoCity'); if(oa && oa.addEventListener){ oa.checked = autoCityOn(); oa.addEventListener('change', e => setAutoCity(e.target.checked)); } }
   $('#dipOffers').addEventListener('click', e => {
     const b = e.target.closest && e.target.closest('button[data-off]'); if(!b) return;
     resolveOffer(+b.dataset.off, b.dataset.c); renderDiplo();

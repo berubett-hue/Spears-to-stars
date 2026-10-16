@@ -1408,3 +1408,4 @@ html.phone .host .hb button{padding:6px 2px;font-size:12px}
 .cmbn{font-style:normal;color:#ffe3a3;font-size:12px}
 
 html.phone .banner{padding-top:12vh}html.phone .banner strong{font-size:26px}html.land .banner{padding-top:8vh}html.land .banner .bn-img{height:min(80px,16vh)}
+html.phone .settle{gap:6px;padding:4px 4px 4px 10px;font-size:12px;max-width:calc(100vw - 16px);white-space:nowrap}html.phone .settle button{padding:4px 9px;font-size:11.5px}
