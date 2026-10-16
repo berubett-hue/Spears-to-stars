@@ -1409,3 +1409,28 @@ html.phone .host .hb button{padding:6px 2px;font-size:12px}
 
 html.phone .banner{padding-top:12vh}html.phone .banner strong{font-size:26px}html.land .banner{padding-top:8vh}html.land .banner .bn-img{height:min(80px,16vh)}
 html.phone .settle{gap:6px;padding:4px 4px 4px 10px;font-size:12px;max-width:calc(100vw - 16px);white-space:nowrap}html.phone .settle button{padding:4px 9px;font-size:11.5px}
+
+/* ---- Pause menu and battle report ---- */
+.pmenu{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:6px 0 14px}
+.pmenu button{padding:10px 8px}.pmenu kbd{font-size:10px;opacity:.7;margin-left:4px;padding:1px 4px;border:1px solid currentColor;border-radius:4px}
+@media (max-width:620px){.pmenu{grid-template-columns:1fr 1fr}.pmenu kbd{display:none}}
+.recap-wrap{overflow-x:auto;margin:0 0 12px}
+.recap{width:100%;border-collapse:collapse;font-size:13px}
+.recap th,.recap td{padding:5px 4px;text-align:right;white-space:nowrap;border-bottom:1px solid rgba(255,255,255,.06)}
+.recap thead th{font-size:10.5px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.recap tbody th{text-align:left;font-weight:600;display:flex;align-items:center;gap:6px;max-width:170px}
+.recap tbody th span{overflow:hidden;text-overflow:ellipsis}
+.recap tbody th img{width:24px;height:24px;object-fit:contain;image-rendering:pixelated;flex:none}
+.recap .noi{width:24px;text-align:center;font-style:normal;color:var(--lamp-2);flex:none}
+.recap td b{display:block;font-weight:600}
+.recap .rb{display:block;height:3px;background:rgba(255,255,255,.08);border-radius:2px;margin-top:2px;min-width:34px}
+.recap .rb s{display:block;height:100%;background:var(--c);border-radius:2px}
+html.phone .recap{font-size:12px}html.phone .recap th,html.phone .recap td{padding:4px 4px}html.phone .recap tbody th{max-width:110px}
+@media (max-width:620px){
+  .recap,.recap tbody{display:block}.recap thead{display:none}
+  .recap tr{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:2px 6px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.08)}
+  .recap tbody th{grid-column:1/-1;max-width:none;border:0;padding:0 0 2px}
+  .recap td{border:0;padding:0;text-align:left}
+  .recap td::before{content:attr(data-l);display:block;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+  .recap .rb{min-width:0}
+}

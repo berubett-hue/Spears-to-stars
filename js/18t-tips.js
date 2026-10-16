@@ -42,6 +42,8 @@ const TIPS = [
     t:() => 'Prosperity is open: hold 6 cities, 4 resource sites and a wonder at once, then keep them for 90 seconds.'},
   {id:'science', when:() => typeof shipReady==='function' && shipReady(), tab:'winning', sel:() => '.research',
     t:() => 'The Space Program is ready. It will be one of your cards at the next level-up.'},
+  {id:'legend',  when:() => G.rivals.some(r => r.alive && r.legendOn && !META.leg.has(r.legend)), tab:'army', sel:() => '#dmgMeter',
+    t:() => 'A rival fields a legendary union. Conquer that nation, or win it over by union, and you can forge that legend in every game. One per game. The Goals tab tracks it.'},
   {id:'decline', when:() => !!G.decline && !G.decline.done, urgent:1, tab:'winning', sel:() => '#declChip',
     t:() => 'The Decline has begun. Far cities slip away unless your general stands in them. Protect your capital as long as you can.'}
 ];

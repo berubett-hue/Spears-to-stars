@@ -46,7 +46,7 @@ function refreshHome(){
   { const hn = $('#hNext'); if(hn){ const note = SAVE_RESET ? '<div class="nextun alpha-note"><h4>Alpha update · fresh start</h4><span>Progress was reset for the new unlock pace. Each of the four ways to win brings a new people, feats count from Crown 1, every Crown win now earns a reward, and the Collection keeps your record: win all four ways with every people. Check Unlocks to see every goal.</span></div>' : ''; hn.innerHTML = note + (META.life.games > 0 ? nextHTML(2, 'Closest unlocks') : ''); } }
 }
 function openMenuOv(id){ R.menuOv = id; const e = $('#'+id); if(e) e.hidden = false; SFX.init(); SFX.tick && SFX.tick(); }
-function closeMenuOv(){ const id = R.menuOv; R.menuOv = null; if(id){ const e = $('#'+id); if(e) e.hidden = true; } if(R.howGame){ R.howGame = false; paused = false; return; } if(id==='ovStart' || id==='ovWiz'){} refreshHome(); }
+function closeMenuOv(){ const id = R.menuOv; R.menuOv = null; if(id){ const e = $('#'+id); if(e) e.hidden = true; } if(R.fromPause){ R.fromPause = false; const p = $('#ovPause'); if(p) p.hidden = false; return; } if(R.howGame){ R.howGame = false; paused = false; return; } if(id==='ovStart' || id==='ovWiz'){} refreshHome(); }
 function openWizard(){ $('#ovHome').hidden = true; R.menuOv = null; $('#ovStart').hidden = false; SFX.init(); buildNatPick(); wizStep(0); }
 function wizStep(i){
   R.wiz = i;

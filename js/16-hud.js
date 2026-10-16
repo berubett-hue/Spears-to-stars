@@ -74,6 +74,9 @@ function goalsLive(){
   for(const sl of G.cards){ let st; try { st = evoStatus(sl); } catch(e){ continue; }
     if(st.state==='ready') out.push({id:'e:'+sl.id, ic:'u_g_relic', name:known(st.ev) ? st.ev.n : 'Something stirs', d:'Ready · slay a rival general to awaken it', v:1, g:1, ready:1});
     else if(st.state==='path' && st.ev && st.ev.from===sl.id){ const L = evLv(st.ev); out.push({id:'e:'+sl.id, ic:'u_g_relic', name:st.ev.n, d:st.txt, v:Math.min(sl.lvl, L), g:L}); } }
+  if(!G.legGot) for(const r of G.rivals){ if(!r.alive || !r.legendOn) continue; const ev = UEVO.find(e => e.id===r.legend); if(!ev || META.leg.has(ev.id)) continue;
+    const n0 = r.peakC = Math.max(r.peakC||0, citiesOf(r.id).length), left = citiesOf(r.id).length;
+    out.push({id:'l:'+r.id, ic:'u_g_relic', name:'Legend · '+ev.n, d:'Fielded by the '+r.name+'. Conquer them or win their union to learn it for good', v:Math.max(0, n0 - left), g:Math.max(1, n0)}); }
   try { out.push(...holdGoals()); } catch(e){}
   try { out.push(...hordeGoals()); } catch(e){}
   out.forEach(o => { o.f = Math.min(1, o.v/Math.max(1, o.g)); });

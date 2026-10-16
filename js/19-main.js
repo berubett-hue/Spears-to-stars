@@ -238,6 +238,10 @@ function bind(){
     $('#optDemo').addEventListener('change', e => { META.noDemo = !e.target.checked; saveLife(); if(!$('#ovHome').hidden) startDemo(); }); }
   $('#btnEndless').addEventListener('click', () => startDecline(true));
   $('#btnResume').addEventListener('click', () => { SFX.init(); closePause(); });
+  document.querySelectorAll('[data-resume]').forEach(b => b.addEventListener('click', () => { SFX.init(); closePause(); }));
+  { const po = $('#pOpts'), ph = $('#pHow');
+    if(po && po.addEventListener) po.addEventListener('click', () => { $('#ovPause').hidden = true; R.fromPause = true; openOpts(); });
+    if(ph && ph.addEventListener) ph.addEventListener('click', () => { $('#ovPause').hidden = true; R.fromPause = true; howTab('basics'); openMenuOv('ovHow'); }); }
   $('#btnPause').addEventListener('click', () => { if(paused) closePause(); else openPause(); });
   $('#btnDipClose').addEventListener('click', closeDiplo);
   $('#btnArmyClose').addEventListener('click', closeArmy);
@@ -292,6 +296,8 @@ function bind(){
   bindCamera();
   window.addEventListener('keydown', e => {
     if(e.key==='Escape' && R.menuOv){ closeMenuOv(); return; }
+    // Esc on the main menu with a game in progress goes straight back into it
+    if(e.key==='Escape' && R.keepG && !R.menuOv){ const hm = $('#ovHome'); if(hm && !hm.hidden){ continueGame(); return; } }
     if(!G || !running || G.demo) return;
     const k = e.key.toLowerCase();
     if(['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright'].includes(k)){
@@ -325,7 +331,7 @@ function bind(){
     else if(k==='h'){ if(!modal && !paused) selectHero(); }
     else if(k==='g'){ if(!modal && !paused) heroGarrison(); }
     else if(k==='y'){ if(!modal && !paused) callBanners(); }
-    else if(k==='escape'){ if(modal==='diplo') closeDiplo(); else if(modal==='army') closeArmy(); else if(modal==='ledger') closeLedger(); else if(modal==='arena') closeArena(); else if(modal==='collect') closeCollect(); else if(modal==='chest' && !R.chestOpts) closeChest(); else if(paused) closePause(); }
+    else if(k==='escape'){ if(modal==='diplo') closeDiplo(); else if(modal==='army') closeArmy(); else if(modal==='ledger') closeLedger(); else if(modal==='arena') closeArena(); else if(modal==='collect') closeCollect(); else if(modal==='chest' && !R.chestOpts) closeChest(); else if(paused) closePause(); else if(!modal) openPause(); }
     else if(modal==='chest' && R.chestOpts && /^[1-3]$/.test(k)) pickChest(+k-1);
     else if((modal==='draft' || modal==='muster') && /^[1-5]$/.test(k)){ const c = (modal==='muster' ? R.mchoices : R.choices)[+k-1]; if(c) choose(c); }
   });

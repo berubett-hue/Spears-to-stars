@@ -18,6 +18,10 @@ function recDmg(att, amt, killed){
   const k = att+':'+(att===PLAYER && R.ch ? 'hero' : R.cc), e = G.dmg[k] || (G.dmg[k] = {d:0, k:0}); e.d += amt; if(killed) e.k++;
   if(R.ca){ const ka = att+':'+R.ca; G.adm[ka] = (G.adm[ka]||0) + amt; }
 }
+/* the after-battle report: damage your lines took and healing they gave */
+function recTaken(v, amt){ if(v.owner!==PLAYER || !G || G.arena || G.demo || !(amt > 0)) return; const k = v.hero ? 'hero' : v.card; if(!k) return; const T = G.dtk || (G.dtk = {}); T[k] = (T[k]||0) + amt; }
+function recHeal(own, k, amt){ if(own!==PLAYER || !G || G.arena || G.demo || !k || !(amt > 0)) return; const H = G.dhl || (G.dhl = {}); H[k] = (H[k]||0) + amt; }
+function healBy(v, amt, own, k){ const mx = uStat(v).hp, h0 = v.hp; v.hp = Math.min(mx, v.hp + amt); recHeal(own, k, v.hp - h0); }
 function hitUnit(v,dmg,att,splash){
   if(v.hp<=0) return;
   if(v.inv > 0){ v.fl = .05; return; }
@@ -27,11 +31,11 @@ function hitUnit(v,dmg,att,splash){
   if(v.hero && v.owner===PLAYER && hasArt('aegis') && !G.arena) dmg *= .75;
   if(v.hero){ const now = G.t; if(now - (v.dwT||0) > .5){ v.dwT = now; v.dw = 0; } const capd = Math.max(0, uStat(v).hp*.045 - (v.dw||0)); dmg = Math.min(dmg, capd); v.dw = (v.dw||0) + dmg; v.lastHit = now; }
   if(v.owner > 0 && !v.hero && R.heroes && R.heroes.length){ const A = heroAuras(v); dmg *= A.def; }
-  const h0 = v.hp; v.hp -= dmg; v.fl = .08; v.hitT = G.t; recDmg(att, Math.min(h0, dmg), v.hp<=0);
+  const h0 = v.hp; v.hp -= dmg; v.fl = .08; v.hitT = G.t; recDmg(att, Math.min(h0, dmg), v.hp<=0); recTaken(v, Math.min(h0, dmg));
   if(splash){
     for(const o of G.units){
       if(o===v || o.hp<=0 || !atWar(att,o.owner)) continue;
-      if((o.x-v.x)**2 + (o.y-v.y)**2 < .81){ o.hp -= dmg*.5; o.fl=.08; if(o.hp<=0) killUnit(o,att); }
+      if((o.x-v.x)**2 + (o.y-v.y)**2 < .81){ recTaken(o, Math.min(o.hp, dmg*.5)); o.hp -= dmg*.5; o.fl=.08; if(o.hp<=0) killUnit(o,att); }
     }
   }
   if(v.hp<=0) killUnit(v,att);
@@ -39,9 +43,10 @@ function hitUnit(v,dmg,att,splash){
 function killUnit(v,att){
   if(v.dead) return;
   v.dead = true; v.hp = 0;
+  if(v.owner===PLAYER && !G.arena && !G.demo){ const k = v.hero ? 'hero' : v.card; if(k){ const D = G.dth || (G.dth = {}); D[k] = (D[k]||0) + 1; } }
   if(att===PLAYER && !G.arena && !G.demo) streakKill(v);
   if(v.owner > 0 && v.card && CARDS[v.card] && CARDS[v.card].tags.includes('Holy') && unitAbil(v)){
-    for(const o of G.units){ if(o.owner!==v.owner || o.hp<=0 || !o.card || (o.x-v.x)**2+(o.y-v.y)**2 > 2.25) continue; const mx = uStat(o).hp; o.hp = Math.min(mx, o.hp + mx*.25); }
+    for(const o of G.units){ if(o.owner!==v.owner || o.hp<=0 || !o.card || (o.x-v.x)**2+(o.y-v.y)**2 > 2.25) continue; healBy(o, uStat(o).hp*.25, v.owner, v.card); }
     ring(v.x, v.y, .2, 1.5, '#ffe9a0'); burst(v.x, v.y-.3, 6, '#fff3c0');
   }
   if(R.corpses.length < 160 && S){ const sp = unitSprite(v).n, scl = v.owner===0 ? BSCALE[v.kind] : (CARDS[v.card]||{size:1}).size; R.corpses.push({x:v.x, y:v.y, img:sp, w:sp.width/16*scl, h:sp.height/16*scl, fx:v.fx<0 ? -1 : 1, t:0}); }
@@ -153,7 +158,7 @@ const nearTag = (o, tg, x, y, r) => nearList(R.pt.get(o+':'+tg), x, y, r);
 function splashHit(t, rad, dmg, own){
   for(const o of G.units){
     if(o===t || o.hp<=0 || o.inv > 0 || !atWar(own,o.owner)) continue;
-    if((o.x-t.x)**2 + (o.y-t.y)**2 < rad*rad){ const dd = o.brace > 0 ? dmg*.4 : dmg, h0 = o.hp; o.hp -= dd; o.fl = .08; recDmg(own, Math.min(h0, dd), o.hp<=0); if(o.hp<=0) killUnit(o, own); }
+    if((o.x-t.x)**2 + (o.y-t.y)**2 < rad*rad){ const dd = o.brace > 0 ? dmg*.4 : dmg, h0 = o.hp; recTaken(o, Math.min(h0, dd)); o.hp -= dd; o.fl = .08; recDmg(own, Math.min(h0, dd), o.hp<=0); if(o.hp<=0) killUnit(o, own); }
   }
 }
 function bannerR(own){ const ev = cardEvo(own, 'banner'); return CARDS.banner.auraR*(synOf(own).Support >= 2 ? 1.5 : 1)*(1 + featOf(CARDS.banner, cardLevel(own,'banner')).aura)*(ev && ev.auraMul || 1); }
@@ -169,7 +174,7 @@ function strike(u, t, st, own, mul){
   if(st.crit && !mul){ u.hits = (u.hits||0) + 1; if(u.hits % 4 === 0){ dmg *= 3; crit = true; burst(t.x, t.y-.25, 9, '#ffd36a'); ring(t.x, t.y, .1, .55, '#ffd36a', .25); if(own===PLAYER || G.arena) float('!', t.x, t.y-.6, '#ffd36a', .6); } }
   u.mv = 0;
   { const UC = !u.hero && CARDS[u.card]; if(UC && UC.ambush && !t.amb){ t.amb = 1; dmg *= UC.ambush; if(onScr(t.x, t.y)){ burst(t.x, t.y-.25, 6, '#b48cff'); if(own===PLAYER) float('Ambush!', t.x, t.y-.7, '#c8a8ff', .7); } }
-    if(UC && UC.mend){ const hr = dmg*UC.mend; for(const v of G.units){ if(v.owner!==own || v.hp<=0 || !v.card || v===u || (v.x-u.x)**2+(v.y-u.y)**2 > 2.6) continue; const mx = uStat(v).hp; if(v.hp < mx) v.hp = Math.min(mx, v.hp + hr); } } }
+    if(UC && UC.mend){ const hr = dmg*UC.mend; for(const v of G.units){ if(v.owner!==own || v.hp<=0 || !v.card || v===u || (v.x-u.x)**2+(v.y-u.y)**2 > 2.6) continue; if(v.hp < uStat(v).hp) healBy(v, hr, own, u.card); } } }
   if(nearCard(own, 'banner', u.x, u.y, bannerR(own))) dmg *= 1.4 + .2*featOf(CARDS.banner, cardLevel(own,'banner')).potent*2;
   if(u.card==='knights' && ownsCard(own,'spearmen') && nearTag(own, 'Line', t.x, t.y, 1.6)){ dmg *= 2; comboHit(own, 'anvil', t.x, t.y); }
   /* ---- line moves and the combos built on them ---- */
@@ -209,7 +214,7 @@ function strike(u, t, st, own, mul){
     if((mk==='crossbow' && ranged && !st.thru) || (u.card==='crossbow' && t.pinT > now && ownsCard(own,'slingers'))) pierceOn(u, t, dmg, own, st, u.card==='crossbow' && ownsCard(own,'slingers') ? 3 : 1);
     if(own===PLAYER && !G.arena && CAM.z >= 16 && !(u.dnT > R.now) && onScr(t.x, t.y)){ u.dnT = (R.now||0) + .9; R.floats.push({text:String(Math.round(dmg)), x:t.x+rnd(-.2,.2), y:t.y-.55, col:(MOVES[u.card]||{}).col || '#fff1cf', life:.7, max:.7, sm:1}); }
   }
-  { const ls = (u.hero ? 0 : CARDS[u.card].lifesteal||0) + (own===PLAYER && G.perk==='northmen' ? .1 : 0) + (u.hero==='northmen' ? (u.berserk > 0 ? .6 : .3) : 0); if(ls) u.hp = Math.min(st.hp, u.hp + dmg*ls); }
+  { const ls = (u.hero ? 0 : CARDS[u.card].lifesteal||0) + (own===PLAYER && G.perk==='northmen' ? .1 : 0) + (u.hero==='northmen' ? (u.berserk > 0 ? .6 : .3) : 0); if(ls){ const h0 = u.hp; u.hp = Math.min(st.hp, u.hp + dmg*ls); recHeal(own, u.hero ? 'hero' : u.card, u.hp - h0); } }
   if(st.splash > 0 && !deferred){
     splashHit(t, st.splash, dmg*st.smul, own);
     if(st.splash >= .5) ring(t.x, t.y, .1, st.splash, st.evc || (st.rank >= 3 ? '#ffd36a' : '#e8d8b0'), .28);
@@ -218,7 +223,7 @@ function strike(u, t, st, own, mul){
   if(charged && st.trample){ splashHit(t, .75, dmg*.45, own); ring(t.x, t.y, .1, .75, '#d8c8a0', .25); }
   if(!ranged && st.cleave && !mul){
     let n = 0;
-    for(const v of G.units){ if(n >= st.cleave) break; if(v===t || v.hp<=0 || !atWar(own, v.owner) || (v.x-t.x)**2+(v.y-t.y)**2 > .8) continue; hitUnit(v, dmg*.75, own, false); n++; if(CARDS[u.card].lifesteal) u.hp = Math.min(st.hp, u.hp + dmg*.75*CARDS[u.card].lifesteal); R.projs.push({x0:t.x, y0:t.y-.15, x1:v.x, y1:v.y-.15, life:.12, max:.12, col:st.evc || '#fff3c0', w:.9, kind:'slash'}); }
+    for(const v of G.units){ if(n >= st.cleave) break; if(v===t || v.hp<=0 || !atWar(own, v.owner) || (v.x-t.x)**2+(v.y-t.y)**2 > .8) continue; hitUnit(v, dmg*.75, own, false); n++; if(CARDS[u.card].lifesteal){ const h0 = u.hp; u.hp = Math.min(st.hp, u.hp + dmg*.75*CARDS[u.card].lifesteal); recHeal(own, u.card, u.hp - h0); } R.projs.push({x0:t.x, y0:t.y-.15, x1:v.x, y1:v.y-.15, life:.12, max:.12, col:st.evc || '#fff3c0', w:.9, kind:'slash'}); }
   }
   if(ranged && st.thru){
     const dd0 = Math.hypot(t.x-u.x, t.y-u.y) || 1, bx = t.x + (t.x-u.x)/dd0*.8, by = t.y + (t.y-u.y)/dd0*.8;
@@ -471,7 +476,7 @@ function sigFire(u, g, tgt){
     case 'airships': { const a = Math.atan2(ty-u.y, tx-u.x); for(let i=0;i<5;i++) drop(tx+Math.cos(a)*(i-2)*.6, ty+Math.sin(a)*(i-2)*.6, 'bomb', 2.6, .35, i*.12); break; }
     case 'priests': fxAdd({k:'beam', x:u.x, y:u.y+.2, s:.75, h:4, life:1.1, max:1.1, col:'#fff6c8'}); for(const v of G.units){ if(v.owner!==own || v.hp<=0 || !v.card || (v.x-u.x)**2+(v.y-u.y)**2 > 6.25) continue; fxAdd({k:'plus', x:v.x+rnd(-.2,.2), y:v.y-.4, vx:0, vy:-.8, life:.8, max:.8}); } break;
     case 'wolves': for(const v of G.units){ if(v.owner!==own || v.card!=='wolves' || v.hp<=0 || (v.x-u.x)**2+(v.y-u.y)**2 > 9) continue; v.frenzy = 4; ring(v.x, v.y, .1, .9, '#bfe0ff', .5); } fxAdd({k:'shock', x:u.x, y:u.y, s:2.4, life:.6, max:.6, col:'#bfe0ff'}); break;
-    case 'firemonks': fxAdd({k:'beam', x:tx, y:ty+.2, s:.85, h:4, life:1.1, max:1.1, col:'#ffb35c'}); fxAdd({k:'fireball', x:tx, y:ty-.1, s:1.2, life:.8, max:.8}); for(const v of G.units){ if(v.owner!==own || v.hp<=0 || !v.card || (v.x-u.x)**2+(v.y-u.y)**2 > 9) continue; const mx = uStat(v).hp; v.hp = Math.min(mx, v.hp + mx*.25); } break;
+    case 'firemonks': fxAdd({k:'beam', x:tx, y:ty+.2, s:.85, h:4, life:1.1, max:1.1, col:'#ffb35c'}); fxAdd({k:'fireball', x:tx, y:ty-.1, s:1.2, life:.8, max:.8}); for(const v of G.units){ if(v.owner!==own || v.hp<=0 || !v.card || (v.x-u.x)**2+(v.y-u.y)**2 > 9) continue; healBy(v, uStat(v).hp*.25, own, u.card); } break;
     case 'golems': decal({k:'cracks', x:tx, y:ty+.1, s:1.8, seed:Math.random()*99, life:6, max:6}); for(let i=0;i<6;i++) drop(tx+rnd(-1.2,1.2), ty+rnd(-.8,.8), 'rock', 4, .5, i*.08, 1.4); fxAdd({k:'shock', x:tx, y:ty+.1, s:2.4, life:.6, max:.6, col:'#d8c098'}); break;
     case 'skylancers': drop(tx, ty, 'meteor', 6, .55, 0, 1.1); fxAdd({k:'lance', x:u.x, y:u.y-1.4, x1:tx, y1:ty, life:.7, max:.7, col:'#fff1cf'}); break;
     case 'shadows': for(let i=0;i<16;i++) drop(tx+rnd(-1.4,1.4), ty+rnd(-1,1), 'arrow', 4, .5, i*.04); fxAdd({k:'glow', x:tx, y:ty, s:1.8, life:1, max:1, col:'rgba(60,20,100,.35)'}); break;
@@ -571,7 +576,7 @@ function supportMiracle(u, st, own){
   if(priest ? hurt < 2 : !foe) return;
   for(const v of G.units){
     if(v.owner!==own || v.hp<=0 || !v.card || (v.x-u.x)**2+(v.y-u.y)**2 > 6.25) continue;
-    if(priest){ const mx = uStat(v).hp; v.hp = Math.min(mx, v.hp + mx*.3); } else { if(!v.ab) v.ab = {}; v.frenzy = 4; }
+    if(priest){ healBy(v, uStat(v).hp*.3, own, u.card); } else { if(!v.ab) v.ab = {}; v.frenzy = 4; }
   }
   ring(u.x, u.y, .3, 2.5, priest ? '#7ae08a' : '#ffd98a', .6); burst(u.x, u.y-.5, 8, priest ? '#7ae08a' : '#ffd98a');
   u.ab.Support = ABIL.Support.cd*st.abm*rnd(.9,1.1); if(!sigFire(u, 'Support', null)){ SFX.q(priest ? 'chime' : 'horn', u.x, u.y, 1.2); abilName(u, 'Support'); }
@@ -658,7 +663,7 @@ function nationStep(u, dt, cityById, unitById){
     const m = Math.min(d, s*dt); u.x += (tx-u.x)/d*m; u.y += (ty-u.y)/d*m; u.mv = (u.mv||0) + m;
     if(Math.abs(tx-u.x) > .05) u.fx = tx<u.x ? -1 : 1;
   };
-  if(st.selfheal) u.hp = Math.min(st.hp, u.hp + st.hp*st.selfheal*dt);
+  if(st.selfheal && u.hp < st.hp){ const h0 = u.hp; u.hp = Math.min(st.hp, u.hp + st.hp*st.selfheal*dt); if(G.t - (u.hitT ?? -99) < 3) recHeal(own, u.card, u.hp - h0); }
   if(u.stun > 0) return;   // knocked flat: up in a moment
   if(u.kind==='support'){
     if(u.rt<=0){
@@ -683,7 +688,7 @@ function nationStep(u, dt, cityById, unitById){
           if(u.card==='priests'){ v.pinT = 0; v.stun = 0; v.slow = 0; }
           const mx = uStat(v).hp; if(v.hp >= mx) continue;
           const bm = CARDS[v.card].tags.includes('Swarm') && ownsCard(own,'priests'); if(bm) comboHit(own, 'masses', v.x, v.y);
-          v.hp = Math.min(mx, v.hp + st.heal*.5*(bm ? 3 : 1)); healed = true; hl.push([v.hp/mx, v]);
+          healBy(v, st.heal*.5*(bm ? 3 : 1), own, u.card); healed = true; hl.push([v.hp/mx, v]);
         }
         if(u.card==='priests' && hl.length && onScr(u.x, u.y)){ hl.sort((a,b) => a[0]-b[0]); for(const [, v] of hl.slice(0, 2)) fxAdd({k:'hbeam', x:u.x, y:u.y-.35, x1:v.x, y1:v.y-.2, life:.4, max:.4}); }
         if(healed){ burst(u.x, u.y-.4, 3, '#7ae08a'); if(onScr(u.x, u.y)) fxAdd({k:'plus', x:u.x+rnd(-.4,.4), y:u.y-.5, vx:0, vy:-.6, life:.8, max:.8}); SFX.q('chime', u.x, u.y, .7); }

@@ -175,6 +175,7 @@
         <li><b>Orders.</b> Charge (Q), Hold (E) and Fall back (R) for your band. Release (G) sends it to guard a city. Call the Banners (Y) brings every troop on the map to your general. Space fires his ability.</li>
         <li><b>Level-up tools.</b> Reroll the three cards, Banish a line so it never returns this game, or Skip for 40 influence (R, B, K).</li>
         <li><b>Evolutions and unions.</b> Some lines hide an evolution or a union of two lines. The first time you need its recipe, two pages found in ruins, warcamps and strongholds. After that it is yours in every game.</li>
+        <li><b>Legendary unions.</b> In the Modern Age each rival can field a legendary union. Conquer that nation, or win it over by union, to learn the legend for every game. One legend per game, so pick your target.</li>
       </ul>
     </div>
     <div class="how-sec" data-hs="world" hidden>
@@ -317,7 +318,8 @@
 <div class="overlay" id="ovPause" hidden>
   <div class="sheet codex">
     <p class="kicker" id="pauseKicker">Paused</p>
-    <h2>Codex</h2>
+    <h2>Paused</h2>
+    <div class="pmenu"><button class="primary" id="btnResume">Resume <kbd>Esc</kbd></button><button class="secondary" id="pOpts">Options</button><button class="secondary" id="pHow">How to Play</button><button class="secondary" id="btnRestart">Main menu</button></div>
     <button class="secondary ph-only ph-ledger" id="pLedger">Open the Ledger</button>
     <h3 class="ph-only">Recent messages</h3>
     <div class="cxlog ph-only" id="cxLog"></div>
@@ -350,12 +352,9 @@
       <kbd>Space</kbd><span>Hero ability</span>
       <kbd>G</kbd><span>Release your band to guard the nearest city</span>
       <kbd>Y</kbd><span>Call the Banners: every troop on the map marches to your general (90s cooldown)</span>
-      <kbd>P</kbd><span>Pause</span>
+      <kbd>Esc / P</kbd><span>Pause menu. Esc again goes back to the game</span>
     </div>
-    <div class="btn-row">
-      <button class="primary" id="btnResume">Resume</button>
-      <button class="secondary" id="btnRestart">Main menu</button>
-    </div>
+    <div class="btn-row"><button class="primary" data-resume="1">Resume</button></div>
   </div>
 </div>
 

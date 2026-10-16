@@ -67,7 +67,7 @@ function bombTick(){
       let dmg = d2 < .2 ? b.dmg : b.dmg*(b.edge ?? .6);
       if(b.kg && nearTag(b.own, 'Line', v.x, v.y, 1.3)){ dmg *= 1.5; comboHit(b.own, 'kground', v.x, v.y); }
       if(v.brace > 0) dmg *= .4;
-      const h0 = v.hp; v.hp -= dmg; v.fl = .08; v.hitT = G.t; recDmg(b.own, Math.min(h0, dmg), v.hp<=0);
+      const h0 = v.hp; recTaken(v, Math.min(h0, dmg)); v.hp -= dmg; v.fl = .08; v.hitT = G.t; recDmg(b.own, Math.min(h0, dmg), v.hp<=0);
       if(v.hp<=0) killUnit(v, b.own);
       else { if(b.knock) knock(v, b.x, b.y, b.knock, .35, .25); if(b.burn) v.burnT = MT() + 3; }
       n++;

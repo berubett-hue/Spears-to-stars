@@ -171,9 +171,27 @@ function gloryTally(){
   const step = now => { const k = Math.min(1, (now - t0 - 300)/dur); if(b) b.textContent = Math.max(0, Math.round(g.total*Math.max(0, k))).toLocaleString(); if(k < 1) requestAnimationFrame(step); else SFX.pick && SFX.pick(); };
   requestAnimationFrame(step);
 }
+/* the battle report: what each of your lines dealt, took and healed this game */
+function armyRecapHTML(){
+  const D = G.dmg || {}, T = G.dtk || {}, H = G.dhl || {}, X = G.dth || {};
+  const ids = [...new Set([...G.cards.map(sl => sl.id), ...Object.keys(D).filter(k => k.startsWith(PLAYER+':')).map(k => k.slice(2)), ...Object.keys(T), ...Object.keys(H)].filter(id => CARDS[id]))];
+  const rows = ids.map(id => ({id, n:cardName(PLAYER, id), d:(D[PLAYER+':'+id]||{}).d||0, k:(D[PLAYER+':'+id]||{}).k||0, t:T[id]||0, h:H[id]||0, x:X[id]||0, img:USPR.ok && USPR.m[id] ? artURL('us_'+id+'_'+Math.min(8, cardLevel(PLAYER, id))+'_'+pcol(), () => uPortrait(id, Math.min(8, cardLevel(PLAYER, id)))) : ''}));
+  const hn = (heroOf(PLAYER)||{}).name || (HEROES[G.perk]||{}).n || 'Your general';
+  rows.push({id:'hero', n:hn, d:(D[PLAYER+':hero']||{}).d||0, k:(D[PLAYER+':hero']||{}).k||0, t:T.hero||0, h:H.hero||0, x:X.hero||0, img:HSPR.ok && (HSPR.m[G.perk] || HEROES[G.perk]) ? hsprPortrait(G.perk) : ''});
+  if((D[PLAYER+':tower']||{}).d) rows.push({id:'tower', n:'Towers', d:D[PLAYER+':tower'].d, k:D[PLAYER+':tower'].k||0, t:0, h:0, x:0, img:''});
+  const L = rows.filter(r => r.d || r.t || r.h).sort((a,b) => b.d - a.d); if(!L.length) return '';
+  const md = Math.max(1, ...L.map(r => r.d)), mt = Math.max(1, ...L.map(r => r.t)), mh = Math.max(1, ...L.map(r => r.h));
+  const top = (k) => L.slice().sort((a,b) => b[k]-a[k])[0];
+  const cell = (v, m, c, l) => '<td data-l="'+l+'"><b>'+fmtK(v)+'</b><i class="rb" style="--c:'+c+'"><s style="width:'+(v/m*100).toFixed(1)+'%"></s></i></td>';
+  const hl = top('h');
+  return '<h3>Battle report</h3><p class="lnote">Top damage: <b>'+esc(L[0].n)+'</b> · Took the most: <b>'+esc(top('t').n)+'</b>'+(hl.h ? ' · Top healer: <b>'+esc(hl.n)+'</b>' : '')+'</p>'+
+    '<div class="recap-wrap"><table class="recap"><thead><tr><th></th><th>Damage done</th><th>Damage taken</th><th>Healed</th><th>Kills</th><th>Lost</th></tr></thead><tbody>'+
+    L.map(r => '<tr><th>'+(r.img ? '<img src="'+r.img+'" alt="">' : '<i class="noi">'+(r.id==='tower' ? '▲' : '♛')+'</i>')+'<span>'+esc(r.n)+'</span></th>'+cell(r.d, md, '#ffb35c', 'Done')+cell(r.t, mt, '#e0473b', 'Taken')+cell(r.h, mh, '#7ae08a', 'Healed')+'<td data-l="Kills"><b>'+r.k.toLocaleString()+'</b></td><td data-l="Lost"><b>'+r.x.toLocaleString()+'</b></td></tr>').join('')+
+    '</tbody></table></div>';
+}
 function endProgHTML(){
   const g = G.mxg || {}, ids = Object.keys(g).filter(id => CARDS[id]).sort((a,b) => g[b]-g[a]);
-  let h = '<div class="endprog">'+endCrownHTML()+'<h3>Mastery earned</h3>';
+  let h = '<div class="endprog">'+endCrownHTML()+armyRecapHTML()+'<h3>Mastery earned</h3>';
   h += ids.length ? '<div class="meter">'+ids.map(id => { const r = mRank(id), xp = META.mx[id]||0; return '<div class="mrow"><span>'+CARDS[id].n+' <em class="stars">'+mStars(id)+'</em></span><b>+'+g[id]+' XP<small> · '+(r < MX_T.length ? xp+' / '+MX_T[r]+' to rank '+(r+1) : 'mastered')+'</small></b><i><s style="width:'+(r < MX_T.length ? Math.min(100, (xp-(MX_T[r-1]||0))/(MX_T[r]-(MX_T[r-1]||0))*100) : 100).toFixed(1)+'%"></s></i></div>'; }).join('')+'</div>' : '<p class="lnote">No troop earned mastery this game.</p>';
   if(G.newUnl && G.newUnl.length) h += '<p class="lnote">✦ Unlocked: '+G.newUnl.map(id => CARDS[id] ? CARDS[id].n : (NATIONS_P.find(n => 'nat:'+n.id===id)||{}).n || 'the Crown ladder').join(', ')+'</p>';
   h += endMovedHTML();

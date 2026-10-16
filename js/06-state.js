@@ -293,10 +293,19 @@ function rivalLegend(r){
   if(!r.cards.includes(ev.from)){ const weak = r.cards.slice().sort((a,b) => (r.lv[a]||1) - (r.lv[b]||1))[0]; const i = r.cards.indexOf(weak); if(i >= 0) r.cards[i] = ev.from; else r.cards.push(ev.from); r.lv[ev.from] = Math.max(r.lv[ev.from]||1, r.lv[weak]||1); }
   r.lv[ev.from] = Math.max(r.lv[ev.from]||1, 7); r.evo = r.evo || {}; r.evo[ev.from] = ev.id; r.legendOn = true; R.rsyn[r.id] = tagCount(r.cards);
   seeEvo(ev);
-  if(atWar(PLAYER, r.id) || G.t > 0){ banner(ev.n, r.name+' unveils a legend'); toast(r.name+' fields the '+ev.n+'! Defeat '+r.name+' to learn their secret','bad'); }
+  if(G.demo || G.arena) return;
+  const known0 = META.leg.has(ev.id);
+  if(!G.legShown && !known0){ G.legShown = 1; let img = ''; try { img = artURL('evp_'+ev.id+'_'+pcol(), () => evoPortrait(ev)); } catch(e){}
+    bigMoment({tier:'epic', kick:'⚜ A legendary union takes the field ⚜', title:ev.n, sub:'The '+r.name+' field it. Conquer them, or win them over by union, to learn it for every game. One legend per game', col:ev.col || '#ffd36a', img}); }
+  else banner(ev.n, r.name+' unveils a legend');
+  toast(r.name+' fields the '+ev.n+'!'+(known0 ? '' : ' Conquer them or win their union to learn it for good'),'bad');
 }
+/* a legend is learned only from a nation that actually fielded it, and only one per game */
 function learnLegend(r){
-  const ev = r && UEVO.find(e => e.id===r.legend); if(!ev || META.leg.has(ev.id)) return;
+  const ev = r && UEVO.find(e => e.id===r.legend); if(!ev || META.leg.has(ev.id) || G.demo || G.arena) return;
+  if(!r.legendOn) return;
+  if(G.legGot){ toast('The '+r.name+' guarded the '+ev.n+', but you have already seized a legend this game. Defeat them in another game to learn it','warn'); return; }
+  G.legGot = ev.id;
   META.leg.add(ev.id); saveDisc(); discover(ev, 'Legend seized from '+r.name);
   toast('You can now forge the '+ev.n+': '+evoRecipe(ev)+', in this game and every game after','good');
 }
