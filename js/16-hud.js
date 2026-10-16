@@ -125,12 +125,15 @@ function hostHud(){
   const el = $('#hostAlerts'); if(!el || !el.querySelector) return;
   const small = innerWidth < 760, inBat = !!(R.bat && G && G.t - R.bat.last < 3);
   const L = (!G || G.demo || G.arena || modal==='end' || (small && inBat)) ? [] : (R.hosts||[]).slice().sort((a,b) => (b.go - a.go) || (b.n - a.n)).slice(0, small ? 1 : 2);
-  const key = L.map(H => H.o+':'+H.n+':'+H.go+':'+(H.eta == null ? '' : Math.ceil(H.eta/5))+':'+H.c).join('|');
+  // phones: a one-line pill; tap it for Meet / Hold city / Strike back, and it folds itself away again
+  if(R.hostOpen && (performance.now() - (R.hostOpenT||0) > 8000 || !L.length)) R.hostOpen = false;
+  const key = (R.phone && R.hostOpen ? 'o' : '')+L.map(H => H.o+':'+H.n+':'+H.go+':'+(H.eta == null ? '' : Math.ceil(H.eta/5))+':'+H.c).join('|');
   if(key === R.hostKey || holdUI()) return; R.hostKey = key;
   el.hidden = !L.length;
-  el.innerHTML = L.map(H => { const r = rival(H.o), i = (R.hosts||[]).indexOf(H); return '<div class="host'+(H.go ? ' go' : '')+'" style="--hc:'+r.col+'"><div class="hh"><b>'+(H.go ? '⚔ ' : '⚑ ')+esc(r.name)+' host · '+H.n+'</b><span>'+(H.go ? 'Marching on '+esc(H.cn)+(H.eta != null ? ' · about '+H.eta+'s' : '') : 'Gathering to strike '+esc(H.cn))+'</span><small>'+H.comp.map(esc).join(' · ')+'</small></div>'+
+  el.innerHTML = L.map(H => { const r = rival(H.o), i = (R.hosts||[]).indexOf(H); return '<div class="host'+(H.go ? ' go' : '')+(R.hostOpen ? ' open' : '')+'" style="--hc:'+r.col+'"><div class="hh" data-hx="1"><b>'+(H.go ? '⚔ ' : '⚑ ')+esc(r.name)+' host · '+H.n+'</b><span>'+(H.go ? 'Marching on '+esc(H.cn)+(H.eta != null ? ' · about '+H.eta+'s' : '') : 'Gathering to strike '+esc(H.cn))+'</span><small>'+H.comp.map(esc).join(' · ')+'</small></div>'+
     '<div class="hb"><button data-i="'+i+'" data-a="meet" title="Ride out and meet them in the field">Meet</button><button data-i="'+i+'" data-a="hold" title="Hold the city with its towers and garrison">Hold city</button><button data-i="'+i+'" data-a="strike" title="Hit their homeland while the host is away">Strike back</button></div></div>'; }).join('');
-  el.querySelectorAll('button[data-a]').forEach(b => b.onclick = () => hostAct(+b.dataset.i, b.dataset.a));
+  el.querySelectorAll('button[data-a]').forEach(b => b.onclick = () => { R.hostOpen = false; R.hostKey = ''; hostAct(+b.dataset.i, b.dataset.a); });
+  el.querySelectorAll('[data-hx]').forEach(h => h.onclick = () => { if(!R.phone) return; R.hostOpen = !R.hostOpen; R.hostOpenT = performance.now(); R.hostKey = ''; hostHud(); });
 }
 function battleTick(dt){
   const h = heroOf(PLAYER), B = R.bat;
