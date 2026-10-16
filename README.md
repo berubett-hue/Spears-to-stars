@@ -48,6 +48,7 @@ js/               the game, split by system, loaded in this order:
   17-arena.js              Proving Grounds
   18-menu.js               main menu
   18p-phone.js             phones: layout switch, one message at a time, joystick, vibration, battery mode
+  18t-tips.js              one-time tips that light up a button and explain it
   19-main.js               game loop, input, boot
 art/              every image and the pixel font, grouped by use
   sprites/                 the big sheets (troops, generals, cities, barbarians, map tiles, effects)

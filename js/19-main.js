@@ -110,7 +110,8 @@ function bindCamera(){
   cv.addEventListener('wheel', e => { e.preventDefault(); zoomAt(Math.pow(1.0015, -e.deltaY), e.offsetX, e.offsetY); R.camTo = null; R.camZ = null; }, {passive:false});
   if(mini){
     let mdrag = false;
-    const go = e => { const r = mini.getBoundingClientRect(); CAM.x = (e.clientX-r.left)/r.width*N; CAM.y = (e.clientY-r.top)/r.height*N; R.camTo = null; clampCam(); };
+    // the camera stays where you tap the minimap until your general moves again (WASD or joystick), or you tap his card
+    const go = e => { const r = mini.getBoundingClientRect(); CAM.x = (e.clientX-r.left)/r.width*N; CAM.y = (e.clientY-r.top)/r.height*N; R.camTo = null; R.camFree = true; if(R.follow){ R.follow = null; R.camZ = null; syncWatch(); } clampCam(); };
     mini.addEventListener('pointerdown', e => { mdrag = true; mini.setPointerCapture && mini.setPointerCapture(e.pointerId); go(e); });
     mini.addEventListener('pointermove', e => { if(mdrag) go(e); });
     mini.addEventListener('pointerup', () => { mdrag = false; });
@@ -219,7 +220,6 @@ function bind(){
   $('#hContinue').addEventListener('click', continueGame);
   $('#hLegacy').addEventListener('click', openLegacy);
   $('#hUnlocks').addEventListener('click', openUnlocks);
-  const howTab = k => { document.querySelectorAll('#howTabs button').forEach(b => b.classList.toggle('on', b.dataset.ht===k)); document.querySelectorAll('#ovHow .how-sec').forEach(x => x.hidden = x.dataset.hs!==k); const sh = document.querySelector('#ovHow .sheet'); if(sh) sh.scrollTop = 0; };
   document.querySelectorAll('#howTabs button').forEach(b => b.addEventListener('click', () => { howTab(b.dataset.ht); SFX.tick && SFX.tick(); }));
   $('#hHow').addEventListener('click', () => { howTab('basics'); openMenuOv('ovHow'); });
   $('#hOpts').addEventListener('click', openOpts);

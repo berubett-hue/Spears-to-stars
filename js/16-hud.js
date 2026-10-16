@@ -190,6 +190,7 @@ function hud(){
   try { streakHud(); } catch(e){}
   { const bf = document.getElementById('btnFollow'); if(bf && G) bf.hidden = !(R.camFree && heroOf(PLAYER)); }
   if(!G) return;
+  try { tipTick(); } catch(e){}
   heroHud();
   const el = id => document.getElementById(id);
   el('eraName').textContent = ERAS[G.eraIdx]+' Era';

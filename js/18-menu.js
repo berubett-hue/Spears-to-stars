@@ -46,7 +46,7 @@ function refreshHome(){
   { const hn = $('#hNext'); if(hn){ const note = SAVE_RESET ? '<div class="nextun alpha-note"><h4>Alpha update · fresh start</h4><span>Progress was reset for the new unlock system. Peoples now arrive with their troop line through feats inside a game, wins, the Crown ladder, and hidden strongholds on the map. Check Unlocks to see every goal.</span></div>' : ''; hn.innerHTML = note + (META.life.games > 0 ? nextHTML(2, 'Closest unlocks') : ''); } }
 }
 function openMenuOv(id){ R.menuOv = id; const e = $('#'+id); if(e) e.hidden = false; SFX.init(); SFX.tick && SFX.tick(); }
-function closeMenuOv(){ const id = R.menuOv; R.menuOv = null; if(id){ const e = $('#'+id); if(e) e.hidden = true; } if(id==='ovStart' || id==='ovWiz'){} refreshHome(); }
+function closeMenuOv(){ const id = R.menuOv; R.menuOv = null; if(id){ const e = $('#'+id); if(e) e.hidden = true; } if(R.howGame){ R.howGame = false; paused = false; return; } if(id==='ovStart' || id==='ovWiz'){} refreshHome(); }
 function openWizard(){ $('#ovHome').hidden = true; R.menuOv = null; $('#ovStart').hidden = false; SFX.init(); buildNatPick(); wizStep(0); }
 function wizStep(i){
   R.wiz = i;
