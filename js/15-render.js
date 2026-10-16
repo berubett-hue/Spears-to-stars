@@ -691,7 +691,7 @@ function draw(){
     }
   }
 
-  drawDecals(x, vis);
+  drawDecals(x, vis); drawBlasts(x, vis);
   // Units
   const us = G.units.filter(u => u.hp>0 && vis(u.x,u.y,1) && (u.owner===PLAYER || fogSee(u.x,u.y))).sort((a,b) => a.y-b.y);
   const detail = z >= 9;
@@ -718,7 +718,8 @@ function draw(){
     if(u.frenzy > 0){ x.fillStyle = 'rgba(255,90,60,.35)'; x.fillRect(u.x-w*.4, u.y+.2, w*.8, .1); }
     x.fillStyle = 'rgba(0,0,0,.35)'; x.fillRect(u.x-w*.35, u.y+.24, w*.7, .07);
     if(u.owner>0 && u.owner===PLAYER && G.buff.rally>0){ x.fillStyle = 'rgba(255,217,138,.35)'; x.fillRect(u.x-w*.4, u.y+.2, w*.8, .1); }
-    const lo = u.lg > 0 ? (u.lg/.12)*.22 : 0, ux = u.x + (u.lx||0)*lo, uy = u.y + (u.ly||0)*lo;
+    const lo = u.lg > 0 ? (u.lg/.12)*.22 : 0; let ux = u.x + (u.lx||0)*lo, uy = u.y + (u.ly||0)*lo;
+    if(u.air > 0 && u.airS){ const p = clamp(1 - u.air/(u.airM||.3), 0, 1); ux = u.airS.x + (u.x - u.airS.x)*p; uy = u.airS.y + (u.y - u.airS.y)*p - Math.sin(p*Math.PI)*(u.airH||.5); }
     let uh = 0;
     if(HK){ const hh = drawHeroSpr(x, u, HK, ux, uy+.3); if(hh) h = hh; }
     else if(u.owner===0 && (uh = barbDraw(x, u, ux, uy+.3))) h = uh;
@@ -726,6 +727,7 @@ function draw(){
     else if(u.fx < 0){ x.save(); x.translate(ux, 0); x.scale(-1, 1); x.drawImage(img, -w/2, uy+.3-h0+dy, w, h0); x.restore(); }
     else x.drawImage(img, ux-w/2, uy+.3-h0+dy, w, h0);
     if(u.owner>0 && u.owner!==PLAYER){ x.fillStyle = ocol(u.owner); x.fillRect(u.x-.06, u.y+.3-h-.12, .12, .08); }
+    if(u.pinT > 0 || u.stun > 0 || u.burnT > 0 || u.tauntT > 0) drawStatus(x, u, h);
     if(u.elite && !u.hero){ const em = tintKit('mk_elite', u.owner===PLAYER ? pcol() : ocol(u.owner)); if(em){ const eh = .42, ew = eh*em.width/em.height; x.imageSmoothingEnabled = true; x.drawImage(em, u.x-ew/2, u.y+.3-h-eh-.06, ew, eh); x.imageSmoothingEnabled = false; } }
     if(u.hero){
       if(u.owner===PLAYER){ const pl = .5 + .5*Math.sin((R.now||0)*4); x.strokeStyle = 'rgba(255,211,106,'+(.55+.35*pl)+')'; x.lineWidth = .06; x.beginPath(); x.ellipse(u.x, u.y+.22, .62, .26, 0, 0, 6.283); x.stroke();
@@ -754,6 +756,7 @@ function draw(){
     }
   }
 
+  if(z >= 4.5 && z < 15 && !G.demo) drawSquadIcons(x, us, z);
   // Shots and sparks
   x.lineCap = 'round';
   for(const p of R.projs){ if(!vis(p.x1,p.y1,4)) continue; drawProj(x, p); x.globalAlpha = 1; }
@@ -817,6 +820,7 @@ function draw(){
     const [px,py] = toScreen(c.x+.5, c.y+.98);
     x.font = z >= 10 ? '400 '+(c.capital && z >= 24 ? 21 : 14)+'px StarsPix, sans-serif' : '600 11px "Barlow Semi Condensed", sans-serif';
     x.lineWidth = 3; x.strokeStyle = 'rgba(5,8,10,.92)'; x.strokeText(c.name, px+sx, py+sy);
+    if(c.capital && c.owner > 1 && !c.hold && z >= 10){ const cm = capMul(c.owner); if(cm > 1.05){ const t2 = 'walls x'+cm.toFixed(1), py2 = py + sy + (c.capital && z >= 24 ? 22 : 15); x.font = '600 11px "Barlow Semi Condensed", sans-serif'; x.strokeText(t2, px+sx, py2); x.fillStyle = '#ffcf8a'; x.fillText(t2, px+sx, py2); x.font = z >= 10 ? '400 '+(c.capital && z >= 24 ? 21 : 14)+'px StarsPix, sans-serif' : '600 11px "Barlow Semi Condensed", sans-serif'; x.lineWidth = 3; x.strokeStyle = 'rgba(5,8,10,.92)'; } }
     if(c.owner===PLAYER && c.capital && REG(5)){ const tw = x.measureText(c.name).width; x.strokeStyle = 'rgba(255,211,106,.55)'; x.lineWidth = 6; x.strokeText(c.name, px+sx, py+sy); x.lineWidth = 3; x.strokeStyle = 'rgba(5,8,10,.92)'; x.strokeText(c.name, px+sx, py+sy); x.fillStyle = '#ffe08a'; const st = '✦'; x.fillText(st+' '+c.name+' '+st, px+sx, py+sy); void tw; }
     else { x.fillStyle = c.owner===PLAYER ? R.pal[1].L : ocol(c.owner); x.fillText(c.name, px+sx, py+sy); }
   }
@@ -825,8 +829,8 @@ function draw(){
     if(!fogSeen(f.x, f.y)) continue;
     const [px,py] = toScreen(f.x, f.y);
     x.globalAlpha = clamp(f.life/f.max*1.5,0,1);
-    x.font = '400 '+(f.big ? 28 : 14)+'px StarsPix, sans-serif';
-    x.lineWidth = f.big ? 4.5 : 3.5; x.strokeStyle = 'rgba(5,8,10,.95)'; x.strokeText(f.text, px, py);
+    x.font = f.sm ? '700 12px "Barlow Semi Condensed", sans-serif' : '400 '+(f.big ? 28 : 14)+'px StarsPix, sans-serif';
+    x.lineWidth = f.big ? 4.5 : f.sm ? 3 : 3.5; x.strokeStyle = 'rgba(5,8,10,.95)'; x.strokeText(f.text, px, py);
     x.fillStyle = f.col; x.fillText(f.text, px, py);
   }
   x.globalAlpha = 1;
@@ -885,4 +889,27 @@ function drawMini(){
   const hw = VW/2/CAM.z, hh = VH/2/CAM.z;
   m.strokeStyle = 'rgba(255,240,210,.95)'; m.lineWidth = 1.8*dpr;
   m.strokeRect((CAM.x-hw)*s, (CAM.y-hh)*s, hw*2*s, hh*2*s);
+}
+/* Squad badges: when zoomed out, a small portrait of each line floats over its squads, ringed in the
+   line's own color (yours) or the nation's color (theirs), so you can tell who is who */
+function squadIcon(id, lv){ const k = id+':'+lv; R.sqIc = R.sqIc || {}; if(k in R.sqIc) return R.sqIc[k]; let c = null; try { c = USPR.ok && USPR.m[id] ? uPortrait(id, lv) : null; } catch(e){} return R.sqIc[k] = c; }
+function drawSquadIcons(x, us, z){
+  const cells = new Map(), cs = z < 9 ? 4.5 : z < 12 ? 3.4 : 2.6;
+  for(const u of us){
+    if(!u.card || u.hero || u.owner <= 0 || u.hp <= 0 || u.air > 0) continue;
+    const k = u.owner+':'+u.card+':'+Math.floor(u.x/cs)+','+Math.floor(u.y/cs); let c = cells.get(k);
+    if(!c){ c = {o:u.owner, id:u.card, x:0, y:0, n:0, top:1e9}; cells.set(k, c); }
+    c.x += u.x; c.y += u.y; c.n++; c.top = Math.min(c.top, u.y);
+  }
+  const px = 1/z, r = (z < 9 ? 7.5 : 9)*px; let drawn = 0;
+  for(const c of cells.values()){
+    if(drawn++ > 70) break;
+    const cx = c.x/c.n, cy = c.top - (z < 9 ? 6 : 12)*px - r, mine = c.o===PLAYER, col = mine ? ((MOVES[c.id]||{}).col || '#fff1cf') : ocol(c.o);
+    x.globalAlpha = .92; x.fillStyle = 'rgba(8,10,14,.85)'; x.beginPath(); x.arc(cx, cy, r, 0, 6.283); x.fill();
+    const ic = squadIcon(c.id, Math.min(8, cardLevel(c.o, c.id)||1));
+    if(ic && ic.width){ const s0 = r*1.7, w = s0*ic.width/Math.max(ic.width, ic.height), h = s0*ic.height/Math.max(ic.width, ic.height); x.save(); x.beginPath(); x.arc(cx, cy, r*.92, 0, 6.283); x.clip(); x.imageSmoothingEnabled = false; x.drawImage(ic, cx - w/2, cy - h/2 + r*.15, w, h); x.restore(); }
+    x.globalAlpha = 1; x.strokeStyle = mine ? '#fff1cf' : col; x.lineWidth = 2*px; x.beginPath(); x.arc(cx, cy, r, 0, 6.283); x.stroke(); if(mine){ x.strokeStyle = col; x.lineWidth = 1.6*px; x.beginPath(); x.arc(cx, cy, r - 1.8*px, 0, 6.283); x.stroke(); }
+    if(c.n > 1){ x.font = '700 '+(9*px).toFixed(3)+'px "Barlow Semi Condensed", sans-serif'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillStyle = 'rgba(8,10,14,.9)'; x.beginPath(); x.arc(cx + r*.85, cy + r*.75, 6*px, 0, 6.283); x.fill(); x.fillStyle = '#fff'; x.fillText(String(c.n), cx + r*.85, cy + r*.78); }
+  }
+  x.globalAlpha = 1;
 }

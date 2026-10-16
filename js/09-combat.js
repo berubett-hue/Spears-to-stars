@@ -4,6 +4,7 @@ function damageCity(c,dmg,att){
   if(c.dead) return;
   if(c.owner===PLAYER && G.buff.fortify>0) dmg *= .5;
   c.hp -= dmg; c.fl = .12;
+  if(att===PLAYER && c.capital && c.owner > 1 && !c.hold && !G.arena){ const rv = rival(c.owner), cm = capMul(c.owner); if(rv && !rv.capWarn && cm >= 1.55){ rv.capWarn = 1; toast(c.name+' is guarded by all '+citiesOf(c.owner).length+' cities of the '+rv.name+': its walls are ×'+cm.toFixed(1)+'. Take their other cities first to weaken it', 'warn', {x:c.x+.5, y:c.y+.5}); } }
   if(c.owner===PLAYER){
     if(c.capital) R.shake = Math.min(6, R.shake+1.5);
     SFX.thud();
@@ -88,6 +89,7 @@ function updateUnits(dt, cityById, unitById){
     u.fl -= dt; u.cd -= dt; u.rt -= dt; if(u.lg > 0) u.lg -= dt; if(u.slow > 0) u.slow -= dt;
     if(u.ab){ for(const k in u.ab) u.ab[k] -= dt; if(u.frenzy > 0) u.frenzy -= dt; if(u.brace > 0) u.brace -= dt; }
     if(u.frenzy > 0 && !u.ab) u.frenzy -= dt; if(u.brace > 0 && !u.ab) u.brace -= dt; if(u.mark > 0) u.mark -= dt;
+    if(u.stun > 0) u.stun -= dt; if(u.air > 0) u.air -= dt;
     if(u.owner===0){ if(!(u.camp && guardStep(u, dt, unitById))) barbStep(u, dt, cityById); }
     else if(u.hero){ R.cc = u.card; R.ch = 1; R.ca = null; heroStep(u, dt, cityById, unitById); R.ch = 0; }
     else { R.cc = u.card; R.ca = null; nationStep(u, dt, cityById, unitById); }
@@ -106,6 +108,7 @@ function updateUnits(dt, cityById, unitById){
   }
 }
 function barbStep(b, dt, cityById){
+  if(b.stun > 0) return;
   let city = cityById.get(b.tc);
   if(!city || city.dead || b.rt<=0){
     b.rt = .5; let best=1e9; city=null;
@@ -127,7 +130,7 @@ function barbStep(b, dt, cityById){
   if(Math.abs(dx) > .05) b.fx = dx<0 ? -1 : 1;
   if(d < .5+b.r){ if(b.cd<=0){ b.cd=1/PACE.atk; b.atT = R.now; b.lg=.12; b.lx=dx/d; b.ly=dy/d; noteFight(b.x,b.y); SFX.q(b.kind==='ram' ? 'boom' : 'thud', b.x, b.y, .8); damageCity(city,b.dmg,0); } return; }
   const tx=clamp(Math.floor(b.x),0,N-1), ty=clamp(Math.floor(b.y),0,N-1), ti=idx(tx,ty);
-  let sp = b.spd * MOVE[G.ter[ti]] * (b.slow > 0 ? .5 : 1);
+  let sp = b.spd * MOVE[G.ter[ti]] * (b.slow > 0 ? .5 : 1) * (b.pinT > G.t ? .65 : 1);
   if(S.barbSlow && G.own[ti]===PLAYER) sp *= .55;
   b.x += dx/d*sp*dt; b.y += dy/d*sp*dt;
   if(G.own[ti] && !siege && !nearCity(tx,ty)){
@@ -157,9 +160,9 @@ function bannerR(own){ const ev = cardEvo(own, 'banner'); return CARDS.banner.au
 function strike(u, t, st, own, mul){
   u.atT = R.now;
   let dmg = st.dmg*attackMul(u, t)*(mul||1);
-  const ranged = st.rng > 1.2;
+  const ranged = st.rng > 1.2, mk = mvKey(u), now = MT();
   let charged = false;
-  if(st.charge > 1 && ((u.mv||0) > 1.5 || st.lance)){ dmg *= st.charge; charged = true; burst(t.x, t.y-.2, st.lance ? 6 : 4, '#ffe9a0'); if(u.hero==='khanate'){ dmg *= 2; t.slow = 1.5; } }
+  if(st.charge > 1 && ((u.mv||0) > 1.5 || st.lance) && !(u.reformT > now)){ dmg *= st.charge; charged = true; burst(t.x, t.y-.2, st.lance ? 6 : 4, '#ffe9a0'); if(u.hero==='khanate'){ dmg *= 2; t.slow = 1.5; } }
   if(u.hero==='longbow') t.mark = 4;
   if(u.hero && !t.hero && t.owner > 0 && t.card) dmg = Math.min(dmg, uStat(t).hp*.4);
   let crit = false;
@@ -168,16 +171,46 @@ function strike(u, t, st, own, mul){
   { const UC = !u.hero && CARDS[u.card]; if(UC && UC.ambush && !t.amb){ t.amb = 1; dmg *= UC.ambush; if(onScr(t.x, t.y)){ burst(t.x, t.y-.25, 6, '#b48cff'); if(own===PLAYER) float('Ambush!', t.x, t.y-.7, '#c8a8ff', .7); } }
     if(UC && UC.mend){ const hr = dmg*UC.mend; for(const v of G.units){ if(v.owner!==own || v.hp<=0 || !v.card || v===u || (v.x-u.x)**2+(v.y-u.y)**2 > 2.6) continue; const mx = uStat(v).hp; if(v.hp < mx) v.hp = Math.min(mx, v.hp + hr); } } }
   if(nearCard(own, 'banner', u.x, u.y, bannerR(own))) dmg *= 1.4 + .2*featOf(CARDS.banner, cardLevel(own,'banner')).potent*2;
-  if(u.card==='knights' && ownsCard(own,'spearmen') && nearTag(own, 'Line', t.x, t.y, 1.6)) dmg *= 2;
+  if(u.card==='knights' && ownsCard(own,'spearmen') && nearTag(own, 'Line', t.x, t.y, 1.6)){ dmg *= 2; comboHit(own, 'anvil', t.x, t.y); }
+  /* ---- line moves and the combos built on them ---- */
+  if(mk==='militia'){ let n = 0; const L = R.pc && R.pc.get(own+':'+u.card); if(L) for(const v of L){ if(v!==u && v.tgt===t.id && (v.x-t.x)**2 + (v.y-t.y)**2 < 2.6) n++; } if(n){ dmg *= 1 + .08*Math.min(5, n); if(n >= 3) moveFloat(u, (MOVES[u.card]||{}).n+' ×'+(n+1), t.x, t.y); } }
+  if(mk==='crossbow' && isTitanish(t)) dmg *= 1.3;
+  if(u.card==='crossbow' && t.pinT > now && ownsCard(own,'slingers')){ dmg *= 1.5; comboHit(own, 'pinpierce', t.x, t.y); }
+  if(u.card==='horse'){ if(t.pinT > now && ownsCard(own,'slingers')){ dmg *= 2; comboHit(own, 'rundown', t.x, t.y); } else if(t.flungT > now && ownsCard(own,'elephant')){ dmg *= 1.6; comboHit(own, 'stampede', t.x, t.y); } }
+  if(u.card==='militia' && t.burnT > now && ownsCard(own,'grenadiers')){ dmg *= 1.5; comboHit(own, 'fury', t.x, t.y); }
+  if(u.card==='spearmen' && t.tauntT > now && ownsCard(own,'shieldwall')){ dmg *= 1.4; comboHit(own, 'hedge', t.x, t.y); }
   if(t.owner>0 && t.card){
     const tc = CARDS[t.card];
-    if(tc.tags.includes('Ranged') && nearCard(t.owner, 'shieldwall', t.x, t.y, 1.8)) dmg *= .45;
+    if(tc.tags.includes('Ranged') && nearCard(t.owner, 'shieldwall', t.x, t.y, 1.8)){ dmg *= .45; comboHit(t.owner, 'shieldbow', t.x, t.y); }
     if(nearCard(t.owner, 'banner', t.x, t.y, CARDS.banner.auraR)) dmg *= .85;
     if(ranged){ const tev = cardEvo(t.owner, t.card); if(tev && tev.arrowRes) dmg *= 1 - tev.arrowRes; }
   }
-  hitUnit(t, dmg, own, false);
+  // Shields Up: a third of arrows and shots glance off a shield wall
+  if(ranged && !st.splash && t.card==='shieldwall' && t.owner > 0 && Math.random() < 1/3){ dmg = 0; if(onScr(t.x, t.y)){ for(let i=0;i<3;i++){ const a = rnd(0,6.283); fxAdd({k:'spark', x:t.x, y:t.y-.25, vx:Math.cos(a)*1.4, vy:Math.sin(a)*1.4-.6, life:.16, max:.16, col:'#cfe8ff'}); } moveFloat(t, 'Blocked!'); } }
+  // delayed blasts: siege marks the ground, bombers' fuses fizz
+  let deferred = false;
+  if(dmg > 0 && ranged && !mul && (mk==='catapult' || mk==='grenadiers')){
+    deferred = true; const sig = mk==='catapult', ff = ownsCard(own,'airships') && ownsCard(own,'grenadiers');
+    queueBlast(sig ? {x:t.x, y:t.y, at:now+1, wait:1, rad:Math.max(.9, st.splash*1.2), dmg:dmg*1.15, edge:Math.min(.8, st.smul+.1), own, card:u.card, warn:true, big:true, kg:ownsCard(own,'spearmen'), fire:!!st.burn}
+                   : {x:t.x, y:t.y, at:now+.5, wait:.5, rad:Math.max(.85, st.splash*1.15), dmg, edge:Math.min(1, st.smul*1.2), own, card:u.card, fuse:true, knock:.22, burn:true, fire:!!st.burn || ff, ff});
+    if(sig) moveFloat(u, null, t.x, t.y);
+  }
+  if(dmg > 0 && !deferred) hitUnit(t, dmg, own, false);
+  else if(deferred && mk==='grenadiers') hitUnit(t, dmg, own, false);   // the bomb itself hits; the fuse blast comes after
+  if(dmg > 0 && !deferred && t.hp > 0){
+    if(mk==='slingers'){ t.pinT = now + 1.5; }
+    if(mk==='longbow' && ranged){ let rr = .2; if(u.card==='longbow' && ownsCard(own,'banner') && nearCard(own, 'banner', u.x, u.y, bannerR(own))){ rr = .45; comboHit(own, 'ironrain', t.x, t.y); } splashHit(t, .6, dmg*rr, own); if(onScr(t.x, t.y) && fxDetail() && Math.random() < .5) for(let i=0;i<3;i++) fxAdd({k:'drop', x:t.x+rnd(-.55,.55), y:t.y+rnd(-.3,.3), sk:'arrow', h:2.4, life:.36+i*.06, max:.36, sc:.8}); }
+    if(!ranged && t.card==='spearmen' && isMountedU(u) && t.owner > 0){ R.cc = t.card; hitUnit(u, dmg*.4, t.owner, false); R.cc = u.card; knock(u, t.x, t.y, .7, .7, .3); if(onScr(t.x, t.y)) fxAdd({k:'spikes', x:t.x, y:t.y, a:Math.atan2(u.y-t.y, u.x-t.x), life:.5, max:.5, col:'#ffd98a'}); moveFloat(t, 'Set Spears!'); }
+    if(mk==='knights' && charged){ let k = 0; for(const v of G.units){ if(k >= 6 || v.hp<=0 || !atWar(own, v.owner) || (v.x-t.x)**2 + (v.y-t.y)**2 > .95) continue; knock(v, u.x, u.y, .6, .3, .25); k++; } u.reformT = now + 1.2; if(onScr(t.x, t.y)) fxAdd({k:'shock', x:t.x, y:t.y+.05, s:1.2, life:.4, max:.4, col:'#e8d8a8'}); moveFloat(u); }
+    if(mk==='elephant' && !ranged){ let k = 0; for(const v of G.units){ if(k >= 3 || v.hp<=0 || !atWar(own, v.owner) || isTitanish(v) || (v.x-t.x)**2 + (v.y-t.y)**2 > 1.1) continue; knock(v, u.x, u.y, 1.1, .5, .42); v.flungT = now + 2; k++; } if(k) moveFloat(u, 'Fling!'); }
+    if(mk==='horse' && !ranged){ u.hrT = now + .65; }
+    if(u.card==='firemonks' && Math.random() < .3){ if(!R.fires) R.fires = []; if(R.fires.length < 40) R.fires.push({x:t.x, y:t.y, r:.55, life:1.6, max:1.6, dps:st.dmg*.2, own, card:u.card}); }
+    if(u.card==='airships' && st.splash > 0 && ownsCard(own,'grenadiers') && Math.random() < .35){ if(!R.fires) R.fires = []; if(R.fires.length < 40) R.fires.push({x:t.x, y:t.y, r:.7, life:2.5, max:2.5, dps:st.dmg*.15, own, card:u.card}); comboHit(own, 'firestorm', t.x, t.y); }
+    if((mk==='crossbow' && ranged && !st.thru) || (u.card==='crossbow' && t.pinT > now && ownsCard(own,'slingers'))) pierceOn(u, t, dmg, own, st, u.card==='crossbow' && ownsCard(own,'slingers') ? 3 : 1);
+    if(own===PLAYER && !G.arena && CAM.z >= 16 && !(u.dnT > R.now) && onScr(t.x, t.y)){ u.dnT = (R.now||0) + .9; R.floats.push({text:String(Math.round(dmg)), x:t.x+rnd(-.2,.2), y:t.y-.55, col:(MOVES[u.card]||{}).col || '#fff1cf', life:.7, max:.7, sm:1}); }
+  }
   { const ls = (u.hero ? 0 : CARDS[u.card].lifesteal||0) + (own===PLAYER && G.perk==='northmen' ? .1 : 0) + (u.hero==='northmen' ? (u.berserk > 0 ? .6 : .3) : 0); if(ls) u.hp = Math.min(st.hp, u.hp + dmg*ls); }
-  if(st.splash > 0){
+  if(st.splash > 0 && !deferred){
     splashHit(t, st.splash, dmg*st.smul, own);
     if(st.splash >= .5) ring(t.x, t.y, .1, st.splash, st.evc || (st.rank >= 3 ? '#ffd36a' : '#e8d8b0'), .28);
     if(st.burn){ if(!R.fires) R.fires = []; if(R.fires.length < 40) R.fires.push({x:t.x, y:t.y, r:Math.max(.5, st.splash*.6), life:2.2, max:2.2, dps:st.dmg*.12, own, card:u.card}); }
@@ -197,7 +230,7 @@ function strike(u, t, st, own, mul){
     const tc = CARDS[t.card], tl = cardLevel(t.owner, t.card);
     if(tl >= 6 && lvStyle(tc)==='shield'){ const rp = dmg*.3; R.cc = t.card; hitUnit(u, rp, t.owner, false); R.cc = u.card; ring(t.x, t.y, .1, .45, '#d8e4f0', .2); }
   }
-  if(u.card==='elephant' && ownsCard(own,'banner')) t.slow = 2;
+  if(u.card==='elephant' && ownsCard(own,'banner')){ t.slow = 2; comboHit(own, 'drums', t.x, t.y); }
   const dd = Math.hypot(t.x-u.x, t.y-u.y) || 1; u.lg = .12; u.lx = (t.x-u.x)/dd; u.ly = (t.y-u.y)/dd;
   noteFight(t.x, t.y);
   const fsh = formOf(u.card, uLv(u)).sh, heavy = st.splash > 0 && ranged, sk = fsh || (heavy ? 'ball' : ranged ? 'arrow' : 'slash');
@@ -205,11 +238,23 @@ function strike(u, t, st, own, mul){
   const fsc = fxScale(u);
   if(!ranged && !fsh){ fxMelee(u, t, fsc, crit); if(charged){ SFX.q('hooves', u.x, u.y, 1); if(fxDetail() && onScr(u.x, u.y)) smoke(u.x, u.y+.15, .2, 1, '#b8a888'); } return; }
   const pc = st.evc || (st.rank >= 3 ? '#ffd36a' : own===PLAYER?'#fff1cf':ocol(own)), pw = (heavy?1.6:ranged?.6:.7)*(st.evc ? 1.5 : 1 + .12*st.rank) + (crit ? .8 : 0);
-  if(R.projs.length < 400) R.projs.push({sk, x0:u.x, y0:u.y-.15, x1:t.x, y1:t.y-.1, life:ranged?.22:.12, max:ranged?.22:.12, col:pc, w:pw, kind:heavy?'ball':ranged?'arrow':'slash', imp:sk, sc:fsc});
+  { const fl = deferred ? (mk==='catapult' ? .95 : .4) : ranged ? .22 : .12; if(R.projs.length < 400) R.projs.push({sk, x0:u.x, y0:u.y-.15, x1:t.x, y1:t.y-.1, life:fl, max:fl, col:pc, w:pw, kind:heavy?'ball':ranged?'arrow':'slash', imp:deferred ? null : sk, sc:fsc}); }
   const mg = sk==='bullet' && weaponOf(u.card, uLv(u))==='mg';
   if(mg && R.projs.length < 400) for(let k=1;k<3;k++) R.projs.push({sk, x0:u.x, y0:u.y-.15, x1:t.x+rnd(-.2,.2), y1:t.y-.1+rnd(-.2,.2), life:.22+k*.06, max:.22+k*.06, col:pc, w:pw});
   fxMuzzle(u, t, sk, fsc);
   SFX.q(mg ? 'mg' : SHOT_SND[sk] || 'twang', u.x, u.y, fsc);
+}
+/* Punch Through: a bolt carries on to the next enemies behind its target */
+function pierceOn(u, t, dmg, own, st, n){
+  const dd0 = Math.hypot(t.x-u.x, t.y-u.y) || 1, dx = (t.x-u.x)/dd0, dy = (t.y-u.y)/dd0; let px = t.x, py = t.y, last = t; const hit = new Set([t]);
+  for(let k=0;k<n;k++){
+    const bx = px + dx*.8, by = py + dy*.8; let b = null, bd = .55;
+    for(const v of G.units){ if(hit.has(v) || v.hp<=0 || !atWar(own, v.owner)) continue; const d2 = (v.x-bx)**2+(v.y-by)**2; if(d2 < bd){ bd = d2; b = v; } }
+    if(!b) break; hit.add(b); hitUnit(b, dmg*.6, own, false);
+    if(R.projs.length < 400) R.projs.push({x0:last.x, y0:last.y-.12, x1:b.x, y1:b.y-.12, life:.14, max:.14, col:'#bff6ff', w:.7, kind:'arrow'});
+    px = b.x; py = b.y; last = b;
+  }
+  if(last !== t && onScr(t.x, t.y)) fxAdd({k:'streak', x:u.x, y:u.y-.2, x1:last.x+dx*.6, y1:last.y-.2+dy*.6, life:.25, max:.25, col:'#bff6ff'});
 }
 /* Shots look their age: stones and arrows, then musket balls, tracers, rockets and finally beams */
 function drawProj(x, p){
@@ -369,6 +414,7 @@ function drawFx(x, vis){
     else if(f.k==='spark' || f.k==='debris' || f.k==='ember' || f.k==='brass'){ x.globalAlpha = Math.min(1, a*1.6); x.fillStyle = f.k==='ember' ? (Math.random() < .5 ? '#ffd36a' : '#ff8a2a') : f.k==='brass' ? '#e8c050' : f.col; const s = f.k==='debris' ? .07 : .045; x.fillRect(f.x-s/2, f.y-s/2, s, s); }
     else if(f.k==='sanim'){ const fr = FXA.m[f.n]; if(fr){ if(f.fol){ if(f.fol.hp > 0){ f.x = f.fol.x; f.y = f.fol.y + (f.dy||0); } } sprDraw(x, f.n, Math.min(fr.length-1, Math.floor((1-a)*fr.length)), f.x, f.y, f.s, f.ang||0, f.flip, f.fade ? Math.min(1, a*3) : 1); } }
     else if(f.k==='drop' || f.k==='spikes' || f.k==='dome' || f.k==='streak' || f.k==='lance' || f.k==='shock' || f.k==='beam' || f.k==='flag') drawSigFx(x, f, a);
+    else if(f.k==='hbeam'){ x.globalAlpha = .7*a; x.strokeStyle = '#8ae89a'; x.lineWidth = .1; x.beginPath(); x.moveTo(f.x, f.y); x.lineTo(f.x1, f.y1); x.stroke(); x.globalAlpha = a; x.strokeStyle = '#eaffef'; x.lineWidth = .035; x.beginPath(); x.moveTo(f.x, f.y); x.lineTo(f.x1, f.y1); x.stroke(); }
     else if(f.k==='plus'){ x.globalAlpha = a; x.fillStyle = '#7ae08a'; x.fillRect(f.x-.08, f.y-.025, .16, .05); x.fillRect(f.x-.025, f.y-.08, .05, .16); }
   }
   x.globalAlpha = 1;
@@ -531,6 +577,7 @@ function supportMiracle(u, st, own){
   u.ab.Support = ABIL.Support.cd*st.abm*rnd(.9,1.1); if(!sigFire(u, 'Support', null)){ SFX.q(priest ? 'chime' : 'horn', u.x, u.y, 1.2); abilName(u, 'Support'); }
 }
 function updateFires(dt){
+  bombTick();
   if(!R.fires || !R.fires.length) return;
   for(const f of R.fires){
     f.life -= dt;
@@ -607,10 +654,12 @@ function nationStep(u, dt, cityById, unitById){
     let s = st.spd*mul*(own!==PLAYER && G.own[ti]===PLAYER && proto('scorched') ? .65 : 1)*(formFly(u.card, cardLevel(own, u.card)) || (cardEvo(own, u.card)||{}).fly ? 1 : MOVE[G.ter[ti]])*(u.slow > 0 ? .5 : 1);
     if(own!==PLAYER && S.barbSlow && G.own[ti]===PLAYER) s *= .55;
     if(u.fmT > G.t) s *= 1.7;
+    { const mt = MT(); if(u.pinT > mt) s *= .65; if(u.rallyT > mt) s *= 1.2; }
     const m = Math.min(d, s*dt); u.x += (tx-u.x)/d*m; u.y += (ty-u.y)/d*m; u.mv = (u.mv||0) + m;
     if(Math.abs(tx-u.x) > .05) u.fx = tx<u.x ? -1 : 1;
   };
   if(st.selfheal) u.hp = Math.min(st.hp, u.hp + st.hp*st.selfheal*dt);
+  if(u.stun > 0) return;   // knocked flat: up in a moment
   if(u.kind==='support'){
     if(u.rt<=0){
       u.rt = .5; let best = 81, f = null;
@@ -622,15 +671,21 @@ function nationStep(u, dt, cityById, unitById){
     if(f && f.hp>0 && f.owner===own){ const d = Math.hypot(f.x-u.x, f.y-u.y); if(d > 1.1) step(f.x, f.y, d, 1); }
     else { u.ang += dt*.45; const gx=home.x+.5+Math.cos(u.ang)*B.orbit, gy=home.y+.5+Math.sin(u.ang)*B.orbit, d=Math.hypot(gx-u.x, gy-u.y); if(d>.05) step(gx, gy, d, .6); }
     supportMiracle(u, st, own);
+    if(u.card==='banner' && !(u.puT > MT())){ const mt = MT(); let foe = false; for(const v of G.units){ if(v.hp > 0 && atWar(own, v.owner) && (v.x-u.x)**2 + (v.y-u.y)**2 < 25){ foe = true; break; } }
+      u.puT = mt + (foe ? 4 : 1);
+      if(foe){ const br = bannerR(own); for(const v of G.units){ if(v.owner!==own || v.hp<=0 || !v.card || (v.x-u.x)**2 + (v.y-u.y)**2 > br*br) continue; v.rallyT = mt + 2; v.stun = 0; v.pinT = 0; } if(onScr(u.x, u.y)){ ring(u.x, u.y, .2, br, '#ffd36a', .55); fxAdd({k:'shock', x:u.x, y:u.y+.05, s:br*.6, life:.4, max:.4, col:'rgba(255,211,106,.5)'}); } } }
     if(st.heal > 0){
       u.ht = (u.ht||0) - dt;
       if(u.ht <= 0){
-        u.ht = .5; let healed = false; const r2 = st.auraR*st.auraR;
+        u.ht = .5; let healed = false; const r2 = st.auraR*st.auraR, hl = [];
         for(const v of G.units){
           if(v.owner!==own || v.hp<=0 || !v.card || (v.x-u.x)**2+(v.y-u.y)**2 > r2) continue;
+          if(u.card==='priests'){ v.pinT = 0; v.stun = 0; v.slow = 0; }
           const mx = uStat(v).hp; if(v.hp >= mx) continue;
-          v.hp = Math.min(mx, v.hp + st.heal*.5*(CARDS[v.card].tags.includes('Swarm') && ownsCard(own,'priests') ? 3 : 1)); healed = true;
+          const bm = CARDS[v.card].tags.includes('Swarm') && ownsCard(own,'priests'); if(bm) comboHit(own, 'masses', v.x, v.y);
+          v.hp = Math.min(mx, v.hp + st.heal*.5*(bm ? 3 : 1)); healed = true; hl.push([v.hp/mx, v]);
         }
+        if(u.card==='priests' && hl.length && onScr(u.x, u.y)){ hl.sort((a,b) => a[0]-b[0]); for(const [, v] of hl.slice(0, 2)) fxAdd({k:'hbeam', x:u.x, y:u.y-.35, x1:v.x, y1:v.y-.2, life:.4, max:.4}); }
         if(healed){ burst(u.x, u.y-.4, 3, '#7ae08a'); if(onScr(u.x, u.y)) fxAdd({k:'plus', x:u.x+rnd(-.4,.4), y:u.y-.5, vx:0, vy:-.6, life:.8, max:.8}); SFX.q('chime', u.x, u.y, .7); }
       }
     }
@@ -690,10 +745,21 @@ function nationStep(u, dt, cityById, unitById){
     u.tgt = t ? t.id : 0;
     u.tcity = (!t && raiding) ? (R.raidT.get(own) || 0) : 0;
   }
+  if(u.card==='airships' && !(u.brT > MT())){ const mt = MT(); let v0 = null; for(const v of G.units){ if(v.hp > 0 && atWar(own, v.owner) && (v.x-u.x)**2 + (v.y-u.y)**2 < .7){ v0 = v; break; } }
+    u.brT = mt + (v0 ? 1.4 : .3);
+    if(v0){ const ff = ownsCard(own,'grenadiers'); queueBlast({x:v0.x, y:v0.y, at:mt+.4, wait:.4, rad:.75, dmg:st.dmg*.45, edge:.6, own, card:u.card, drop:true, fire:ff, ff}); moveFloat(u, 'Bombs away!'); } }
   let tgt = unitById.get(u.tgt); if(tgt && tgt.hp<=0) tgt = null;
   if(tgt){
     const d = Math.hypot(tgt.x-u.x, tgt.y-u.y);
     u.fx = tgt.x<u.x ? -1 : 1;
+    { const mk = mvKey(u), mt = MT();
+      // Hit and Run: wheel away after a blow, then ride back in at a gallop
+      if(mk==='horse' && u.hrT > mt){ const ax = u.x - tgt.x, ay = u.y - tgt.y, L = Math.hypot(ax, ay) || 1, sx = -ay/L*.6, sy = ax/L*.6; step(u.x + ax/L*2 + sx, u.y + ay/L*2 + sy, 2, 1.25); return; }
+      // skirmishers back away from melee between shots
+      if(mk==='slingers' && d < 1.05 && u.cd > .15 && !isRangedU(tgt)){ const ax = u.x - tgt.x, ay = u.y - tgt.y, L = Math.hypot(ax, ay) || 1; step(u.x + ax/L, u.y + ay/L, 1, 1); return; }
+      // Shields Up: call the nearest enemies onto the shields
+      if(mk==='shieldwall' && d < st.rng + 1.6 && !(u.tauT > mt)){ u.tauT = mt + 6; let k = 0; for(const v of G.units){ if(k >= 5 || v.hp<=0 || v.hero || v.owner<=0 || !atWar(own, v.owner) || v.kind==='archer' || v.kind==='siege' || (v.x-u.x)**2 + (v.y-u.y)**2 > 3.6) continue; v.tgt = u.id; v.rt = 2.5; v.tauntT = mt + 3; v.tauntBy = u.id; k++; } if(k){ if(onScr(u.x, u.y)) ring(u.x, u.y, .2, 1.9, '#9fd0ff', .5); moveFloat(u); } }
+    }
     if(CARDS[u.card].tags.some(g => ABIL[g] && ABIL[g].cd)) useAbilities(u, st, tgt, d, own);
     if(tgt.hp <= 0) return;
     if(u.kind==='siege' && d < 1 && !CARDS[u.card].tags.includes('Titan')){ step(u.x*2 - tgt.x, u.y*2 - tgt.y, 1, .8); return; }
@@ -759,6 +825,7 @@ function updateTowers(dt){
     let tp = P[c.owner]; if(!tp) continue;
     const sh = c.owner===PLAYER && proto('shield') && isPart(c);
     if(c.owner===PLAYER && (proto('walls') || sh)) tp = Object.assign({}, tp, {dmg:tp.dmg*(proto('walls') ? 1.5 : 1), rate:tp.rate*(sh ? 2 : 1), range:tp.range + (sh ? 1.5 : 0)});
+    if(c.capital && c.owner > 1 && !c.hold){ const cm = capMul(c.owner); if(cm > 1) tp = Object.assign({}, tp, {dmg:tp.dmg*(.6 + .4*cm)}); }
     const rr = tp.range + (c.hill ? .5 : 0), cx=c.x+.5, cy=c.y+.5, r2=rr*rr;
     let t1=null, t2=null, d1=r2, d2=r2;
     for(const u of G.units){

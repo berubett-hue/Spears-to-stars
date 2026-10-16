@@ -38,7 +38,10 @@ const supOf = (id, o) => { const ev = cardEvo(o || PLAYER, id); return Math.roun
 const rUp = (o, id) => { const ev = cardEvo(o, id); return CARDS[id].up + (ev && ev.union && ev.with ? CARDS[ev.with].up : 0); };
 const armySup = o => { let n=0; for(const u of G.units) if(u.owner===o && u.hp>0 && !u.hero && !u.merc && u.card) n += supOf(u.card, o); return n; };
 const ocol = o => o===PLAYER ? pcol() : o===0 ? '#e0473b' : rival(o).col;
-const cityMax = c => cityMax0(c)*1.5*(c.fort||1)*(c.owner===PLAYER && G && G.perk==='golems' ? 1.5 : 1)*(c.owner > 1 && CR(6) ? 1.35 : 1)*(c.owner > 1 && c.capital ? 1.4 : 1)*(G && G.proj && G.proj.proto && c.owner===PLAYER ? (proto('walls') ? 1.5 : 1)*(proto('bunkers') && isPart(c) ? 2 : 1) : 1);
+/* a rival's capital is guarded by the rest of its realm: +30% health per other city it holds, up to ×3.5.
+   Take the outer cities first and the capital weakens */
+function capMul(o){ if(!G || G.arena || o <= 1) return 1; if(R.capMT !== G.t){ R.capMT = G.t; R.capM = {}; } let m = R.capM[o]; if(m == null){ let n = 0; for(const c of G.cities) if(c.owner===o && !c.dead) n++; m = R.capM[o] = Math.min(3.5, 1 + .3*Math.max(0, n-1)); } return m; }
+const cityMax = c => cityMax0(c)*1.5*(c.fort||1)*(c.owner===PLAYER && G && G.perk==='golems' ? 1.5 : 1)*(c.owner > 1 && CR(6) ? 1.35 : 1)*(c.owner > 1 && c.capital ? 1.4*(c.hold ? 1 : capMul(c.owner)) : 1)*(G && G.proj && G.proj.proto && c.owner===PLAYER ? (proto('walls') ? 1.5 : 1)*(proto('bunkers') && isPart(c) ? 2 : 1) : 1);
 const cityMax0 = c => { const m = R.cb.get(c.id); return (60 + 25*c.pop) * (c.owner===PLAYER ? 1.2*(1 + S.cityhp)*(G.coal ? 1.25 : 1)*(c.capital ? 1.5 : 1) : (1.25 + .5*rEra())*(G.coal ? 1.3 : 1)) * (c.hill ? 1.4 : 1) * (1 + (m ? (m.keep ? .2 : 0) + (m.castle ? .3 : 0) : 0)); };
 const allyCount = () => G.rivals.filter(r => r.alive && r.status==='ally').length;
 const tradeCount = () => G.rivals.filter(r => r.alive && (r.status==='trade' || r.status==='ally')).length;

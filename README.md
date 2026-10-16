@@ -32,6 +32,7 @@ js/               the game, split by system, loaded in this order:
   07-economy.js            economy, Space Program
   08-buildings-raids.js    buildings, barbarian raids
   09-combat.js             combat
+  09m-moves.js             each troop line's own move, delayed blasts, and combos
   10-cities-diplomacy.js   capturing cities, diplomacy
   11-update-draft.js       main update, level-up draft, ages, hidden peoples, big moments
   12-events-meta.js        events, decrees, morale, grades, quests, unlock progress, artifacts

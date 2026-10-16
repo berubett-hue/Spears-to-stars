@@ -391,7 +391,7 @@ function unitCardHTML(t){
     const jl = Math.min(lvlFloor(PLAYER), cardCap(t.id)); label = G.core && !G.demo ? 'New support line' : 'New troop line'; desc = '<b class="morph">'+esc(formOf(t.id, jl).n)+(jl > 1 ? ' · joins at Lv '+jl : '')+'</b>'+C.d;
     const sq = squadSize(PLAYER, t.id); extra += '<span class="up">Squads of '+sq+' · each takes '+supOf(t.id)+' army room · '+({guard:'holds cities',rider:'hunts raiders',archer:'fires from range',siege:'breaks walls in war',support:'follows your troops',titan:'smashes through crowds'})[C.role]+'</span>';
     const partners = COMBOS.filter(c => (c.a===t.id && (c.b ? slotOf(c.b) : G.cards.some(s => CARDS[s.id].tags.includes(c.tag)))) || (c.b===t.id && slotOf(c.a)) || (c.tag && C.tags.includes(c.tag) && slotOf(c.a)));
-    extra += vsHTML(t.id) + abilLine(t.id) + ladderHTML(t.id, 1);
+    extra += moveLine(t.id) + vsHTML(t.id) + abilLine(t.id) + ladderHTML(t.id, 1);
     if(t.str){ const a = achFor(t.id); extra = '<span class="rankup">✦ A troop you have not unlocked. Try it this game. Unlock for good: '+esc(a ? a.d : '')+'</span>' + extra; }
     { const kn = knownEvos(t.id); if(kn.length) extra += '<span class="abil">'+kn.map(ev => (ev.union ? 'Union' : 'Evolution')+': '+evoRecipe(ev)+' → '+ev.n).join('<br>')+'</span>'; else if(hasHidden(t.id)) extra += '<span class="abil">◆ ? This line hides an evolution</span>'; }
   } else {

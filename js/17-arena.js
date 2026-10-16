@@ -1,7 +1,7 @@
 "use strict";
 /* ---------- Proving Grounds: two armies, the game's real combat, a damage meter ---------- */
 const AR = {era:2, size:40, abil:true, speed:1, teams:[{rows:[]},{rows:[]}], st:null, live:false, raf:0, last:0, t:0, done:null, saved:null, meterAcc:0};
-const AR_SWAP = ['spr','pal','parts','projs','floats','rings','fires','corpses','pc','pt','syn','rsyn','fights','raidT','raidS','raidGo','shake','cc','ca','abT'];
+const AR_SWAP = ['spr','pal','parts','projs','floats','rings','fires','corpses','pc','pt','syn','rsyn','fights','raidT','raidS','raidGo','shake','cc','ca','abT','bombs','mvT'];
 function arSwapIn(){
   AR.saved = {G, S, r:{}};
   AR_SWAP.forEach(k => AR.saved.r[k] = R[k]);
@@ -92,7 +92,7 @@ function arDraw(){
     for(let gy=Math.floor(oy); gy<oy+cv2.height/z+1; gy++) for(let gx=ox; gx<ox+31; gx++){ if(((gx*7+gy*13)%5)===0){ x.fillStyle = 'rgba(40,52,24,.35)'; x.fillRect(gx+.3, gy+.6, .12, .05); } }
     for(const f of R.fires){ const a = Math.min(1, f.life/f.max*2); x.globalAlpha = .3*a; x.fillStyle = '#ff7a2a'; x.beginPath(); x.arc(f.x, f.y, f.r, 0, 6.283); x.fill(); x.globalAlpha = .35*a; x.fillStyle = '#ffd36a'; x.beginPath(); x.arc(f.x, f.y, f.r*.5, 0, 6.283); x.fill(); }
     x.globalAlpha = 1;
-    drawDecals(x, null);
+    drawDecals(x, null); drawBlasts(x, null);
     for(const cp of R.corpses){ x.save(); x.globalAlpha = Math.max(0, 1-cp.t/1.6)*.8; x.translate(cp.x, cp.y+.25); x.rotate(cp.fx*1.35); x.drawImage(cp.img, -cp.w/2, -cp.h, cp.w, cp.h); x.restore(); }
     x.globalAlpha = 1;
     for(const u of G.units.slice().sort((a,b) => a.y-b.y)){
@@ -102,9 +102,11 @@ function arDraw(){
       if(u.brace > 0){ x.strokeStyle = 'rgba(216,228,240,.7)'; x.lineWidth = .06; x.beginPath(); x.arc(u.x, u.y, .45, 0, 6.283); x.stroke(); }
       if(u.frenzy > 0){ x.fillStyle = 'rgba(255,90,60,.35)'; x.fillRect(u.x-w*.4, u.y+.2, w*.8, .1); }
       x.fillStyle = 'rgba(0,0,0,.35)'; x.fillRect(u.x-w*.35, u.y+.24, w*.7, .07);
-      const lo = u.lg > 0 ? (u.lg/.12)*.22 : 0, ux = u.x + (u.lx||0)*lo, uy = u.y + (u.ly||0)*lo;
+      const lo = u.lg > 0 ? (u.lg/.12)*.22 : 0; let ux = u.x + (u.lx||0)*lo, uy = u.y + (u.ly||0)*lo;
+      if(u.air > 0 && u.airS){ const p = clamp(1 - u.air/(u.airM||.3), 0, 1); ux = u.airS.x + (u.x - u.airS.x)*p; uy = u.airS.y + (u.y - u.airS.y)*p - Math.sin(p*Math.PI)*(u.airH||.5); }
       if(u.fx < 0){ x.save(); x.translate(ux, 0); x.scale(-1, 1); x.drawImage(img, -w/2, uy+.3-h0+dy, w, h0); x.restore(); } else x.drawImage(img, ux-w/2, uy+.3-h0+dy, w, h0);
       const f = u.hp/uStat(u).hp; x.fillStyle = 'rgba(0,0,0,.7)'; x.fillRect(u.x-.25, u.y+.34, .5, .06); x.fillStyle = u.owner===1 ? '#f4b84a' : '#6ea8f7'; x.fillRect(u.x-.25, u.y+.34, .5*clamp(f,0,1), .06);
+      if(u.pinT > 0 || u.stun > 0 || u.burnT > 0 || u.tauntT > 0) drawStatus(x, u, h);
     }
     x.lineCap = 'round';
     for(const p of R.projs){ drawProj(x, p); x.globalAlpha = 1; }
@@ -211,7 +213,7 @@ function openCollect(){
     const pic = big ? '<img class="tr-pic" src="'+big+'" alt="">' : '<i class="tr-pic"></i>';
     if(on){
       const ladder = FORM_ERA.map((era, i) => { const lv = i+1, ok = lv <= cap, u = has ? artURL('cl_'+id+'_'+lv, () => uPortrait(id, lv)) : ''; return '<span class="rung'+(ok ? '' : ' lk')+'" title="Lv '+lv+' · '+(ok ? esc(C.forms[i].n) : '???')+' · '+era+(ok ? '' : ' · unlocks at mastery '+(lv-6))+'">'+(u ? '<img src="'+u+'" alt="">' : '')+'<i>'+lv+'</i></span>'; }).join('');
-      h += '<div class="tr-card"><div class="tr-top">'+pic+'<div><b>'+C.n+'</b><em class="stars">'+mStars(id)+'</em><span class="tr-role">'+esc(C.d)+'</span>'+vsHTML(id)+'</div></div>'+
+      h += '<div class="tr-card"><div class="tr-top">'+pic+'<div><b>'+C.n+'</b><em class="stars">'+mStars(id)+'</em><span class="tr-role">'+esc(C.d)+'</span>'+moveLine(id)+vsHTML(id)+'</div></div>'+
         '<div class="ladder">'+ladder+'</div><div class="ladder-cap"><span>Ancient</span><span>Future</span></div>'+
         '<div class="tr-m"><span>Mastery '+r+(r < MX_T.length ? ' · '+xp.toLocaleString()+' / '+MX_T[r].toLocaleString()+' XP. Next: '+mPerk(r+1) : ' · fully mastered')+'</span>'+(r < MX_T.length ? bar(xp - (MX_T[r-1]||0), MX_T[r] - (MX_T[r-1]||0)) : '')+'</div>'+
         '<details><summary>More</summary><span>'+C.tags.join(' · ')+(SIG[id] ? '<br>✦ Lv 8 signature: '+esc(SIG[id].n) : '')+'<br>'+C.forms.map((f, i) => i < cap ? esc(f.n) : '???').join(' → ')+'</span></details></div>';
@@ -220,7 +222,7 @@ function openCollect(){
       h += '<div class="tr-card locked"><div class="tr-top">'+pic+'<div><b>??? troop line</b><span class="tr-role">Unlock: '+esc(a ? a.d : '')+'</span>'+(p ? bar(p[0], p[1])+'<small>'+Math.min(p[0], p[1]).toLocaleString()+' / '+p[1].toLocaleString()+'</small>' : '')+'</div></div></div>';
     }
   }
-  h += '</div><h3>Peoples</h3><p class="lnote col-how">Each people brings its own <b>general</b>, a hero you steer yourself, plus a starting troop and a bonus.</p>'+recordHTML()+'<div class="tr-grid">'+NATIONS_P.map(n => {
+  h += '</div>'+combosColHTML()+'<h3>Peoples</h3><p class="lnote col-how">Each people brings its own <b>general</b>, a hero you steer yourself, plus a starting troop and a bonus.</p>'+recordHTML()+'<div class="tr-grid">'+NATIONS_P.map(n => {
     const ok = natOK(n), a = n.lock ? ACH.find(x => x.id==='nat:'+n.id) : null, H = HEROES[n.id] || {}, u = HSPR.ok && (HSPR.m[n.id] || HEROES[n.id]) ? hsprPortrait(n.id) : '';
     const pic = u ? '<img class="tr-pic hero" src="'+u+'" alt="" style="--pc:'+PEOPLE[n.id].col+'">' : '<i class="tr-pic"></i>';
     if(ok) return '<div class="tr-card"><div class="tr-top">'+pic+'<div><b><i class="sw" style="background:'+PEOPLE[n.id].col+'"></i>'+esc(n.n)+'</b><span class="tr-gen">'+esc(H.n || '')+'</span><span class="tr-role">'+esc(n.perk)+'</span><span class="tr-ab"><em>'+esc(H.act || '')+'</em> · '+esc(H.ad || '')+'</span><span class="tr-ab">Always: '+esc(H.sig || '')+'</span><span class="tr-ab">Starts with '+n.start.map(id => CARDS[id].n).join(' and ')+'</span></div></div>'+
@@ -245,6 +247,12 @@ function openCollect(){
   h += '<p class="lnote">Recipes stay hidden until you discover one. Max a troop line, pair it with the right civic or line, and open a War Chest to find out. Each rival nation guards one legendary union, which it fields late in the game: defeat that nation to learn it. Unions and evolutions happen when you open a War Chest. Only bosses carry them: barbarian Warlords and rival heroes. Conquering a nation or accepting its surrender also earns one.</p>';
   $('#colBody').innerHTML = h; $('#ovCollect').hidden = false; SFX.tick();
   colTabs(); META.colSeen = colSig(); saveLife(); refreshHome();
+}
+/* Combos in the Collection: every pair, and how often you have pulled it off */
+function combosColHTML(){
+  const seen = COMBOS.filter(c => (META.cmb||{})[c.id]).length;
+  return '<h3>Troops · combos · '+seen+' of '+COMBOS.length+' pulled off</h3><p class="lnote col-how">Field both lines in the same game and they set each other up. Each one lights up over the fight when it lands.</p><div class="col-grid">'+COMBOS.map(c => { const n = (META.cmb||{})[c.id]||0, nm = CARDS[c.a].n+' + '+(c.b ? CARDS[c.b].n : 'any '+c.tag+' unit');
+    return '<div class="col-item cmb'+(n ? '' : ' locked')+'"><b>'+(n ? '✦ ' : '')+esc(c.n)+'</b><span>'+esc(nm)+'<br>'+esc(c.d)+(n ? '<br><em class="cmbn">Landed '+n.toLocaleString()+' time'+(n===1 ? '' : 's')+'</em>' : '<br><small>Not pulled off yet</small>')+'</span></div>'; }).join('')+'</div>';
 }
 /* Your record: every people you can lead, the four ways you have won with them, and their best Crown */
 function recordHTML(){

@@ -36,11 +36,20 @@ const SYN = {
   Fire:[[2,'Fire units +25% damage']]
 };
 const COMBOS = [
-  {a:'spearmen', b:'knights', n:'Hammer and Anvil', d:'Heavy Horse deal double damage to enemies your line units are holding'},
-  {a:'shieldwall', tag:'Ranged', n:'Shield and Bow', d:'Ranged units next to a shield wall take half damage'},
-  {a:'elephant', b:'banner', n:'War Drums', d:'Titan attacks terrify enemies and slow them'},
-  {a:'priests', tag:'Swarm', n:'Blessed Masses', d:'Healers heal swarm units three times as fast'}
+  {id:'anvil', a:'spearmen', b:'knights', n:'Hammer and Anvil', d:'Heavy Horse deal double damage to enemies your line units are holding'},
+  {id:'shieldbow', a:'shieldwall', tag:'Ranged', n:'Shield and Bow', d:'Ranged units next to a shield wall take half damage'},
+  {id:'drums', a:'elephant', b:'banner', n:'War Drums', d:'Titan attacks terrify enemies and slow them'},
+  {id:'masses', a:'priests', tag:'Swarm', n:'Blessed Masses', d:'Healers heal swarm units three times as fast'},
+  {id:'rundown', a:'slingers', b:'horse', n:'Run Them Down', d:'Light Horse deal double damage to enemies your Skirmishers have pinned'},
+  {id:'fury', a:'grenadiers', b:'militia', n:'Fire and Fury', d:'Warband deal +50% damage to enemies left burning by your Bombers'},
+  {id:'kground', a:'spearmen', b:'catapult', n:'Killing Ground', d:'Siege shells hit 50% harder on enemies locked in melee with your line units'},
+  {id:'ironrain', a:'longbow', b:'banner', n:'Rain of Iron', d:'Archers near a Command banner rain twice as hard around their target'},
+  {id:'pinpierce', a:'slingers', b:'crossbow', n:'Pin and Pierce', d:'Crossbows deal +50% to pinned enemies, and their bolts fly through to two more'},
+  {id:'stampede', a:'elephant', b:'horse', n:'Stampede', d:'Light Horse deal +60% to enemies a Titan has just flung'},
+  {id:'firestorm', a:'grenadiers', b:'airships', n:'Firestorm', d:'Bomber and Sky blasts leave the ground burning'},
+  {id:'hedge', a:'shieldwall', b:'spearmen', n:'Tortoise and Hedge', d:'Enemies taunted by your Shield Wall take +40% from your Spear Line'}
 ];
+const comboOn = (o, c) => ownsCard(o, c.a) && (c.b ? ownsCard(o, c.b) : ownerCards(o).some(id => CARDS[id].tags.includes(c.tag)));
 const UEVO = [
   /* Unions: two troop lines at level 6 or higher fuse into one when you open a War Chest. The partner's slot is freed */
   {id:'holy', clue:'Faith rides to war', col:'#fff0c8', from:'knights', with:'priests', union:1, n:'Holy Order', d:'Sworn riders who mend as they fight. +60% health and damage, and they heal while fighting', hp:1.6, dmg:1.6, selfheal:.03},
@@ -183,10 +192,10 @@ const SAVE_VER = 'alpha-3';
 let SAVE_RESET = false;
 try { if(localStorage.getItem('eh-ver') !== SAVE_VER){ SAVE_RESET = !!(localStorage.getItem('eh-life') || localStorage.getItem('eh-unlocks')); ['eh-life','eh-unlocks','eh-disc','eh-crown','eh-diff','eh-list','eh-pin'].forEach(k => localStorage.removeItem(k)); localStorage.setItem('eh-ver', SAVE_VER); } } catch(e){}
 const META = {unl:new Set(BASE_UNLOCKED), disc:new Set(), seen:new Set(), leg:new Set(), arts:new Set(), life:{games:0, wins:0, kills:0, warlords:0, captured:0, founded:0, ruins:0, ck:{}}, mx:{}, hint:{}};
-try { const v = JSON.parse(localStorage.getItem('eh-life') || '{}'); if(v.life) Object.assign(META.life, v.life); META.life.ck = META.life.ck || {}; if(v.mx) META.mx = v.mx; if(v.hint) META.hint = v.hint; META.glory = v.glory||0; META.gloryT = v.gt||0; META.lg = v.lg||{}; META.ack = v.ack ? new Set(v.ack) : null; META.colSeen = v.cs||''; META.noDemo = !!v.nd; META.crown = v.cr ?? null; META.pb = v.pb||{}; META.pg = v.pg||{}; META.q = v.q||{}; META.qd = new Set(v.qd||[]); META.stir = v.st||[]; META.df = v.df||{}; META.met = v.met||[]; META.wk = v.wk||{}; } catch(e){}
-if(!META.lg) META.lg = {}; if(!META.wk) META.wk = {}; if(!META.pb) META.pb = {}; if(!META.pg) META.pg = {}; if(!META.q) META.q = {}; if(!META.qd) META.qd = new Set(); if(!META.stir) META.stir = []; if(META.glory == null) META.glory = 0; if(META.gloryT == null) META.gloryT = 0;
+try { const v = JSON.parse(localStorage.getItem('eh-life') || '{}'); if(v.life) Object.assign(META.life, v.life); META.life.ck = META.life.ck || {}; if(v.mx) META.mx = v.mx; if(v.hint) META.hint = v.hint; META.glory = v.glory||0; META.gloryT = v.gt||0; META.lg = v.lg||{}; META.ack = v.ack ? new Set(v.ack) : null; META.colSeen = v.cs||''; META.noDemo = !!v.nd; META.crown = v.cr ?? null; META.pb = v.pb||{}; META.pg = v.pg||{}; META.q = v.q||{}; META.qd = new Set(v.qd||[]); META.stir = v.st||[]; META.df = v.df||{}; META.met = v.met||[]; META.wk = v.wk||{}; META.cmb = v.cm||{}; } catch(e){}
+if(!META.lg) META.lg = {}; if(!META.wk) META.wk = {}; if(!META.cmb) META.cmb = {}; if(!META.pb) META.pb = {}; if(!META.pg) META.pg = {}; if(!META.q) META.q = {}; if(!META.qd) META.qd = new Set(); if(!META.stir) META.stir = []; if(META.glory == null) META.glory = 0; if(META.gloryT == null) META.gloryT = 0;
 let lifeDirty = false;
-function saveLife(){ lifeDirty = false; try { localStorage.setItem('eh-life', JSON.stringify({life:META.life, mx:META.mx, hint:META.hint, glory:META.glory, gt:META.gloryT, lg:META.lg, ack:[...(META.ack||[])], cs:META.colSeen||'', nd:META.noDemo ? 1 : 0, cr:META.crown||0, pb:META.pb, pg:META.pg, q:META.q, qd:[...(META.qd||[])], st:META.stir||[], df:META.df||{}, met:META.met||[], wk:META.wk||{}})); } catch(e){} }
+function saveLife(){ lifeDirty = false; try { localStorage.setItem('eh-life', JSON.stringify({life:META.life, mx:META.mx, hint:META.hint, glory:META.glory, gt:META.gloryT, lg:META.lg, ack:[...(META.ack||[])], cs:META.colSeen||'', nd:META.noDemo ? 1 : 0, cr:META.crown||0, pb:META.pb, pg:META.pg, q:META.q, qd:[...(META.qd||[])], st:META.stir||[], df:META.df||{}, met:META.met||[], wk:META.wk||{}, cm:META.cmb||{}})); } catch(e){} }
 /* ---------- Legacy: Glory buys permanent ranks ---------- */
 const LEGACY = [
   {k:'might', n:'Might', ic:'⚔', d:r => '+'+5*r+'% troop damage', max:5, base:200},

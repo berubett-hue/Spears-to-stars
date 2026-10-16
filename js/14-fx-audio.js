@@ -34,7 +34,9 @@ function toast(msg,kind,at){
 function banner(title, kicker, img){
   if(G && G.demo) return;
   const b = $('#banner'); if(!b) return;
-  b.innerHTML = '<div>'+(img ? '<img class="bn-img" src="'+img+'" alt="">' : '')+'<small>'+esc(kicker)+'</small><strong>'+esc(title)+'</strong></div>';
+  b.innerHTML = '<div class="'+(img ? 'wi' : '')+'">'+(img ? '<img class="bn-img" src="'+img+'" alt="">' : '')+'<small>'+esc(kicker)+'</small><strong>'+esc(title)+'</strong></div>';
+  // always gone after a couple of seconds, even where the fade animation is switched off (Reduce Motion)
+  clearTimeout(R.bnT); R.bnT = setTimeout(() => { if(b.innerHTML) b.innerHTML = ''; }, img ? 2300 : 2700);
 }
 
 /* ---------- Sound ---------- */

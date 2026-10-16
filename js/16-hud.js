@@ -9,6 +9,12 @@ function buildStrip(){
 
 /* ---------- Damage meter: how every line is doing, live ---------- */
 const fmtK = n => n >= 1e6 ? (n/1e6).toFixed(1)+'M' : n >= 1e4 ? Math.round(n/1e3)+'k' : n >= 1e3 ? (n/1e3).toFixed(1)+'k' : String(Math.round(n));
+/* combos landed this game, under the damage rows */
+function cmbRowHTML(){
+  const L = Object.keys(G.cmb||{}).map(id => [COMBOS.find(c => c.id===id), G.cmb[id]]).filter(x => x[0]).sort((a,b) => b[1]-a[1]);
+  if(!L.length) return '';
+  return '<div class="dm-cmb">'+L.slice(0, 3).map(([c, n]) => '<span title="'+esc(c.d)+'">✦ '+esc(c.n)+' <b>×'+n+'</b></span>').join('')+'</div>';
+}
 function meterTick(){
   const el = $('#dmgMeter'); if(!el || !el.querySelector) return;
   if(!G || G.demo || G.arena || modal==='end'){ el.hidden = true; return; }
@@ -31,7 +37,7 @@ function meterTick(){
   const mx = Math.max(1, ...rows.map(r => r.d)), tot = rows.reduce((a,r) => a + r.d, 0), tdps = rows.reduce((a,r) => a + r.dps, 0);
   const gt = R.lTab==='goals', vt = R.lTab==='vic', dot = !gt && R.gDot != null && now - R.gDot < 4;
   const html = '<div class="lp-h"><button class="lp-t'+(gt || vt ? '' : ' on')+'" data-tab="dmg" title="Damage meter"><img class="ui-ic" src="'+KIT.u_dmg+'" alt=""><b>Damage</b><span>'+fmtK(tdps)+'/s</span></button><button class="lp-t'+(gt ? ' on' : '')+'" data-tab="goals" title="Goals you can reach this game"><img class="ui-ic" src="'+KIT.u_goals+'" alt=""><b>Goals</b>'+(dot ? '<i class="dot"></i>' : '<span>'+GL.length+'</span>')+'</button><button class="lp-t'+(vt ? ' on' : '')+'" data-tab="vic" title="How close you are to each way to win"><img class="ui-ic" src="'+KIT.u_g_glory+'" alt=""><b>Win</b></button><button class="lp-c" id="dmToggle" title="Show or hide (T)">'+(R.meterOff ? '▸' : '▾')+'</button></div>'+
-    (R.meterOff ? '' : vt ? vicHTML() : gt ? goalsHTML(GL) : rows.map(r => '<div class="dm-r'+(r.ev ? ' ev' : '')+'" title="'+esc(r.name)+': '+Math.round(r.d).toLocaleString()+' damage · '+r.k.toLocaleString()+' kills"><span class="dm-i">'+(r.img ? '<img src="'+r.img+'" alt="">' : '<i>'+(r.key==='tower' ? '▲' : '?')+'</i>')+'</span><span class="dm-n">'+esc(r.name)+'</span><span class="dm-v">'+fmtK(r.dps)+'/s <small>'+fmtK(r.d)+'</small></span><span class="dm-b"><s style="width:'+(r.d/mx*100).toFixed(1)+'%"></s></span></div>').join(''));
+    (R.meterOff ? '' : vt ? vicHTML() : gt ? goalsHTML(GL) : rows.map(r => '<div class="dm-r'+(r.ev ? ' ev' : '')+'" title="'+esc(r.name)+': '+Math.round(r.d).toLocaleString()+' damage · '+r.k.toLocaleString()+' kills"><span class="dm-i">'+(r.img ? '<img src="'+r.img+'" alt="">' : '<i>'+(r.key==='tower' ? '▲' : '?')+'</i>')+'</span><span class="dm-n">'+esc(r.name)+'</span><span class="dm-v">'+fmtK(r.dps)+'/s <small>'+fmtK(r.d)+'</small></span><span class="dm-b"><s style="width:'+(r.d/mx*100).toFixed(1)+'%"></s></span></div>').join('')+cmbRowHTML());
   if(html !== el._html){ el._html = html; el.innerHTML = html; }
   const tg = el.querySelector('#dmToggle'); if(tg) tg.onclick = e => { e.stopPropagation(); toggleMeter(); };
   el.onclick = e => { const t = e.target.closest ? e.target.closest('[data-tab],[data-pin],[data-more]') : null; if(!t) return; e.stopPropagation();
@@ -330,7 +336,7 @@ function renderArmy(){
     const C = CARDS[sl.id], ev = sl.evo && UEVO.find(e => e.id===sl.evo), evo = UEVO.find(e => e.from===sl.id);
     h += '<div class="ucard'+(ev?' evo':'')+'"><div class="top"><b>'+esc(cardName(PLAYER, sl.id))+'</b><span class="meta">'+C.n+' · Lv '+sl.lvl+' · '+FORM_ERA[sl.lvl-1]+' · '+(cnt[sl.id]||0)+' in the field</span></div>'+
       '<span class="lvbar">'+Array.from({length:8}, (_,i) => '<i class="'+(i < sl.lvl ? 'on' : i >= cardCap(sl.id) ? 'lock' : '')+'"></i>').join('')+'</span>'+(sl.lvl < 8 ? '<span class="abil">Next: '+esc(formOf(sl.id, sl.lvl+1).n)+(sl.lvl >= cardCap(sl.id) ? ' · '+esc(sl.lvl >= mCap(sl.id) ? 'Mastery '+mRank(sl.id)+' caps this line at Lv '+mCap(sl.id)+'. '+((META.mx[sl.id]||0))+' of '+MX_T[mRank(sl.id)]+' mastery XP for the next rank' : capNote()) : '')+'</span>' : '')+(sl.str ? '<span class="rankup">✦ Stranger: fights for you this game only</span>' : '')+abilLine(sl.id)+ladderHTML(sl.id, sl.lvl)+(evoReady(sl) ? '<span class="evo">◆ '+esc(evoStatus(sl).txt)+'</span>' : (evoStatus(sl).state==='path' || evoStatus(sl).state==='hidden' ? '<span class="abil">◆ '+esc(evoStatus(sl).txt)+'</span>' : ''))+
-      '<span class="tagrow">'+C.tags.map(g => '<i class="tag on">'+g+'</i>').join('')+'</span>'+vsHTML(sl.id)+(SIG[sl.id] ? '<span class="abil'+(sl.lvl >= 8 ? ' on' : '')+'">✦ Signature at Lv 8: '+SIG[sl.id].n+'. '+SIG[sl.id].d+'</span>' : '')+
+      '<span class="tagrow">'+C.tags.map(g => '<i class="tag on">'+g+'</i>').join('')+'</span>'+moveLine(sl.id)+vsHTML(sl.id)+(SIG[sl.id] ? '<span class="abil'+(sl.lvl >= 8 ? ' on' : '')+'">✦ Signature at Lv 8: '+SIG[sl.id].n+'. '+SIG[sl.id].d+'</span>' : '')+
       '<span class="meta">'+(ev ? ev.d : C.d)+'. Squads of '+squadSize(PLAYER, sl.id)+'. Each takes '+supOf(sl.id)+' army room.'+(!ev && knownEvos(sl.id).length ? ' '+knownEvos(sl.id).map(e => (e.union ? 'Union' : 'Evolution')+': '+evoRecipe(e)+' → '+e.n).join('. ')+' (open a War Chest).' : '')+'</span></div>';
   }
   for(let i=G.cards.length;i<cardSlots();i++) h += '<div class="ucard"><span class="meta">Empty slot. New troops appear when you level up.</span></div>';
@@ -344,7 +350,7 @@ function renderArmy(){
     $('#armyRecord').innerHTML = rows.map(r => '<div class="mrow"><span>'+r.n+'</span><b>'+Math.round(r.e.d).toLocaleString()+'<small> · '+r.e.k+' kills</small></b><i><s style="width:'+(r.e.d/mx*100).toFixed(1)+'%"></s></i></div>').join('') +
       (ab.length ? '<p class="lnote">Special attacks: '+ab.map(a => '⚔ '+a.n+' '+Math.round(a.d).toLocaleString()).join(' · ')+'</p>' : '<p class="lnote">No special attacks have fired yet.</p>'); }
   $('#synList').innerHTML = Object.keys(SYN).map(g => { const n = R.syn[g]||0; return SYN[g].map(([need, txt]) => '<div class="'+(n>=need?'on':'')+'"><em>'+g+' '+Math.min(n,need)+'/'+need+'</em> · '+txt+'</div>').join(''); }).join('');
-  $('#comboList').innerHTML = COMBOS.map(c => { const on = slotOf(c.a) && (c.b ? slotOf(c.b) : G.cards.some(sl => CARDS[sl.id].tags.includes(c.tag))); return '<div class="'+(on?'on':'')+'"><em>'+c.n+'</em> ('+CARDS[c.a].n+' + '+(c.b ? CARDS[c.b].n : 'any '+c.tag+' unit')+') · '+c.d+'</div>'; }).join('');
+  $('#comboList').innerHTML = COMBOS.map(c => { const on = slotOf(c.a) && (c.b ? slotOf(c.b) : G.cards.some(sl => CARDS[sl.id].tags.includes(c.tag))), n = (G.cmb||{})[c.id]||0; return '<div class="'+(on?'on':'')+'"><em>'+c.n+'</em> ('+CARDS[c.a].n+' + '+(c.b ? CARDS[c.b].n : 'any '+c.tag+' unit')+') · '+c.d+(n ? ' · <b>landed '+n+'×</b>' : '')+'</div>'; }).join('');
 }
 /* ---------- Ledger: compare nations, list everything you have ---------- */
 function powerOf(o){ let s = 0; for(const u of G.units){ if(u.owner!==o || u.hp<=0 || !u.card) continue; const st = uStat(u); s += Math.sqrt(st.hp*st.dmg/Math.max(.3, st.cd)); } return Math.round(s); }
