@@ -7,7 +7,7 @@ function update(dt){
   for(const k in G.cd) G.cd[k] = Math.max(0, G.cd[k]-dt);
   for(const k in G.buff) G.buff[k] = Math.max(0, G.buff[k]-dt);
   G.econAcc += dt;
-  while(G.econAcc >= .5){ G.econAcc -= .5; if(R.bdirty) rebuildB(); econ(.5); rivalEcon(.5); if(!G.arena){ moraleTick(.5); battleTick(.5); focusTick(); levyTick(.5); unrestTick(); if(G.decline) declineTick(); } diplomacy(.5); constructBuildings(.5); if(!G.arena){ hostTick(); holdTick(); govTick(); siteTick(.5); hordeTick(.5); } }
+  while(G.econAcc >= .5){ G.econAcc -= .5; if(R.bdirty) rebuildB(); econ(.5); rivalEcon(.5); if(!G.arena){ moraleTick(.5); battleTick(.5); focusTick(); levyTick(.5); unrestTick(); if(G.decline) declineTick(); } diplomacy(.5); constructBuildings(.5); if(!G.arena){ hostTick(); holdTick(); govTick(); siteTick(.5); hordeTick(.5); prosTick(.5); } }
   if(!G.arena && !modal){ G.eraT = (G.eraT||0) + dt; if(G.eraT > 1){ G.eraT = 0; const o = G.eraIdx; if(Math.min(eraOfLevel(G.level||0), timeEra(G.t)) > o){ refreshStats(); if(G.eraIdx > o) eraUp(o); } } }
   const dm = DOCT[G.doctrine];
   G.borderAcc += (.45 + .12*citiesOf(PLAYER).length) * (1+S.border) * dm.border * dt;
@@ -375,7 +375,7 @@ function relicCardHTML(t){
 function unitCardHTML(t){
   if(t.ucard==='site') return siteCardHTML(t);
   if(t.ucard==='proto') return protoCardHTML(t);
-  if(t.ucard==='space') return '<button class="card is-key" style="--era:var(--sci)"><span class="era"><i></i>Wonder of the age</span><b>Space Program</b><span class="desc">Choose three launch sites to build starship parts (at least 8 minutes). Every nation that isn’t your ally declares war and marches on them. Pick defense protocols as the build advances, then hold every site through a three-minute launch to win</span><span class="adv">Science victory</span></button>';
+  if(t.ucard==='space') return '<button class="card is-key" style="--era:var(--sci)"><span class="era"><i></i>Wonder of the age</span><b>Space Program</b><span class="desc">Choose three launch sites to build starship parts (at least 4 minutes; the Build stance speeds them). Every nation that isn’t your ally declares war and marches on them. Pick defense protocols as the build advances, then hold every site through a two-minute launch to win</span><span class="adv">Science victory</span></button>';
   if(t.ucard==='rnew' || t.ucard==='rlvl') return relicCardHTML(t);
   if(t.ucard==='heal') return '<button class="card is-unit" style="--era:var(--food)"><span class="era"><i></i>Field hospital</span><b>Tend the wounded</b><span class="desc">Every troop heals to full and every city is repaired</span></button>';
   if(t.ucard==='gold') return '<button class="card is-unit" style="--era:var(--lamp)"><span class="era"><i></i>Tribute</span><b>Fill the coffers</b><span class="desc">+80 influence for diplomacy</span></button>';

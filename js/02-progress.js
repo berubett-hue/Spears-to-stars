@@ -92,7 +92,7 @@ const ERA_LV = [0, 4, 8, 12, 15, 18];
 const eraOfLevel = l => { let e = 0; while(e < 5 && l >= ERA_LV[e+1]) e++; return e; };
 const levelCost = l => Math.round((25 + 120*Math.pow(l, 1.4))*(1 - .06*(G && G.relics ? relicLv('philosophy') : 0))*(hasArt('lens') ? .9 : 1));
 const SHIP_REQ = ['writing','astronomy'];
-const shipReady = () => G.eraIdx >= 5 && !G.proj && !G.decline && relicLv('writing') >= 5 && relicLv('astronomy') >= 3;
+const shipReady = () => G.eraIdx >= 4 && !G.proj && !G.decline && relicLv('writing') >= 5 && relicLv('astronomy') >= 3;
 const LV_BASE = [null, null, {sq:1}, {dmg:.15, f:1}, {hp:.35}, {sq:1}, {f:2}, {dmg:.4, hp:.4}, {dmg:.3, hp:.3, ab:.33, f:3}];
 /* Visible level-ups, like Vampire Survivors weapons: every troop has a fighting style, and levels 3, 6 and 8 change how it attacks */
 function lvStyle(C){ if(C.role==='support') return 'aura'; if(C.splash) return 'blast'; if(C.rng > 1.2) return 'volley'; if(C.role==='rider') return 'charge'; if(C.tags.includes('Line')) return 'shield'; return 'melee'; }
@@ -297,7 +297,7 @@ const recipeOk = ev => known(ev) || (META.hint[ev.id]||0) >= 2;
 const knownEvos = id => UEVO.filter(e => (e.from===id || e.with===id) && recipeOk(e) && evoUsable(e));
 const hasHidden = id => UEVO.some(e => (e.from===id || e.with===id) && !e.legend && !recipeOk(e));
 
-const PART_NEED = 40000, LAUNCH_T = 180;
+const PART_NEED = 16000, LAUNCH_T = 120;
 const ALARM = [
   {n:'Calm', d:''},
   {n:'Wary', d:'Two nations have fallen. The rest trust you less and build up their armies'},

@@ -68,6 +68,7 @@ function goalsLive(){
     else if(st.state==='path' && st.ev && st.ev.from===sl.id){ const L = evLv(st.ev); out.push({id:'e:'+sl.id, ic:'u_g_relic', name:st.ev.n, d:st.txt, v:Math.min(sl.lvl, L), g:L}); } }
   try { out.push(...holdGoals()); } catch(e){}
   try { out.push(...hordeGoals()); } catch(e){}
+  try { out.push(...prosGoals()); } catch(e){}
   out.forEach(o => { o.f = Math.min(1, o.v/Math.max(1, o.g)); });
   out.sort((a,b) => (b.id===R.pin) - (a.id===R.pin) || (b.ready||0) - (a.ready||0) || b.f - a.f);
   return out;

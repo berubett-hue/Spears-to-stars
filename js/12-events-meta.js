@@ -230,7 +230,7 @@ function endMeta(won){
   statTick(); questCheck(true);
   const nat = G.perk, c = G.crown||0;
   if(won){
-    if(G.winKind==='conquest') lifeAdd('wConq'); else if(G.winKind==='diplomacy') lifeAdd('wDip'); else lifeAdd('wSci');
+    if(G.winKind==='conquest') lifeAdd('wConq'); else if(G.winKind==='diplomacy') lifeAdd('wDip'); else if(G.winKind==='prosperity') lifeAdd('wPros'); else lifeAdd('wSci');
     if(!(G.stats.lost||0)) lifeAdd('wNoLoss');
     if(G.diff !== 0){
       if(c > (META.life.topCrown ?? -1)){ META.life.topCrown = c; lifeDirty = true; }

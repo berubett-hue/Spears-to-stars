@@ -84,7 +84,7 @@ function econ(dt){
 }
 
 /* ---------- Space Program: pick three launch sites, survive a long build, choose your defenses ---------- */
-const SHIP_MIN_BUILD = 480;
+const SHIP_MIN_BUILD = 240;
 const PROTOS = {
   shield:{n:'Missile Shield', d:'Towers in launch-site cities reach 1.5 tiles farther and fire twice as fast', art:'radar'},
   bunkers:{n:'Hardened Sites', d:'Launch-site cities get double health and repair three times as fast', art:'bunker'},
@@ -202,7 +202,7 @@ function shipStep(dt, P){
       pt.c = c ? c.id : 0; if(c) markLaunch(c.id);
       if(!c) continue;
     }
-    pt.rate = (c.prod||0) + P*.04 + (G.maxed ? (G.rates.s||0)*.6 : 0); pt.p = Math.min(PART_NEED, pt.p + Math.min(pt.rate, PART_NEED/SHIP_MIN_BUILD)*(proto('accel') ? 1.3 : 1)*dt);
+    pt.rate = (c.prod||0) + P*.04 + (G.maxed ? (G.rates.s||0)*.6 : 0); pt.p = Math.min(PART_NEED, pt.p + Math.min(pt.rate*(G.doctrine==='build' ? 1.25 : 1), PART_NEED/SHIP_MIN_BUILD)*(proto('accel') ? 1.3 : 1)*dt);
   }
   for(const r of G.rivals){ if(r.alive && r.truceT && G.t >= r.truceT){ r.truceT = 0; if(r.status==='peace'){ r.status = 'war'; r.warStart = G.t; toast(r.name+'’s truce is over. They march again','bad'); } } }
   if(!pr.launching && (pr.stage||0) < 2 && shipPct() >= ((pr.stage||0)+1)/3){ pr.stage = (pr.stage||0) + 1; if(pr.stage===1) formCoalition('ship'); shipEscalate(pr.stage); if(!modal) openShipPick('proto'); else pr.pendingPick = true; }
