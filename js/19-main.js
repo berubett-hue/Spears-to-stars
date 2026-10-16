@@ -143,7 +143,7 @@ function callBanners(){
   if(G.t < (G.banCd||0)){ toast('The banners can be called again in '+Math.ceil(G.banCd - G.t)+'s','warn'); return; }
   let n = 0;
   for(const v of G.units){
-    if(v.owner!==PLAYER || v.hp<=0 || !v.card || v.hero) continue;
+    if(v.owner!==PLAYER || v.hp<=0 || !v.card || v.hero || v.fortG) continue;
     const far = (v.x-h.x)**2 + (v.y-h.y)**2 > 36;
     if(v.fol!==h.id || far){ v.gar = 0; v.rel = 0; v.fol = h.id; v.tgt = 0; v.tcity = 0; n++; if(onScr(v.x, v.y)) ring(v.x, v.y, .1, .6, '#ffd36a', .5); }
     v.fmT = G.t + BAN_MARCH;

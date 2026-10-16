@@ -149,7 +149,7 @@ function spawnHero(o){
   const key = o===PLAYER ? (HEROES[G.perk] ? G.perk : 'legion') : rivalHeroKey(rival(o)), H = HEROES[key];
   const u = spawnUnit(o, cap, H.line); if(!u) return null;
   u.hero = key; u.hlv = heroLv(o, key); u.r = .42; u.acd = 6; u.rage = 0;
-  u.name = o===PLAYER ? (REG(9) ? H.n.replace(/^The /, 'The Imperial ') : H.n) : GEN_NAMES[rint(GEN_NAMES.length)]+' '+H.n.replace(/^The /, 'the ');
+  u.name = o===PLAYER ? (REG(9) ? H.n.replace(/^The /, 'The Imperial ') : H.n) : rival(o) && !rival(o).hold ? rGenName(rival(o), H) : GEN_NAMES[rint(GEN_NAMES.length)]+' '+H.n.replace(/^The /, 'the ');
   u.hp = uStat(u).hp;
   if(o===PLAYER){ G.hero = {id:u.id, key, t:0}; }
   else { const r = rival(o); r.hero = {id:u.id, key, t:0}; }
@@ -254,7 +254,8 @@ function heroAI(u, cityById){
   const war = warringAny(own), dg = R.danger.get(own), fol = G.units.filter(v => v.fol===u.id && v.hp>0).length;
   const near = nearOwnCity(u, 1.8);
   if(near && fol < folCap(own)*.7) rallyAt(u, near);
-  if(dg){ const c = cityById.get(dg); if(c){ u.goal = {x:c.x+.5, y:c.y+.5}; u.tcity = 0; return; } }
+  if(dg){ const c = cityById.get(dg); if(c){ u.err = null; u.goal = {x:c.x+.5, y:c.y+.5}; u.tcity = 0; return; } }
+  if(!(R.raidGo && R.raidGo.get(own)) && rivalErrand(u, own, fol)) return;
   if(!war){ u.tcity = 0; const d = Math.hypot(cap.x+.5-u.x, cap.y+.5-u.y); if(d > 2.5) u.goal = {x:cap.x+.5+rnd(-1,1), y:cap.y+.5+rnd(-1,1)}; return; }
   if(fol < Math.min(4, folCap(own)*.4)){ u.tcity = 0; u.goal = {x:cap.x+.5, y:cap.y+.5}; return; }
   const sp = R.raidS.get(own), tid = R.raidT.get(own);

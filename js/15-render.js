@@ -308,7 +308,7 @@ function unitLook(u){
   const sp = unitSprite(u), img = u.fl>0 ? sp.w : sp.n;
   let scl = u.owner===0 ? BSCALE[u.kind] : CARDS[u.card] ? formSize(u.card, u.hero ? (u.hlv||1) : cardLevel(u.owner, u.card))*(u.hero ? 1.7 : 1) : 1;
   // troops are drawn ~22% larger than their footprint so you can see who is who; small lines get a floor
-  if(u.owner > 0 && !u.hero) scl = Math.max(scl, .95)*TROOP_VIS; else if(u.hero) scl *= 1.1; else scl *= 1.12;
+  if(u.owner > 0 && !u.hero) scl = Math.max(scl, .95)*TROOP_VIS; else if(u.hero) scl *= 1.1*heroSizeMul(u); else scl *= 1.12;
   let rk = 0, ev = null;
   if(u.owner>0 && u.card && !u.hero){ rk = rankOf(cardLevel(u.owner, u.card)); ev = cardEvo(u.owner, u.card); scl *= (ev ? 1.22 : 1) * (rk >= 3 ? 1.1 : 1); }
   const pad = sp.n.pad || {x:0, y:0};
@@ -738,6 +738,7 @@ function draw(){
       if(u.inv > 0){ x.strokeStyle = 'rgba(216,228,240,.8)'; x.lineWidth = .08; x.beginPath(); x.arc(u.x, u.y-.2, .7, 0, 6.283); x.stroke(); }
       if(u.berserk > 0 || u.raid > 0){ x.fillStyle = u.berserk > 0 ? 'rgba(255,90,74,.3)' : 'rgba(255,233,160,.3)'; x.beginPath(); x.ellipse(u.x, u.y+.22, .7, .3, 0, 0, 6.283); x.fill(); }
       const rcH = u.owner===PLAYER && regCrown() && kOk(regCrown()) ? (regCrown()==='cr_3' ? .78 : .66) : 0;
+      { const rk = heroRank(u); if(rk && z >= 8){ const sy = u.y+.3-h-(rcH ? rcH + .38 : .64) - (z >= 11 ? .34 : 0); x.font = '700 .3px system-ui, sans-serif'; x.textAlign = 'center'; x.fillStyle = 'rgba(0,0,0,.6)'; x.fillText('★'.repeat(rk), u.x+.02, sy+.02); x.fillStyle = u.owner===PLAYER ? '#ffd36a' : '#ffb7a8'; x.fillText('★'.repeat(rk), u.x, sy); } }
       if(z >= 11){ const ny = rcH ? rcH + .38 : .64; x.font = '600 .3px system-ui, sans-serif'; x.textAlign = 'center'; x.fillStyle = 'rgba(0,0,0,.6)'; x.fillText(u.name, u.x+.02, u.y+.3-h-ny+.02); x.fillStyle = u.owner===PLAYER ? '#ffe3a3' : '#fff'; x.fillText(u.name, u.x, u.y+.3-h-ny); }
       const rc = u.owner===PLAYER ? regCrown() : null;
       if(rcH){ const im = KIMG[rc], ch = rcH, cw = ch*im.naturalWidth/im.naturalHeight, cb = u.y+.3-h-.3;
@@ -823,7 +824,7 @@ function draw(){
     const [px,py] = toScreen(c.x+.5, c.y+.98);
     x.font = z >= 10 ? '400 '+(c.capital && z >= 24 ? 21 : 14)+'px StarsPix, sans-serif' : '600 11px "Barlow Semi Condensed", sans-serif';
     x.lineWidth = 3; x.strokeStyle = 'rgba(5,8,10,.92)'; x.strokeText(c.name, px+sx, py+sy);
-    if(c.capital && c.owner > 1 && !c.hold && z >= 10){ const cm = capMul(c.owner); if(cm > 1.05){ const t2 = 'walls x'+cm.toFixed(1), py2 = py + sy + (c.capital && z >= 24 ? 22 : 15); x.font = '600 11px "Barlow Semi Condensed", sans-serif'; x.strokeText(t2, px+sx, py2); x.fillStyle = '#ffcf8a'; x.fillText(t2, px+sx, py2); x.font = z >= 10 ? '400 '+(c.capital && z >= 24 ? 21 : 14)+'px StarsPix, sans-serif' : '600 11px "Barlow Semi Condensed", sans-serif'; x.lineWidth = 3; x.strokeStyle = 'rgba(5,8,10,.92)'; } }
+    if(c.capital && c.owner >= 1 && !c.hold && z >= 10){ const cm = capMul(c.owner); if(cm > 1.05){ const t2 = 'walls x'+cm.toFixed(1), py2 = py + sy + (c.capital && z >= 24 ? 22 : 15); x.font = '600 11px "Barlow Semi Condensed", sans-serif'; x.strokeText(t2, px+sx, py2); x.fillStyle = '#ffcf8a'; x.fillText(t2, px+sx, py2); x.font = z >= 10 ? '400 '+(c.capital && z >= 24 ? 21 : 14)+'px StarsPix, sans-serif' : '600 11px "Barlow Semi Condensed", sans-serif'; x.lineWidth = 3; x.strokeStyle = 'rgba(5,8,10,.92)'; } }
     if(c.owner===PLAYER && c.capital && REG(5)){ const tw = x.measureText(c.name).width; x.strokeStyle = 'rgba(255,211,106,.55)'; x.lineWidth = 6; x.strokeText(c.name, px+sx, py+sy); x.lineWidth = 3; x.strokeStyle = 'rgba(5,8,10,.92)'; x.strokeText(c.name, px+sx, py+sy); x.fillStyle = '#ffe08a'; const st = '✦'; x.fillText(st+' '+c.name+' '+st, px+sx, py+sy); void tw; }
     else { x.fillStyle = c.owner===PLAYER ? R.pal[1].L : ocol(c.owner); x.fillText(c.name, px+sx, py+sy); }
   }
@@ -872,7 +873,7 @@ function drawMini(){
     m.drawImage(miniOwn, 0, 0, W, W);
   }
   if(R.fogCv && G.seen){ m.imageSmoothingEnabled = true; m.drawImage(R.fogCv, 0, 0, W, W); m.imageSmoothingEnabled = false; }
-  drawPoiMini(m, s); drawSiteMini(m, s);
+  drawPoiMini(m, s); drawSiteMini(m, s); drawClashMini(m, s);
   for(const [key,f] of R.fights){
     const a = R.now - f.t; if(a > 1.2){ R.fights.delete(key); continue; } if(!fogSeen(f.x, f.y)) continue;
     m.fillStyle = 'rgba(255,190,90,'+(1-a/1.2)+')'; m.beginPath(); m.arc(f.x*s, f.y*s, (2+a*3)*dpr, 0, 6.283); m.fill();

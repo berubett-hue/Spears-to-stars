@@ -392,7 +392,7 @@ function autoSettle(){
 }
 function disbandOne(){
   let pick = null;
-  for(const u of G.units) if(u.owner===PLAYER && u.hp>0 && ROLE[u.kind] && !u.merc && (!pick || u.id > pick.id)) pick = u;
+  for(const u of G.units) if(u.owner===PLAYER && u.hp>0 && ROLE[u.kind] && !u.merc && !u.fortG && (!pick || u.id > pick.id)) pick = u;
   if(!pick) return;
   pick.hp = 0; pick.dead = true; burst(pick.x, pick.y, 4, '#8a8580');
   if(!R.disbandNote || G.t - R.disbandNote > 20){ R.disbandNote = G.t; toast('Production can\u2019t pay your army\u2019s upkeep. Units are leaving','warn'); }

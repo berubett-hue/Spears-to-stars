@@ -36,18 +36,18 @@ const unitCount = o => { let n=0; for(const u of G.units) if(u.owner===o && u.hp
 const sup0 = id => { const C = CARDS[id] || CARDS.militia; return Math.max(.7, Math.pow(C.up/2.2, .7)); };
 const supOf = (id, o) => { const ev = cardEvo(o || PLAYER, id); return Math.round((sup0(id) + (ev && ev.union && ev.with ? sup0(ev.with) : 0))*10)/10; };
 const rUp = (o, id) => { const ev = cardEvo(o, id); return CARDS[id].up + (ev && ev.union && ev.with ? CARDS[ev.with].up : 0); };
-const armySup = o => { let n=0; for(const u of G.units) if(u.owner===o && u.hp>0 && !u.hero && !u.merc && u.card) n += supOf(u.card, o); return n; };
+const armySup = o => { let n=0; for(const u of G.units) if(u.owner===o && u.hp>0 && !u.hero && !u.merc && !u.fortG && u.card) n += supOf(u.card, o); return n; };
 const ocol = o => o===PLAYER ? pcol() : o===0 ? '#e0473b' : rival(o).col;
-/* a rival's capital is guarded by the rest of its realm: +30% health per other city it holds, up to ×3.5.
-   Take the outer cities first and the capital weakens */
-function capMul(o){ if(!G || G.arena || o <= 1) return 1; if(R.capMT !== G.t){ R.capMT = G.t; R.capM = {}; } let m = R.capM[o]; if(m == null){ let n = 0; for(const c of G.cities) if(c.owner===o && !c.dead) n++; m = R.capM[o] = Math.min(3.5, 1 + .3*Math.max(0, n-1)); } return m; }
-const cityMax = c => cityMax0(c)*1.5*(c.fort||1)*(c.owner===PLAYER && G && G.perk==='golems' ? 1.5 : 1)*(c.owner > 1 && CR(6) ? 1.35 : 1)*(c.owner > 1 && c.capital ? 1.4*(c.hold ? 1 : capMul(c.owner)) : 1)*(G && G.proj && G.proj.proto && c.owner===PLAYER ? (proto('walls') ? 1.5 : 1)*(proto('bunkers') && isPart(c) ? 2 : 1) : 1);
+/* a capital is guarded by the rest of its realm. Rivals: +30% health per other city, up to ×3.5, so take the
+   outer cities first. Yours: +15% per other city, up to ×2.2, so a big empire's heart shrugs off small raids */
+function capMul(o){ if(!G || G.arena || o < 1) return 1; if(R.capMT !== G.t){ R.capMT = G.t; R.capM = {}; } let m = R.capM[o]; if(m == null){ let n = 0; for(const c of G.cities) if(c.owner===o && !c.dead) n++; const me = o===PLAYER; m = R.capM[o] = Math.min(me ? 2.2 : 3.5, 1 + (me ? .15 : .3)*Math.max(0, n-1)); } return m; }
+const cityMax = c => cityMax0(c)*1.5*(c.fort||1)*(c.owner===PLAYER && G && G.perk==='golems' ? 1.5 : 1)*(c.owner > 1 && CR(6) ? 1.35 : 1)*(c.owner > 1 && c.capital ? 1.4*(c.hold ? 1 : capMul(c.owner)) : 1)*(c.owner===PLAYER && c.capital ? capMul(PLAYER) : 1)*(G && G.proj && G.proj.proto && c.owner===PLAYER ? (proto('walls') ? 1.5 : 1)*(proto('bunkers') && isPart(c) ? 2 : 1) : 1);
 const cityMax0 = c => { const m = R.cb.get(c.id); return (60 + 25*c.pop) * (c.owner===PLAYER ? 1.2*(1 + S.cityhp)*(G.coal ? 1.25 : 1)*(c.capital ? 1.5 : 1) : (1.25 + .5*rEra())*(G.coal ? 1.3 : 1)) * (c.hill ? 1.4 : 1) * (1 + (m ? (m.keep ? .2 : 0) + (m.castle ? .3 : 0) : 0)); };
 const allyCount = () => G.rivals.filter(r => r.alive && r.status==='ally').length;
 const tradeCount = () => G.rivals.filter(r => r.alive && (r.status==='trade' || r.status==='ally')).length;
 const upkeepMul = () => Math.max(.35, 1 + S.upkeep - .2*allyCount() - .02*Math.min(15, R.pmil||0));
 const unitUpkeep = id => { const C = CARDS[id] || CARDS.militia, sw = C.tags.includes('Swarm'); return C.up*formCost(cardLevel(PLAYER, id))*(1 + .1*G.eraIdx)*upkeepMul()*(sw && (R.syn||{}).Swarm >= 2 ? .6 : 1)*(sw && G.perk==='horde' ? .7 : 1)*(1 - .07*relicLv('quarter'))*(G.core===id ? ((G.perk==='colossus' || G.perk==='golems') ? .45 : .7) : 1); };
-function armyUpkeep(){ let s = 0; for(const u of G.units) if(u.owner===PLAYER && u.hp>0 && u.card && !u.hero && !u.merc) s += unitUpkeep(u.card); return s; }
+function armyUpkeep(){ let s = 0; for(const u of G.units) if(u.owner===PLAYER && u.hp>0 && u.card && !u.hero && !u.merc && !u.fortG) s += unitUpkeep(u.card); return s; }
 const soldierCost = id => { const C = CARDS[id] || CARDS.militia; return C.cost*formCost(cardLevel(PLAYER, id))*(1 + .3*G.eraIdx)*(C.tags.includes('Swarm') && (R.syn||{}).Swarm >= 2 ? .6 : 1)*(G.core===id ? ((G.perk==='colossus' || G.perk==='golems') ? .45 : .7) : 1); };
 const settlerCost = () => 40 * Math.pow(citiesOf(PLAYER).length, 1.5) * Math.max(.4, 1 + S.settler);
 const cityCap = () => 2 + G.eraIdx + S.cities;
@@ -191,6 +191,7 @@ const PACE = {mov:1.7, atk:1.6, hp:2.6};
 function uStat(u){
   const s0 = uStat0(u);
   s0.hp *= PACE.hp; s0.spd *= PACE.mov; s0.cd /= PACE.atk;
+  if(u.hero && u.owner > 1 && G && !G.arena){ const rk = heroRank(u); if(rk){ s0.hp *= 1 + .12*rk; s0.dmg *= 1 + .1*rk; } }
   if(u.hero && u.owner===PLAYER && G && G.ren){ if(hasRen('hide')) s0.hp *= 1.25; if(hasRen('blade')) s0.dmg *= 1.25; if(hasRen('stride')) s0.spd *= 1.15; }
   if(u.hero){ s0.cleave = Math.max(s0.cleave||0, 2); if(u.enr){ s0.dmg *= 1.3; s0.cd *= .8; } if(u.owner > 1 && CR(5)){ s0.hp *= 1.4; s0.dmg *= 1.3; } }
   if(u.owner===PLAYER && G && !G.arena && SPERK[G.perk]) SPERK[G.perk](u, s0);

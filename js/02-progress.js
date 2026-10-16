@@ -94,7 +94,8 @@ const RELICS = {
   roads:{p:'mil', n:'Swift Roads', d:'+8% troop speed', max:5},
   spyglass:{p:'mil', n:'Spyglass', d:'Ranged and siege troops reach 0.2 tiles farther', max:5},
   college:{p:'mil', n:'War College', d:'Special attacks recharge 8% faster', max:5},
-  hall:{p:'mil', n:'Healers’ Hall', d:'Troops regenerate +0.6% health each second', max:5}
+  hall:{p:'mil', n:'Healers’ Hall', d:'Troops regenerate +0.6% health each second', max:5},
+  forts:{p:'mil', n:'Fortifications', d:'Lv 1: your capital’s towers hit 40% harder and reach a tile farther. Lv 2: four guards stay home in the capital, never called away. Lv 3: your cities repair fast whenever no enemy is near', max:3}
 };
 const PILLARS = {mil:'⚔ Military', sci:'📜 Science', exp:'🏰 Expansion'};
 const ERA_LV = [0, 4, 8, 12, 15, 18];

@@ -67,7 +67,7 @@ function siteTick(dt){
   if(changed){ G.siteN = {}; for(const s of G.sites) if(s.owner) G.siteN[s.owner] = (G.siteN[s.owner]||0) + 1; refreshStats(); R.resKey = ''; }
 }
 function siteChange(s, from, to){
-  const D = RES[s.k], at = {x:s.x+.5, y:s.y+.5};
+  const D = RES[s.k], at = {x:s.x+.5, y:s.y+.5}; if(to > 1) try { rRenAdd(to, 30); } catch(e){}
   if(to===PLAYER){
     banner(D.n, 'Resource secured', resIcon(s.k)); SFX.found && SFX.found();
     toast(D.n+' is yours: '+D.d, 'good', at); G.stats.sites = (G.stats.sites||0) + 1;

@@ -195,7 +195,7 @@ function guardStep(b, dt, unitById){
 function campCheck(id, att){
   const p = G.pois.find(q => q.id===id); if(!p || p.dead || p.st!=='ok') return;
   if(G.units.some(u => u.camp===id && u.hp > 0)) return;
-  p.st = 'loot'; burst(p.x+.5, p.y+.5, 14, '#ffd36a'); ring(p.x+.5, p.y+.5, .2, 1.6, '#ffd36a', .7);
+  p.st = 'loot'; burst(p.x+.5, p.y+.5, 14, '#ffd36a'); if(att > 1) try { rRenAdd(att, 25); } catch(e){} ring(p.x+.5, p.y+.5, .2, 1.6, '#ffd36a', .7);
   if(att===PLAYER || fogSee(p.x+.5, p.y+.5)){ toast((p.horde==='cap' ? 'The Khan’s guard is dead! Walk your hero into his capital to burn it' : p.horde ? 'Horde town cleared! Walk your hero in to burn it' : (p.keep ? 'Pretender’s keep' : p.big ? 'Warcamp' : 'Camp')+' cleared! A loot pile waits: walk your hero onto it'),'good',{x:p.x+.5, y:p.y+.5}); SFX.found && SFX.found(); float('LOOT!', p.x+.5, p.y-.4, '#ffd36a', 2); R.floats[R.floats.length-1].big = 1; }
 }
 /* The Host: every troop not guarding a city marches with your general. Garrisons scale with city size and only defend */
@@ -204,12 +204,12 @@ const GAR_PREF = {guard:3, archer:2, support:0, rider:1, siege:0, titan:0};
 function hostTick(){
   const h = heroOf(PLAYER), cs = citiesOf(PLAYER), byC = new Map(cs.map(c => [c.id, []])); let hostN = 0;
   for(const u of G.units){
-    if(u.owner!==PLAYER || u.hp<=0 || !u.card || u.hero) continue;
+    if(u.owner!==PLAYER || u.hp<=0 || !u.card || u.hero || u.fortG) continue;
     if(u.gar){ const l = byC.get(u.gar); if(l) l.push(u); else u.gar = 0; }
     else if(h && u.fol===h.id) hostN++;
   }
   const free = G.units.filter(u => u.owner===PLAYER && u.hp>0 && u.card && !u.hero && !u.gar && !u.fol && !u.rel);
-  let total = 0; for(const u of G.units) if(u.owner===PLAYER && u.hp>0 && u.card && !u.hero) total++;
+  let total = 0; for(const u of G.units) if(u.owner===PLAYER && u.hp>0 && u.card && !u.hero && !u.fortG) total++;
   let budget = (G.banT||0) > G.t ? 0 : Math.ceil(total*(G.doctrine==='defend' ? .55 : .4));
   const dl = (R.dangerAll && R.dangerAll.get(PLAYER)) || [];
   cs.sort((a,b) => (dl.includes(b.id) - dl.includes(a.id)) || (b.capital - a.capital) || (b.pop - a.pop));

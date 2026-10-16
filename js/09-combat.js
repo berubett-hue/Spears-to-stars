@@ -8,7 +8,7 @@ function damageCity(c,dmg,att){
   if(c.owner===PLAYER){
     if(c.capital) R.shake = Math.min(6, R.shake+1.5);
     SFX.thud();
-    if(!c.alerted || G.t - c.alerted > 20){ c.alerted = G.t; toast(c.name+' is under attack', 'warn', {x:c.x+.5, y:c.y+.5}); }
+    if((!c.alerted || G.t - c.alerted > 20) && cityThreat(c)){ c.alerted = G.t; toast(c.name+' is under attack', 'warn', {x:c.x+.5, y:c.y+.5}); }
   }
   if(c.hp <= 0){ c.dead = true; c.killer = att; }
 }
@@ -45,7 +45,8 @@ function killUnit(v,att){
   if(v.dead) return;
   v.dead = true; v.hp = 0;
   if(v.owner===PLAYER && !G.arena && !G.demo){ const k = v.hero ? 'hero' : v.card; if(k){ const D = G.dth || (G.dth = {}); D[k] = (D[k]||0) + 1; } }
-  if(att===PLAYER && !G.arena && !G.demo){ streakKill(v); renKill(v, att); }
+  if(att===PLAYER && !G.arena && !G.demo){ streakKill(v); renKill(v, att); if(v.owner > 1) for(const A of (G.aids||[])) if(!A.done && A.foe===v.owner) A.hit++; }
+  if(!G.arena && !G.demo){ try { if(v.hero) genFell(v, att); else if(att > 1){ const gh = genOf(att); if(gh && (gh.x-v.x)**2 + (gh.y-v.y)**2 < 20.25) rRenAdd(att, 1); } } catch(e){} }
   if(v.owner > 0 && v.card && CARDS[v.card] && CARDS[v.card].tags.includes('Holy') && unitAbil(v)){
     for(const o of G.units){ if(o.owner!==v.owner || o.hp<=0 || !o.card || (o.x-v.x)**2+(o.y-v.y)**2 > 2.25) continue; healBy(o, uStat(o).hp*.25, v.owner, v.card); }
     ring(v.x, v.y, .2, 1.5, '#ffe9a0'); burst(v.x, v.y-.3, 6, '#fff3c0');
@@ -76,7 +77,7 @@ function killUnit(v,att){
       } else if(v.owner > 1){
         const rv = rival(v.owner); rv.hero.id = 0; rv.hero.t = G.t + (CR(5) ? 40 : HERO_RESPAWN);
         toast(v.name+' of '+rv.name+' has fallen','good',{x:v.x,y:v.y});
-        if(att===PLAYER){ G.stats.gens = (G.stats.gens||0) + 1; if(G.t >= (rv.chestT||0)){ rv.chestT = G.t + 150; earnChest('Your army slew '+v.name+' of '+rv.name); } }
+        if(att===PLAYER){ G.stats.gens = (G.stats.gens||0) + 1; if(G.t >= (rv.chestT||0) || (rv.ren && rv.ren.rank >= 2)){ rv.chestT = G.t + 150; earnChest('Your army slew '+v.name+' of '+rv.name); } }
       }
     }
   }
@@ -167,6 +168,7 @@ function strike(u, t, st, own, mul){
   u.atT = R.now;
   let dmg = st.dmg*attackMul(u, t)*(mul||1);
   const ranged = st.rng > 1.2, mk = mvKey(u), now = MT();
+  if(own > 1 && t.owner > 1 && own !== t.owner && !G.arena){ rClash(u, t); if(u.hero && t.hero) genClash(u, t); }
   let charged = false;
   if(st.charge > 1 && ((u.mv||0) > 1.5 || st.lance) && !(u.reformT > now)){ dmg *= st.charge; charged = true; burst(t.x, t.y-.2, st.lance ? 6 : 4, '#ffe9a0'); if(u.hero==='khanate'){ dmg *= 2; t.slow = 1.5; } }
   if(u.hero==='longbow') t.mark = 4;
@@ -831,7 +833,8 @@ function updateTowers(dt){
     let tp = P[c.owner]; if(!tp) continue;
     const sh = c.owner===PLAYER && proto('shield') && isPart(c);
     if(c.owner===PLAYER && (proto('walls') || sh)) tp = Object.assign({}, tp, {dmg:tp.dmg*(proto('walls') ? 1.5 : 1), rate:tp.rate*(sh ? 2 : 1), range:tp.range + (sh ? 1.5 : 0)});
-    if(c.capital && c.owner > 1 && !c.hold){ const cm = capMul(c.owner); if(cm > 1) tp = Object.assign({}, tp, {dmg:tp.dmg*(.6 + .4*cm)}); }
+    if(c.capital && c.owner >= 1 && !c.hold){ const cm = capMul(c.owner); if(cm > 1) tp = Object.assign({}, tp, {dmg:tp.dmg*(.6 + .4*cm)}); }
+    if(c.capital && c.owner===PLAYER && relicLv('forts') >= 1) tp = Object.assign({}, tp, {dmg:tp.dmg*1.4, range:tp.range + 1});
     const rr = tp.range + (c.hill ? .5 : 0), cx=c.x+.5, cy=c.y+.5, r2=rr*rr;
     let t1=null, t2=null, d1=r2, d2=r2;
     for(const u of G.units){

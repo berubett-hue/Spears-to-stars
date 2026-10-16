@@ -55,7 +55,7 @@ function drawHeroSpr(x, u, key, cx, fy){
   let S = hsprSet(u); { const t0 = u.hero ? heroTier(u.hlv||1) : 1; if(HXS[t0].ok && HXS[t0].m[key]) S = HXS[t0]; } if(!S.m[key]) S = HSPR; if(key==='warlord' && S===HSPR) key = 'northmen';
   const M = S.m[key]; if(!M) return 0; const r = M.f[hsprFrame(u, M)]; if(!r) return 0;
   if(u.hero){ const t = S.t || (S===HSPR3 ? 3 : S===HSPR2 ? 2 : 1); if(u.htier && u.htier !== t && t > u.htier){ ring(u.x, u.y, .2, 1.6, '#ffd36a', .9); burst(u.x, u.y-.6, 18, '#fff1cf'); if(u.owner===PLAYER){ banner(HEROES[u.hero].n, t===3 ? 'Enters the future' : 'Takes up gunpowder'); SFX.era && SFX.era(); R.heroArt = null; } } u.htier = t; }
-  const k = M.k*(u.owner===0 ? 1.5 : 1)*1.1;
+  const k = M.k*(u.owner===0 ? 1.5 : 1)*1.1*(u.hero ? heroSizeMul(u) : 1);
   x.save(); x.translate(cx, fy); if(u.fx < 0) x.scale(-1, 1); x.imageSmoothingEnabled = true;
   if(u.fl > 0) x.globalAlpha = .65;
   x.drawImage(S.img, r[0], r[1], r[2], r[3], -r[4]*k, -r[5]*k, r[2]*k, r[3]*k); x.restore();

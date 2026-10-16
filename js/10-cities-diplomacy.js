@@ -10,7 +10,7 @@ function resolveCities(){
   }
 }
 function captureCity(c, nw){
-  const old = c.owner;
+  const old = c.owner; try { worldCityLost(c, old, nw); if(nw > 1) rRenAdd(nw, 40); } catch(e){}
   if(old===PLAYER && c.capital){ endGame(false, c, rival(nw).name); return; }
   const wasCap = c.capital;
   c.dead = false; c.killer = 0; c.owner = nw; c.capital = false; c.born = G.t; c.capT = G.t;
@@ -47,7 +47,7 @@ function captureCity(c, nw){
   if(nw===PLAYER && wasCap && old > 1 && !G.arena && !G.demo && rival(old).alive && citiesOf(old).length){ R.conqQ = {r:old, c:c.id}; }
 }
 function destroyCity(c){
-  const o = c.owner; (R.rubble || (R.rubble = [])).push({x:c.x+.5, y:c.y+.98, t:G.t});
+  const o = c.owner; try { worldCityLost(c, o, 0); } catch(e){} (R.rubble || (R.rubble = [])).push({x:c.x+.5, y:c.y+.98, t:G.t});
   if(o===PLAYER && c.capital){ endGame(false, c); return; }
   G.cities = G.cities.filter(x => x !== c);
   for(let dy=-2;dy<=2;dy++) for(let dx=-2;dx<=2;dx++){
@@ -73,7 +73,7 @@ function promote(o){
 }
 function eliminate(o){
   const r = rival(o); if(r && r.hold){ holdFall(o); return; } if(!r.alive) return;
-  r.alive = false; r.status = 'gone';
+  r.alive = false; r.status = 'gone'; try { worldElim(o); } catch(e){}
   G.units.forEach(u => { if(u.owner===o && u.hp>0){ u.hp=0; u.dead=true; burst(u.x,u.y,4,r.col); } });
   for(let i=0;i<G.own.length;i++) if(G.own[i]===o){ G.own[i] = 0; G.bmap[i] = 0; }
   R.bdirty = true;
@@ -182,12 +182,12 @@ function formCoalition(why){
   R.raidForce = true;
 }
 function makePeace(r){
-  r.status = 'peace'; r.rel = Math.max(r.rel, -25); r.peaceT = G.t; r.weary = 0;
+  r.status = 'peace'; r.rel = Math.max(r.rel, -25); r.peaceT = G.t; r.weary = 0; try { worldPeace(r); } catch(e){}
   banner(r.name, 'Peace'); toast('Peace with '+r.name, 'good');
 }
 function diplomacy(dt){
   for(const r of G.rivals){ if(!r.alive || !r.vassal) continue; if(r.status!=='ally') r.status = 'ally'; r.rel = Math.max(r.rel, 90); r.allyT = r.allyT || G.t; G.influence = Math.min(600, G.influence + Math.max(1, citiesOf(r.id).length)*.6*dt); }
-  expireOffers();
+  expireOffers(); worldTick(dt);
   const st = alarmStage();
   if(st > (G.alarm||0)){
     G.alarm = st;
@@ -252,18 +252,18 @@ function diplomacy(dt){
       if(!G.rwars.some(w => w.a===lo && w.b===hi) && !(a.status==='ally' && b.status==='ally') && reachWar(a.id, b.id)){
         addRWar(a.id, b.id, rnd(70,130));
         const ca = capitalOf(a.id), cb = capitalOf(b.id);
-        toast(a.name+' and '+b.name+' are at war', '', ca && cb ? {x:(ca.x+cb.x)/2+.5, y:(ca.y+cb.y)/2+.5} : null);
+        toast('⚔ The '+a.name+' and the '+b.name+' go to war', '', ca && cb ? {x:(ca.x+cb.x)/2+.5, y:(ca.y+cb.y)/2+.5} : null);
       }
     }
   }
 }
-function queueDiplo(k, rid){
+function queueDiplo(k, rid, ex){
   if(!G.offers) G.offers = [];
   if(G.offers.some(q => q.k===k && q.r===rid)) return;
   if(!G.offerLog) G.offerLog = {};
   const lk = k+':'+rid; if(k!=='surrender' && G.t - (G.offerLog[lk] ?? -999) < 150) return;
   G.offerLog[lk] = G.t;
-  const o = {id:G.nid++, k, r:rid, exp:G.t + (k==='surrender' ? 90 : 60)}, ev = diploEvent(o);
+  const o = Object.assign({id:G.nid++, k, r:rid, exp:G.t + (k==='surrender' ? 90 : 60)}, ex||{}), ev = diploEvent(o);
   if(!ev) return;
   G.offers.push(o);
   toast('✉ '+ev.title+'. Answer in Diplomacy (N)', k==='tribute' ? 'warn' : (k==='surrender' || k==='peace') ? 'good' : '');
@@ -302,7 +302,7 @@ function diploEvent(q){
   if(q.k==='peace' && r.status==='war') return {kicker:'Diplomacy', title:nm+' sues for peace', text:'Messengers from '+ld+' ask to end the war.',
     a:{l:'Accept peace', s:'The fighting stops', f:() => makePeace(r)},
     b:{l:'Fight on', s:'The war continues', f:() => {}}};
-  return null;
+  return worldEvent(q, r);
 }
 
 function playerAct(act, rid){
