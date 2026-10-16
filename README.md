@@ -44,6 +44,7 @@ js/               the game, split by system, loaded in this order:
   14-fx-audio.js           effects, sound, generative music
   15-render.js             pixel art, troop forms, map rendering
   16-hud.js                HUD, damage meter, goals, battles, diplomacy panel, ledger
+  16v-victory.js           the Win tab and closest-win chip: progress on all four ways to win
   17-arena.js              Proving Grounds
   18-menu.js               main menu
   18p-phone.js             phones: layout switch, one message at a time, joystick, vibration, battery mode

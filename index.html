@@ -56,7 +56,7 @@
     <div class="rlabel"><span class="lvchip"><img class="ui-ic" data-kit="u_levelup" alt=""><span id="rText">Next discovery 0%</span></span><span class="rright"><button class="envoy" id="envoy" hidden>✉ 0</button><span class="alarm" id="alarm" hidden></span><span class="raidw"><img class="ui-ic" data-kit="u_raid" alt=""><span class="raid" id="raid">Raid in 0s</span></span></span></div>
   </div>
 
-  <div class="natrow"><button class="nat-tog" id="natTog" title="Show every rival"><img class="ui-ic" data-kit="u_chev" alt=""><span>Rivals</span> <b id="natN">0</b></button><div class="resrow" id="resRow" hidden></div><nav class="nations" id="nations" aria-label="Rival nations"></nav></div>
+  <div class="natrow"><button class="nat-tog" id="natTog" title="Show every rival"><img class="ui-ic" data-kit="u_chev" alt=""><span>Rivals</span> <b id="natN">0</b></button><div class="resrow" id="resRow" hidden></div><button class="vicchip" id="vicChip" hidden></button><nav class="nations" id="nations" aria-label="Rival nations"></nav></div>
   <button class="fold fold-top" id="foldTop" aria-label="Collapse the top panel" title="Show less"><svg viewBox="0 0 24 24"><path d="M6 15l6-6 6 6"/></svg></button>
   </div>
 
@@ -152,31 +152,65 @@
   <div class="sheet codex">
     <p class="kicker">How to play</p>
     <h2>The rules of the land</h2>
-    <p class="lede">Your people farm, settle and fight on their own. You decide what they discover, where they go, and who they call a friend.</p>
-    <ol class="how">
-      <li hidden><b>Discover.</b> When science fills the bar, pick a tech. Techs unlock other techs, upgrade your soldiers, and each new era opens only when you research its keystone.</li>
-      <li><b>Shape your draft.</b> On the level-up screen you can Reroll the three cards (3 per game, plus 1 each new era), Banish a troop line or civic so it never appears again this game (3 per game), or Skip for 40 influence. Keys: R, B and K.</li>
-      <li><b>Level up.</b> Science is your experience bar. Each level, pick one of three cards: military, science or expansion. Every troop is a line that modernizes as it levels: Lv 1 is its Ancient form, Lv 8 its Future form (Spearmen → Phalanx → Pikemen … → Shield Mechs). A troop can be at most two ages ahead of your era, and the Future form also needs Astronomy 3, so science and growth decide how modern your army gets. When a new era begins, troops left behind modernize for free. Levels 3, 6 and 8 also change how a troop fights, and level 4 unlocks its special attack. Some troop lines hide evolutions and unions. Recipes are secret until you discover them: when your army stumbles onto one, its slot glows “Something stirs”, and the next War Chest (from a rival hero or a Warlord, marked with a chest) reveals it. Discoveries are kept forever in the Collection, which also holds clues. Each rival nation guards one legendary union and fields it late in the game: defeat that nation to learn it. New troops unlock as you achieve things.</li>
-      <li><b>Lead your hero.</b> Every people has a hero you steer yourself, and the camera follows them. Tap the map to march there, or tap an enemy city to attack it. WASD steers too. Any of your troops that step inside your hero’s circle join the band, with no limit: they follow and fight with you until they die. Troops busy defending their own city stay put. Dragging looks around the map, and H brings the camera back. G releases your band to guard the nearest city. Space fires the hero’s ability. A fallen hero returns to the capital after 60 seconds. Rival nations have heroes too, and slaying one earns a War Chest. P pauses.</li>
-      <li><b>Explore the wilds.</b> The map is hidden until your hero, troops or borders see it. Out in the unclaimed land you’ll find ancient ruins, barbarian camps (clear the guards, then walk onto the loot), mercenary camps, lost tribes that join your band, shrines that bless it, and three natural wonders that boost your empire once they sit inside your borders. Ruins and camps hide <b>artifacts</b>: powers your hero keeps all game, up to six at a time. New sites keep appearing. A site swallowed by a rival’s borders is lost.</li>
-      <li><b>Build.</b> Food grows your cities. Production decides how many troops you field, up to 90 army room: big troops take more room (a Titan takes about 4 times what a Spear Line does). Siege and Sky break city walls fastest, but any army can wear a city down. Influence pushes your borders and pays for diplomacy. Buildings rise on their own as the eras pass.</li>
-      <li><b>Deal.</b> Six rival peoples share the land, each with its own color, hero and guarded legend, and everyone starts somewhere random. Borders are closed: armies can only enter a nation’s land if they are at war with it or allied, so wars are fought between neighbors or around the edges. Spend influence on gifts, trade and alliances, or go to war and take their cities. All the influence you earn also pushes your borders: more of it lets each city claim more land.</li>
-      <li><b>Counters.</b> Every troop hunts with its main type and deals 75% more damage to its prey: Line beats Mounted and Titans, Mounted beats Ranged, Siege and Fire, Ranged beats Line, Swarm and flyers, Titans beat Swarm and Mounted, Swarm beats Siege and Fire, Siege beats Titans and Line, Fire beats Ranged and Support. Crossbows also pierce Titans. Rivals watch your army and raise its counters, so mix your troops. Each card shows what it’s strong and weak against.</li>
-      <li><b>Win.</b> Four ways. <b>Conquest:</b> take every rival nation by war. <b>Diplomacy:</b> unite more than half the nations with you (you must be bigger than a nation to unite with it). <b>Science:</b> from the Industrial Age, with Writing 5 and Astronomy 3, research the Space Program, pick three launch sites (big cities build faster, frontline ones are exposed), survive at least 4 minutes of building while the world comes for them, then hold every site through a 2-minute launch. The Build stance speeds the parts. <b>Prosperity:</b> from the Renaissance, hold 6 cities, 4 resource sites and a wonder inside your borders at once to start a Golden Age, then keep it all for 90 seconds while every nation that is not your ally turns on you. The Expand stance speeds the clock. Take four nations and the rest also unite against you. Lose your capital, or let a rival launch first, and it’s over.</li>
-      <li><b>Morale.</b> Rival nations lose heart when they lose cities, generals and battles. Below a third, their wounded troops rout and run home, their soldiers desert as their cities fall, and a broken nation may offer to surrender. When a rival host gathers and marches on one of your cities, you get a warning with its size.</li>
-      <li><b>Climb the Crowns.</b> Chieftain is for learning. King is Crown 0. Win it to open Crown 1, and each Crown adds one twist and pays more Glory, up to Crown 10. Every win also earns a grade, from Bronze to Star, for winning fast, losing no city, keeping your general alive and bringing every nation down.</li>
-      <li><b>Core and supports.</b> Your people’s starting troop is your core: it costs 30% less to raise and keep, reaches Lv 8, and gets +15% health and damage when it is half your army, +30% at three quarters, but rivals counter it harder. A support slot opens when the Classical Age dawns and a second in the Medieval Age: each time, you choose from three lines drawn from everything you have unlocked from the ages you have reached. Supports top out at Lv 7, but a union of two lines can reach Lv 8, and it frees a slot. Use Reroll and Banish to fish for the supports you want.</li>
-      <li><b>Taking a capital.</b> When you take a rival’s capital and they still hold land, you choose: <b>absorb</b> them (their cities and army join you, and their troop line can join yours for this game), make them a <b>vassal</b> (they keep their land, fight beside you and pay tribute; vassals count as conquered), or <b>raze</b> the capital for a War Chest and Glory.</li>
-      <li><b>Outposts.</b> Barbarian warcamps and the Pretender’s keep are heavily guarded. Clear one and walk your general onto the loot: elite veterans join your band for the rest of the game, and you find a recipe page.</li>
-      <li><b>Hidden strongholds.</b> From Crown 1, the six hidden peoples wait somewhere on the map. They never attack, and their fortress is very hard to take. Take it and that people, with its troop line, is yours for good.</li>
-      <li><b>Battle lines.</b> Your band forms up around your general facing the enemy: melee in front, archers behind, riders on the flanks, siege and healers at the back. Archers shoot whatever is hitting your line, riders hunt enemy archers and siege, siege goes for walls, and badly hurt soldiers step back to bind their wounds. Rivals fight the same way.</li>
-      <li><b>Governments.</b> Soon after you found your capital, and again at every new age, you choose how your people are ruled. Each government has a strong perk and a real cost, and the new one replaces the old.</li>
-      <li><b>Resource sites.</b> An iron mine, horse pastures, a gold vein, a stone quarry, fertile fields and an ancient relic lie in the open ground between nations. Stand your troops on one for a few seconds to take it, or let your borders swallow it. Whoever holds a site gets its bonus, and rivals race you for them. Tap the icons beside Rivals to find them.</li>
-      <li><b>The Red Horde.</b> In some games a horde nation rises in the wilds a few minutes in. Until you burn the Great Khan’s capital it sends raiders at your cities. Kill his guard, walk your general in, and the Khan’s hoard is yours.</li>
-      <li><b>Recipes.</b> A union or evolution can be forged the first time only once you hold its full recipe: two pages found in ruins, warcamps and strongholds. After that it is yours in every game.</li>
-      <li><b>Decline and Fall.</b> Every empire falls. After a victory you can face it for bonus Glory; if you have not won by 15:00, it begins on its own. Your output drains and your far cities break away one by one (a city holds only while your general stands in it). The peoples you conquered rise behind pretenders and barbarians flood in from every side, until only your capital is left. Protect your capital and your way of life: it ends when your capital falls, and at 20:00 the End of the Age comes for it, and nothing can stop that. You can still win by conquest while your empire unravels. The longer you hold, the more Glory, and the history books judge your reign.</li>
-      <li><b>Quests.</b> Every people has three quests in the Collection that pay Glory. Finish all three and that people’s starting troops begin at Lv 2.</li>
-    </ol>
+    <div class="howtabs" id="howTabs"><button data-ht="basics" class="on">Basics</button><button data-ht="army">Army</button><button data-ht="world">World</button><button data-ht="empire">Empire</button><button data-ht="winning">Winning</button><button data-ht="progress">Progress</button></div>
+    <div class="how-sec" data-hs="basics">
+      <ul class="how2">
+        <li><b>Lead your general.</b> Tap the map (or use WASD or the thumb joystick) to march; tap an enemy city to attack it. Troops that step inside his circle join his band and fight beside him.</li>
+        <li><b>Your empire runs itself.</b> Cities grow, settle, build and raise troops on their own. Pick a stance at the bottom, Expand, Build or Defend, to steer where the effort goes.</li>
+        <li><b>Level up.</b> Science fills the bar at the top. Each level, choose one of three cards: a troop line, an upgrade or a civic. Your troops modernize as the ages pass.</li>
+        <li><b>Win before the Decline.</b> Four ways: conquest, diplomacy, science or prosperity. The Win tab beside Damage and Goals shows how close you are. At 15:00 the Decline and Fall begins, and at 20:00 the age ends.</li>
+        <li><b>Stay alive.</b> Barbarian raids, warlords and jealous rivals keep coming. Lose your capital and it is over.</li>
+      </ul>
+    </div>
+    <div class="how-sec" data-hs="army" hidden>
+      <ul class="how2">
+        <li><b>Troop lines.</b> Each troop is a line that modernizes from Lv 1 (Ancient) to Lv 8 (Future), at most two ages ahead of your era. Levels 3, 6 and 8 change how it fights, and Lv 4 unlocks its special attack.</li>
+        <li><b>Core and supports.</b> Your people’s starting troop is your core: cheaper, reaches Lv 8, and stronger when it is most of your army. Support slots open in the Classical and Medieval Ages, up to four lines in all.</li>
+        <li><b>Counters.</b> Each troop type deals 75% more damage to its prey: Line beats Mounted and Titans, Mounted beats Ranged and Siege, Ranged beats Line and Swarm, and so on. Each card shows its prey. Rivals counter what you field, so mix.</li>
+        <li><b>Battle lines.</b> Your band forms up facing the enemy: melee in front, archers behind, riders on the flanks, siege and healers at the back. The badly hurt step back to heal. Rivals fight the same way.</li>
+        <li><b>Orders.</b> Charge (Q), Hold (E) and Fall back (R) for your band. Release (G) sends it to guard a city. Call the Banners (Y) brings every troop on the map to your general. Space fires his ability.</li>
+        <li><b>Level-up tools.</b> Reroll the three cards, Banish a line so it never returns this game, or Skip for 40 influence (R, B, K).</li>
+        <li><b>Evolutions and unions.</b> Some lines hide an evolution or a union of two lines. The first time you need its recipe, two pages found in ruins, warcamps and strongholds. After that it is yours in every game.</li>
+      </ul>
+    </div>
+    <div class="how-sec" data-hs="world" hidden>
+      <ul class="how2">
+        <li><b>Explore.</b> The map is hidden until you see it. Ruins hold treasure and artifacts (your general keeps up to six), camps hold loot, lost tribes join your band, shrines bless it, and wonders boost you once inside your borders.</li>
+        <li><b>Borders.</b> Armies may only enter a nation’s land when at war or allied with it. Influence pushes your borders out.</li>
+        <li><b>Resource sites.</b> Six sites lie between nations: iron, horses, gold, stone, fields and a relic. Stand your troops on one for a few seconds, or let your borders swallow it, to take its bonus. Tap their icons beside Rivals to find them.</li>
+        <li><b>Outposts.</b> Barbarian warcamps and the Pretender’s keep are heavily guarded. Clear one and walk your general in: elite veterans join your band.</li>
+        <li><b>Hidden strongholds.</b> From Crown 1, the six hidden peoples wait on the map. They never attack and are very hard to take. Take one and that people is yours for good.</li>
+        <li><b>The Red Horde.</b> In some games a horde nation rises a few minutes in and raids your cities until you burn the Great Khan’s capital. His hoard is worth it.</li>
+      </ul>
+    </div>
+    <div class="how-sec" data-hs="empire" hidden>
+      <ul class="how2">
+        <li><b>Stances.</b> Expand puts production into settlers and grows borders fast. Build adds food, science and faster buildings, and speeds starship parts. Defend raises a bigger army that stays home.</li>
+        <li><b>Decrees.</b> Spend influence for a burst: Mobilize (Z) for damage, Golden Age (X) for yields, Fortify (C) to repair cities and strengthen towers.</li>
+        <li><b>Governments.</b> Near the start and at every new age, choose one of two governments. Each has a strong perk and a real cost, and the new one replaces the old.</li>
+        <li><b>Cities and army.</b> Food grows cities. Production pays for troops, up to 90 army room; big troops take more room. You can found 2 cities plus 1 per age; take more by war.</li>
+        <li><b>Diplomacy.</b> Spend influence on gifts, trade and alliances. Nations lose heart as they lose cities and battles, and a broken nation may surrender.</li>
+        <li><b>Taking a capital.</b> When a rival’s capital falls, choose: absorb them (their cities, army and troop line join you), make them a vassal (they fight for you and pay tribute), or raze it for a War Chest.</li>
+      </ul>
+    </div>
+    <div class="how-sec" data-hs="winning" hidden>
+      <ul class="how2">
+        <li><b>Conquest.</b> Take every rival nation by war. Vassals count.</li>
+        <li><b>Diplomacy.</b> Bring every nation down, with more than half of them joining you by union. A nation joins only if it is your ally, likes you, and has fewer cities than you.</li>
+        <li><b>Science.</b> From the Industrial Age, with Writing 5 and Astronomy 3, take the Space Program. Pick three launch sites, defend them for at least 4 minutes of building, then hold them all through a 2-minute launch. The Build stance speeds the parts.</li>
+        <li><b>Prosperity.</b> From the Renaissance, hold 6 cities, 4 resource sites and a wonder inside your borders at once. That starts a Golden Age: keep it for 90 seconds while jealous nations attack. The Expand stance speeds the clock.</li>
+        <li><b>Losing.</b> Lose your capital, or let a rival launch its starship first.</li>
+        <li><b>Decline and Fall.</b> If you have not won by 15:00, or you choose to face it after a win, your empire unravels: far cities break away unless your general stands in them, and rebels and barbarians close in on your capital. At 20:00 the End of the Age comes for it. The longer you hold, the more Glory.</li>
+      </ul>
+    </div>
+    <div class="how-sec" data-hs="progress" hidden>
+      <ul class="how2">
+        <li><b>Glory and Legacy.</b> Every game earns Glory. Spend it in Legacy from the main menu on permanent bonuses.</li>
+        <li><b>Crowns.</b> Chieftain is for learning, King is Crown 0. Each win opens the next Crown, which adds a twist and pays more Glory, up to Crown 10. Wins also earn a grade, from Bronze to Star.</li>
+        <li><b>Unlocks.</b> New peoples and troop lines unlock through feats inside a game, wins of each kind, the Crown ladder and hidden strongholds. The Goals tab shows your closest ones; Unlocks on the main menu shows them all.</li>
+        <li><b>Quests.</b> Every people has three quests in the Collection that pay Glory. Finish all three and that people starts with Lv 2 troops.</li>
+      </ul>
+    </div>
     <div class="btn-row"><button class="primary" data-close="ovHow">Back</button></div>
   </div>
 </div>
@@ -398,6 +432,7 @@
 <script src="js/14-fx-audio.js"></script>
 <script src="js/15-render.js"></script>
 <script src="js/16-hud.js"></script>
+<script src="js/16v-victory.js"></script>
 <script src="js/17-arena.js"></script>
 <script src="js/18-menu.js"></script>
 <script src="js/18p-phone.js"></script>

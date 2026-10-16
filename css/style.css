@@ -937,6 +937,14 @@ img[src^="data:image/png"].hand,.artlist .ucard img,.col-item img.ai,#hcArtRow i
 /* rivals: only the ones that matter, unless opened */
 .natrow{display:flex;gap:6px;align-items:stretch;min-width:0}
 .natrow .nations{flex:1;min-width:0}
+.vicchip{flex:0 0 auto;display:flex;align-items:center;gap:4px;border:6px solid transparent;border-image:var(--b-n) 14 fill stretch;background:none;color:var(--fg);padding:0 4px;min-height:30px;cursor:pointer;white-space:nowrap}
+.vicchip[hidden]{display:none}
+.vicchip img{width:18px;height:18px;object-fit:contain}
+.vicchip b{font-size:11px;font-weight:600;color:#ffe3a3}
+html.phone .vicchip{min-height:26px;border-width:5px}
+html.phone .vicchip img{width:14px;height:14px}
+html.phone .vicchip b{font-size:10px}
+.gl-list.vic .gl-r small{white-space:normal}
 .resrow{display:flex;gap:3px;align-items:center;flex:0 0 auto}
 .resrow[hidden]{display:none}
 .resb{width:30px;height:30px;padding:2px;border-radius:6px;border:1px solid rgba(255,255,255,.12);background:rgba(10,14,20,.6);opacity:.42;filter:grayscale(.7);cursor:pointer}
@@ -1322,3 +1330,17 @@ html.phone.land .map-btns{grid-auto-flow:column;bottom:6px;right:6px}
 html.phone.land .goaltick{right:200px;bottom:8px;max-width:calc(100% - 330px)}
 html.phone #app:not(.cbot) .armywrap{flex-wrap:wrap}
 html.phone.land .hc-act:not(.hc-more) b,html.phone.land .hc-act:not(.hc-more) span{display:none}
+
+/* How to play: Basics first, then short tabs */
+.howtabs{display:flex;flex-wrap:wrap;gap:4px;margin:4px 0 10px}
+.howtabs button{flex:1 1 auto;border:6px solid transparent;border-image:var(--f-tab) 14 20 fill stretch;background:none;color:var(--muted);font-family:var(--display);font-size:14px;padding:2px 8px;cursor:pointer;white-space:nowrap}
+.howtabs button.on{color:var(--lamp-2);filter:brightness(1.25)}
+.how2{list-style:none;margin:0;padding:0;display:grid;gap:9px}
+.how2 li{line-height:1.42;font-size:14.5px;color:var(--fg)}
+.how2 li b{color:var(--lamp-2)}
+.how-sec[data-hs="basics"] .how2 li{font-size:15.5px;padding-left:10px;border-left:3px solid rgba(244,184,74,.45)}
+html.phone .howtabs button{font-size:12px;padding:1px 4px;border-width:5px}
+html.phone .how2 li{font-size:13.5px}
+.gl-list.vic .gl-r small{display:block!important;white-space:normal;line-height:1.25}
+html.phone .dmeter:not(.off){width:min(250px,calc(100% - 110px))}
+html:not(.phone) .hc-more{display:none!important}

@@ -28,9 +28,9 @@ function meterTick(){
   if(((G.dmg||{})[PLAYER+':tower']||{}).d) row('tower', 'Towers', '', false);
   rows.sort((a,b) => b.d - a.d);
   const mx = Math.max(1, ...rows.map(r => r.d)), tot = rows.reduce((a,r) => a + r.d, 0), tdps = rows.reduce((a,r) => a + r.dps, 0);
-  const gt = R.lTab==='goals', dot = !gt && R.gDot != null && now - R.gDot < 4;
-  el.innerHTML = '<div class="lp-h"><button class="lp-t'+(gt ? '' : ' on')+'" data-tab="dmg" title="Damage meter"><img class="ui-ic" src="'+KIT.u_dmg+'" alt=""><b>Damage</b><span>'+fmtK(tdps)+'/s</span></button><button class="lp-t'+(gt ? ' on' : '')+'" data-tab="goals" title="Goals you can reach this game"><img class="ui-ic" src="'+KIT.u_goals+'" alt=""><b>Goals</b>'+(dot ? '<i class="dot"></i>' : '<span>'+GL.length+'</span>')+'</button><button class="lp-c" id="dmToggle" title="Show or hide (T)">'+(R.meterOff ? '▸' : '▾')+'</button></div>'+
-    (R.meterOff ? '' : gt ? goalsHTML(GL) : rows.map(r => '<div class="dm-r'+(r.ev ? ' ev' : '')+'" title="'+esc(r.name)+': '+Math.round(r.d).toLocaleString()+' damage · '+r.k.toLocaleString()+' kills"><span class="dm-i">'+(r.img ? '<img src="'+r.img+'" alt="">' : '<i>'+(r.key==='tower' ? '▲' : '?')+'</i>')+'</span><span class="dm-n">'+esc(r.name)+'</span><span class="dm-v">'+fmtK(r.dps)+'/s <small>'+fmtK(r.d)+'</small></span><span class="dm-b"><s style="width:'+(r.d/mx*100).toFixed(1)+'%"></s></span></div>').join(''));
+  const gt = R.lTab==='goals', vt = R.lTab==='vic', dot = !gt && R.gDot != null && now - R.gDot < 4;
+  el.innerHTML = '<div class="lp-h"><button class="lp-t'+(gt || vt ? '' : ' on')+'" data-tab="dmg" title="Damage meter"><img class="ui-ic" src="'+KIT.u_dmg+'" alt=""><b>Damage</b><span>'+fmtK(tdps)+'/s</span></button><button class="lp-t'+(gt ? ' on' : '')+'" data-tab="goals" title="Goals you can reach this game"><img class="ui-ic" src="'+KIT.u_goals+'" alt=""><b>Goals</b>'+(dot ? '<i class="dot"></i>' : '<span>'+GL.length+'</span>')+'</button><button class="lp-t'+(vt ? ' on' : '')+'" data-tab="vic" title="How close you are to each way to win"><img class="ui-ic" src="'+KIT.u_g_glory+'" alt=""><b>Win</b></button><button class="lp-c" id="dmToggle" title="Show or hide (T)">'+(R.meterOff ? '▸' : '▾')+'</button></div>'+
+    (R.meterOff ? '' : vt ? vicHTML() : gt ? goalsHTML(GL) : rows.map(r => '<div class="dm-r'+(r.ev ? ' ev' : '')+'" title="'+esc(r.name)+': '+Math.round(r.d).toLocaleString()+' damage · '+r.k.toLocaleString()+' kills"><span class="dm-i">'+(r.img ? '<img src="'+r.img+'" alt="">' : '<i>'+(r.key==='tower' ? '▲' : '?')+'</i>')+'</span><span class="dm-n">'+esc(r.name)+'</span><span class="dm-v">'+fmtK(r.dps)+'/s <small>'+fmtK(r.d)+'</small></span><span class="dm-b"><s style="width:'+(r.d/mx*100).toFixed(1)+'%"></s></span></div>').join(''));
   const tg = el.querySelector('#dmToggle'); if(tg) tg.onclick = e => { e.stopPropagation(); toggleMeter(); };
   el.onclick = e => { const t = e.target.closest ? e.target.closest('[data-tab],[data-pin],[data-more]') : null; if(!t) return; e.stopPropagation();
     if(t.dataset.tab){ R.lTab = t.dataset.tab; if(R.meterOff) R.meterOff = false; try { localStorage.setItem('eh-ltab', R.lTab); } catch(er){} }
@@ -68,7 +68,6 @@ function goalsLive(){
     else if(st.state==='path' && st.ev && st.ev.from===sl.id){ const L = evLv(st.ev); out.push({id:'e:'+sl.id, ic:'u_g_relic', name:st.ev.n, d:st.txt, v:Math.min(sl.lvl, L), g:L}); } }
   try { out.push(...holdGoals()); } catch(e){}
   try { out.push(...hordeGoals()); } catch(e){}
-  try { out.push(...prosGoals()); } catch(e){}
   out.forEach(o => { o.f = Math.min(1, o.v/Math.max(1, o.g)); });
   out.sort((a,b) => (b.id===R.pin) - (a.id===R.pin) || (b.ready||0) - (a.ready||0) || b.f - a.f);
   return out;
@@ -200,7 +199,7 @@ function hud(){
   el('vInfl').textContent = Math.floor(G.influence);
   el('vCities').textContent = citiesOf(PLAYER).length+'/'+cityCap();
   el('vArmy').textContent = Math.round(G.armySup ?? armySup(PLAYER))+'/'+(G.armyCap||0);
-  resHud();
+  resHud(); vicChip();
   const mc = el('mclock'); if(mc){ mc.querySelector('b').textContent = 'Lv '+(G.level||0)+(G.maxed ? ' MAX' : ''); const gv = govOf(); mc.querySelector('span').textContent = gv ? gv.n : ERAS[G.eraIdx]; mc.title = gv ? 'Lv '+(G.level||0)+' · '+ERAS[G.eraIdx]+' Age · '+gv.n+': '+gv.d+' ('+gv.c+')' : 'Your level and era'; }
   const cost = researchCost(), pct = clamp(G.sci/cost,0,1);
   el('rFill').style.width = (pct*100).toFixed(1)+'%';

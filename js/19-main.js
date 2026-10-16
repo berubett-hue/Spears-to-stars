@@ -219,7 +219,9 @@ function bind(){
   $('#hContinue').addEventListener('click', continueGame);
   $('#hLegacy').addEventListener('click', openLegacy);
   $('#hUnlocks').addEventListener('click', openUnlocks);
-  $('#hHow').addEventListener('click', () => openMenuOv('ovHow'));
+  const howTab = k => { document.querySelectorAll('#howTabs button').forEach(b => b.classList.toggle('on', b.dataset.ht===k)); document.querySelectorAll('#ovHow .how-sec').forEach(x => x.hidden = x.dataset.hs!==k); const sh = document.querySelector('#ovHow .sheet'); if(sh) sh.scrollTop = 0; };
+  document.querySelectorAll('#howTabs button').forEach(b => b.addEventListener('click', () => { howTab(b.dataset.ht); SFX.tick && SFX.tick(); }));
+  $('#hHow').addEventListener('click', () => { howTab('basics'); openMenuOv('ovHow'); });
   $('#hOpts').addEventListener('click', openOpts);
   document.querySelectorAll('[data-close]').forEach(b => b.addEventListener('click', closeMenuOv));
   $('#wBack').addEventListener('click', () => { if(R.wiz > 0) wizStep(0); else { $('#ovStart').hidden = true; $('#ovHome').hidden = false; refreshHome(); } });
@@ -251,6 +253,7 @@ function bind(){
   $('#btnArenaGo').addEventListener('click', () => { SFX.init(); if(AR.done || AR.t > 0) arBuild(); AR.live = true; $('#btnArenaGo').textContent = 'Fighting…'; arMeter(); });
   $('#btnArenaSpeed').addEventListener('click', e => { AR.speed = AR.speed===1 ? 2 : AR.speed===2 ? 4 : 1; e.currentTarget.textContent = 'Speed '+AR.speed+'×'; });
   $('#btnLedger').addEventListener('click', () => { if(modal==='ledger') closeLedger(); else openLedger(); });
+  { const vc = $('#vicChip'); if(vc) vc.addEventListener('click', () => { R.lTab = 'vic'; R.meterOff = false; try { localStorage.setItem('eh-ltab', 'vic'); } catch(e){} R.meterT = -9; meterTick(); SFX.tick && SFX.tick(); }); }
   { const nt = $('#natTog'); if(nt) nt.addEventListener('click', () => { R.natAll = !R.natAll; try { localStorage.setItem('eh-natall', R.natAll ? '1' : '0'); } catch(e){} SFX.tick && SFX.tick(); hud(); }); }
   document.querySelectorAll('.ltabs button').forEach(b => b.addEventListener('click', () => { R.ledgerTab = b.dataset.t; renderLedger(); SFX.tick(); }));
   $('#armybar').addEventListener('click', openArmy);
