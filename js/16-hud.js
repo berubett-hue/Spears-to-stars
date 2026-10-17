@@ -146,11 +146,11 @@ function hostHud(){
 }
 function battleTick(dt){
   const h = heroOf(PLAYER), B = R.bat;
-  if(!h){ if(B) R.bat = null; return; }
+  if(!h){ if(B){ batClose(B); R.bat = null; } return; }
   const RR = 6.5, by = {}; let nE = 0;
   for(const u of G.units){ if(u.hp<=0 || u.owner<=1 || !u.card || !atWar(PLAYER, u.owner)) continue; if((u.x-h.x)**2 + (u.y-h.y)**2 > RR*RR) continue; (by[u.owner] = by[u.owner] || []).push(u); }
   let o = 0, best = 0; for(const k in by){ const n = by[k].filter(u => !u.hero).length; if(n > best){ best = n; o = +k; } }
-  if(!o || best < 6){ if(B && G.t - B.last > 4) R.bat = null; return; }
+  if(!o || best < 6){ if(B && G.t - B.last > 4){ batClose(B); R.bat = null; } return; }
   const r = rival(o); if(!r || !r.alive) return;
   const pw = u => { const st = uStat(u); return Math.max(0, u.hp)*st.dmg/Math.max(.2, st.cd); };
   let th = 0, rout = 0; for(const u of by[o]){ if(u.rout > 0){ rout++; continue; } th += pw(u)*(u.hero ? .5 : 1); }
@@ -158,10 +158,10 @@ function battleTick(dt){
   th *= .55 + .45*(r.morale ?? 70)/70;
   const v = us/Math.max(1, us + th);
   let b = B && B.o===o ? B : null;
-  if(!b){ if(B && B.o!==o && G.t - B.last < 2) return; if(G.t < ((r.batCD)||0)) return; const c = G.cities.slice().sort((a,b2) => Math.hypot(a.x-h.x, a.y-h.y) - Math.hypot(b2.x-h.x, b2.y-h.y))[0]; b = R.bat = {o, v, t0:G.t, n0:best, hi:0, warned:false, name:c ? c.name : 'the field'}; }
+  if(!b){ if(B && B.o!==o && G.t - B.last < 2) return; if(G.t < ((r.batCD)||0)) return; const c = G.cities.slice().sort((a,b2) => Math.hypot(a.x-h.x, a.y-h.y) - Math.hypot(b2.x-h.x, b2.y-h.y))[0]; if(B) batClose(B); b = R.bat = {o, v, t0:G.t, n0:best, hi:0, warned:false, name:c ? c.name : 'the field'}; batBegin(b); }
   b.v += (v - b.v)*.5; b.last = G.t; b.nE = best; b.nU = nU; b.rout = rout;
-  if(b.v > .68) b.hi += dt; else b.hi = 0;
-  if(!b.broken && G.t - b.t0 > 3 && (b.hi >= 1 || best <= b.n0*.4)){
+  if(b.v > .72) b.hi += dt; else b.hi = 0;
+  if(!b.broken && G.t - b.t0 > 3 && (b.hi >= 1.5 || best <= b.n0*.4)){
     b.broken = true; b.brokeT = G.t; r.batCD = G.t + 18;
     let k = 0, cx = 0, cy = 0;
     for(const u of G.units){ if(u.owner!==o || u.hp<=0 || u.hero || !u.card || (u.x-h.x)**2 + (u.y-h.y)**2 > 81) continue; u.rout = 5 + Math.random()*2.5; u.tgt = 0; u.tcity = 0; u.fol = 0; k++; cx += u.x; cy += u.y; }
@@ -184,7 +184,7 @@ function battleHud(){
   if(boss){ const st = boss.owner===0 ? {hp:boss.max||boss.hp} : uStat(boss), r = boss.owner===0 ? {name:boss.reb ? 'Rebels' : 'Barbarians', col:'#d0703a'} : rival(boss.owner), H = boss.owner===0 ? {n:'Warlord'} : (HEROES[boss.hero] || {}), tl = boss.teleT ? Math.max(0, boss.teleT - G.t) : 0;
     html += '<div class="boss" style="--bc:'+r.col+'"><div class="bn"><b>'+esc(boss.name || H.n || 'General')+'</b><span>'+esc(r.name)+(boss.enr ? ' · enraged' : '')+'</span>'+(tl > 0 ? '<em>⚠ '+esc(H.act || 'Ability')+' in '+tl.toFixed(1)+'s</em>' : '')+'</div><div class="bhp"><s style="width:'+Math.max(0, boss.hp/st.hp*100).toFixed(1)+'%"></s></div></div>'; }
   if(B){ const r = rival(B.o), pct = Math.round(B.v*100);
-    html += '<div class="bat'+(B.broken && G.t - B.brokeT < 3 ? ' broke' : '')+'" style="--rc:'+r.col+'"><div class="bl"><span class="them">'+esc(r.name)+' · '+B.nE+(B.rout ? ' <i>('+B.rout+' fleeing)</i>' : '')+'</span><b>'+(B.broken ? 'Rout!' : 'Battle of '+esc(B.name))+'</b><span class="us">You · '+B.nU+'</span></div><div class="bbar"><s class="t" style="width:'+(100-pct)+'%"></s><s class="u" style="width:'+pct+'%"></s><i class="brk"></i></div></div>'; }
+    html += '<div class="bat'+(B.broken && G.t - B.brokeT < 3 ? ' broke' : '')+'" style="--rc:'+r.col+'"><div class="bl"><span class="them">'+esc(r.name)+' · '+B.nE+(B.rout ? ' <i>('+B.rout+' fleeing)</i>' : '')+'</span><b>'+(B.broken ? 'Rout!' : 'Battle of '+esc(B.name))+'</b><span class="us">You · '+B.nU+'</span></div><div class="bbar"><s class="t" style="width:'+(100-pct)+'%"></s><s class="u" style="width:'+pct+'%"></s><i class="brk"></i></div>'+batChips(B)+'</div>'; }
   el.innerHTML = html;
 }
 
@@ -197,7 +197,7 @@ function focusTick(){
   if(f !== (G.focus||0)){ const up = f > (G.focus||0); G.focus = f; if(up && G.t > 20){ MUS.sting && MUS.sting('focus'); } if(up && G.t > 20) toast('♛ Focus: '+Math.round(pct*100)+'% of your army is '+cardName(PLAYER, G.core)+'. Core troops +'+(15*f)+'% health and damage. Rivals will counter them harder', 'good'); }
 }
 function hud(){
-  try { battleHud(); hostHud(); declineHud(); } catch(e){}
+  try { battleHud(); hostHud(); declineHud(); batSumHud(); } catch(e){}
   try { meterTick(); } catch(e){}
   try { streakHud(); } catch(e){}
   { const bf = document.getElementById('btnFollow'); if(bf && G) bf.hidden = !(R.camFree && heroOf(PLAYER)); }

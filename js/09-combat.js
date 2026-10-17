@@ -166,7 +166,7 @@ function splashHit(t, rad, dmg, own){
 function bannerR(own){ const ev = cardEvo(own, 'banner'); return CARDS.banner.auraR*(synOf(own).Support >= 2 ? 1.5 : 1)*(1 + featOf(CARDS.banner, cardLevel(own,'banner')).aura)*(ev && ev.auraMul || 1); }
 function strike(u, t, st, own, mul){
   u.atT = R.now;
-  let dmg = st.dmg*attackMul(u, t)*(mul||1);
+  let dmg = st.dmg*attackMul(u, t)*(mul||1)*homeMul(u);
   const ranged = st.rng > 1.2, mk = mvKey(u), now = MT();
   if(own > 1 && t.owner > 1 && own !== t.owner && !G.arena){ rClash(u, t); if(u.hero && t.hero) genClash(u, t); }
   let charged = false;
@@ -203,6 +203,7 @@ function strike(u, t, st, own, mul){
                    : {x:t.x, y:t.y, at:now+.5, wait:.5, rad:Math.max(.85, st.splash*1.15), dmg, edge:Math.min(1, st.smul*1.2), own, card:u.card, fuse:true, knock:.22, burn:true, fire:!!st.burn || ff, ff});
     if(sig) moveFloat(u, null, t.x, t.y);
   }
+  if(dmg > 0) batNote(u, t, dmg);
   if(dmg > 0 && !deferred) hitUnit(t, dmg, own, false);
   else if(deferred && mk==='grenadiers') hitUnit(t, dmg, own, false);   // the bomb itself hits; the fuse blast comes after
   if(dmg > 0 && !deferred && t.hp > 0){
@@ -721,9 +722,9 @@ function nationStep(u, dt, cityById, unitById){
     const cur = unitById.get(u.tgt);
     const ord = own===PLAYER ? (G.order||'charge') : 'charge';
     const acx = own===PLAYER && fh.tcity ? cityById.get(fh.tcity) : null;
-    let t = ord==='fall' ? null : cur && cur.hp > 0 && atWar(own, cur.owner) && (cur.x-u.x)**2 + (cur.y-u.y)**2 < 81 && (ord!=='hold' || (cur.x-fh.x)**2 + (cur.y-fh.y)**2 < 16) && (!acx || (cur.x-acx.x-.5)**2 + (cur.y-acx.y-.5)**2 < 10.5 || (cur.x-u.x)**2 + (cur.y-u.y)**2 < 1.5) ? cur : null;
+    let t = ord==='fall' ? null : cur && cur.hp > 0 && atWar(own, cur.owner) && (acx ? (cur.x-u.x)**2 + (cur.y-u.y)**2 < 81 : inLine(u, fh, cur, null, lineLeash(u, fh) + 1.2)) && (ord!=='hold' || (cur.x-fh.x)**2 + (cur.y-fh.y)**2 < 16) && (!acx || (cur.x-acx.x-.5)**2 + (cur.y-acx.y-.5)**2 < 10.5 || (cur.x-u.x)**2 + (cur.y-u.y)**2 < 1.5) ? cur : null;
     if(!t) t = followerTarget(u, fh);
-    if(!t && u.eng && ord==='charge' && !acx) t = nearFoe(u, 4.5);
+    if(!t && u.eng && ord==='charge' && !acx) t = nearFoe(u, 1.6);
     let tc = 0;
     if(!t){
       const cc = u.tcity && cityById.get(u.tcity);

@@ -187,7 +187,15 @@ function armyRecapHTML(){
   return '<h3>Battle report</h3><p class="lnote">Top damage: <b>'+esc(L[0].n)+'</b> · Took the most: <b>'+esc(top('t').n)+'</b>'+(hl.h ? ' · Top healer: <b>'+esc(hl.n)+'</b>' : '')+'</p>'+
     '<div class="recap-wrap"><table class="recap"><thead><tr><th></th><th>Damage done</th><th>Damage taken</th><th>Healed</th><th>Kills</th><th>Lost</th></tr></thead><tbody>'+
     L.map(r => '<tr><th>'+(r.img ? '<img src="'+r.img+'" alt="">' : '<i class="noi">'+(r.id==='tower' ? '▲' : '♛')+'</i>')+'<span>'+esc(r.n)+'</span></th>'+cell(r.d, md, '#ffb35c', 'Done')+cell(r.t, mt, '#e0473b', 'Taken')+cell(r.h, mh, '#7ae08a', 'Healed')+'<td data-l="Kills"><b>'+r.k.toLocaleString()+'</b></td><td data-l="Lost"><b>'+r.x.toLocaleString()+'</b></td></tr>').join('')+
-    '</tbody></table></div>';
+    '</tbody></table></div>'+batLogHTML();
+}
+/* the field battles of this game, and the matchups that decided them */
+function batLogHTML(){
+  const L = G.batLog || []; if(!L.length) return '';
+  const w = L.filter(b => b.res==='Victory').length, l = L.filter(b => b.res==='Defeat').length, pm = {};
+  for(const b of L) for(const e of b.rows){ if(e.k==='traded blows with') continue; const k = e.a+'|'+e.b+'|'+e.k; pm[k] = (pm[k]||0) + 1; }
+  const top = Object.entries(pm).sort((p, q) => q[1]-p[1]).slice(0, 3).map(([k, n]) => { const [a, b, v] = k.split('|'); return '<li class="'+(v==='beat' ? 'w' : 'l')+'">Your <b>'+esc(cardName(PLAYER, a))+'</b> '+v+' <b>'+esc((CARDS[b]||{}).n || b)+'</b>'+(n > 1 ? ' · '+n+' battles' : '')+'</li>'; });
+  return '<p class="lnote">Field battles: <b>'+L.length+'</b> · won <b>'+w+'</b> · lost <b>'+l+'</b></p>'+(top.length ? '<ul class="batlog">'+top.join('')+'</ul>' : '');
 }
 function endProgHTML(){
   const g = G.mxg || {}, ids = Object.keys(g).filter(id => CARDS[id]).sort((a,b) => g[b]-g[a]);

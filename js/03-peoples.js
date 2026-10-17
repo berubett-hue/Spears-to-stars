@@ -254,6 +254,7 @@ function heroAI(u, cityById){
   const war = warringAny(own), dg = R.danger.get(own), fol = G.units.filter(v => v.fol===u.id && v.hp>0).length;
   const near = nearOwnCity(u, 1.8);
   if(near && fol < folCap(own)*.7) rallyAt(u, near);
+  if(rivalMuster(u, own)) return;
   if(dg){ const c = cityById.get(dg); if(c){ u.err = null; u.goal = {x:c.x+.5, y:c.y+.5}; u.tcity = 0; return; } }
   if(!(R.raidGo && R.raidGo.get(own)) && rivalErrand(u, own, fol)) return;
   if(!war){ u.tcity = 0; const d = Math.hypot(cap.x+.5-u.x, cap.y+.5-u.y); if(d > 2.5) u.goal = {x:cap.x+.5+rnd(-1,1), y:cap.y+.5+rnd(-1,1)}; return; }
@@ -351,7 +352,8 @@ function followerTarget(u, h){
   if(u.kind==='siege' && enemyCityNear(u.owner, h.x, h.y, 6)) return null;
   let best = 1e9, t = null; const okm = navOk(u.owner);
   if(ac){ for(const v of G.units){ if(v.hp<=0 || !atWar(u.owner, v.owner) || !okm[G.own[tileAt(v.x, v.y)]]) continue; const dc = Math.hypot(v.x-ac.x-.5, v.y-ac.y-.5), d = Math.hypot(v.x-u.x, v.y-u.y); if(dc > 3.2 && d > 1.2) continue; if(d < best){ best = d; t = v; } } return t; }
-  for(const v of G.units){ if(v.hp<=0 || !atWar(u.owner, v.owner) || !okm[G.own[tileAt(v.x, v.y)]]) continue; const dh = Math.hypot(v.x-h.x, v.y-h.y); if(dh > (h.owner===PLAYER ? ORD_R[G.order||'charge'] : 4.5) + (u.kind==='rider' ? 2 : 0)) continue; const d = roleScore(u, v, Math.hypot(v.x-u.x, v.y-u.y)) - (v.hero==='bastion' ? 3 : 0); if(d < best){ best = d; t = v; } }
+  const sl = bandSlot(u, h), L = lineLeash(u, h);
+  for(const v of G.units){ if(v.hp<=0 || !atWar(u.owner, v.owner) || !okm[G.own[tileAt(v.x, v.y)]]) continue; if(!inLine(u, h, v, sl, L)) continue; const d = roleScore(u, v, Math.hypot(v.x-u.x, v.y-u.y)) - (v.hero==='bastion' ? 3 : 0); if(d < best){ best = d; t = v; } }
   return t;
 }
 

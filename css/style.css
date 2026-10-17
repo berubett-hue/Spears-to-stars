@@ -1448,3 +1448,24 @@ html.phone .recap{font-size:12px}html.phone .recap th,html.phone .recap td{paddi
 .renpick button b{color:#ffe3a3;font-size:14px}.renpick button span{font-size:12px;color:var(--muted)}
 .renpick .rp-x{text-align:center;border-color:rgba(255,255,255,.15);background:transparent;padding:5px}
 html.phone .renpick{top:14vh}
+/* ---- field battles: matchup strip in the battle bar, and the after-battle card ---- */
+.bmx{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin-top:1px}
+.bmx span{display:inline-flex;align-items:center;gap:3px;padding:1px 6px 1px 3px;border-radius:12px;background:rgba(255,255,255,.06);border:1px solid rgba(143,232,106,.55)}
+.bmx span.dn{border-color:rgba(255,106,90,.6)}
+.bmx img{width:20px;height:20px;image-rendering:pixelated;object-fit:contain}
+.bmx i{font-style:normal;font-size:11px;font-weight:700;color:#8fe86a}.bmx span.dn i{color:#ff7a6a}
+.batsum{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(var(--deckH,210px) + 34px);width:min(470px,92vw);z-index:5;background:rgba(8,10,12,.92);border:1px solid var(--line);border-radius:10px;padding:8px 10px;display:grid;gap:5px;cursor:pointer;animation:bsIn .35s ease-out}
+@keyframes bsIn{from{opacity:0;transform:translate(-50%,8px)}to{opacity:1;transform:translate(-50%,0)}}
+.bs-h{display:flex;align-items:baseline;gap:8px}.bs-h b{font-family:var(--display);font-weight:400;font-size:17px;color:var(--lamp-2)}.bs-h b.w{color:#a8f07a}.bs-h b.l{color:#ff8a7a}.bs-h span{font-size:12px;color:var(--muted)}
+.bs-r{display:grid;grid-template-columns:24px 1fr 24px;align-items:center;gap:6px;font-size:13px;padding:2px 4px;border-radius:6px;background:rgba(255,255,255,.04)}
+.bs-r img{width:24px;height:24px;image-rendering:pixelated;object-fit:contain}
+.bs-r small{grid-column:2/3;font-size:11px;color:var(--muted);margin-top:-3px}
+.bs-r.w{box-shadow:inset 3px 0 0 #8fe86a}.bs-r.l{box-shadow:inset 3px 0 0 #ff6a5a}
+.bs-r i{font-style:normal;font-size:11px;font-weight:700}.bs-r i.up{color:#8fe86a}.bs-r i.dn{color:#ff7a6a}
+@media (max-width:899px){.batsum{bottom:52px}}
+html.phone .batsum{bottom:130px;width:calc(100% - 24px)}
+html.phone.land .batsum{bottom:10px}
+/* a slimmer battle bar so the fight underneath stays visible */
+.battlebar{gap:4px}.boss,.bat{padding:3px 8px;gap:2px}.bhp{height:6px}.bbar{height:8px}
+@media (min-width:900px) and (min-height:560px){.battlebar{bottom:calc(var(--deckH,210px) + 10px)}}
+.batlog{list-style:none;margin:4px 0 0;padding:0;display:grid;gap:3px;font-size:13px}.batlog li{padding:2px 8px;border-radius:5px;background:rgba(255,255,255,.04)}.batlog li.w{box-shadow:inset 3px 0 0 #8fe86a}.batlog li.l{box-shadow:inset 3px 0 0 #ff6a5a}

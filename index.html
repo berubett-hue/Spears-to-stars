@@ -82,6 +82,7 @@
     <div class="dmeter" id="dmgMeter" hidden></div>
     <div class="hosts" id="hostAlerts" hidden></div>
     <div class="battlebar" id="battleBar" hidden></div>
+    <div class="batsum" id="batSum" hidden></div>
     <div class="declchip" id="declChip" hidden></div>
     <div class="moment" id="moment" hidden></div>
     <div class="goaltick" id="goalTick"></div>
@@ -173,11 +174,12 @@
         <li><b>Every line has its own move.</b> Warband pile on, spears throw back riders, shield walls block arrows and taunt, skirmishers pin, archers rain arrows, crossbows punch through, bombers light fuses, light horse hit and run, heavy horse scatter the line, titans fling, siege marks where it will land, airships bomb what they fly over. Each card shows its move.</li>
         <li><b>Combos.</b> Some pairs of lines set each other up: Skirmishers pin and Light Horse run them down, Bombers set fires and the Warband piles in, and more. A combo lights up over the fight when it lands, and the level-up cards tell you when a line would complete one. The Collection lists them all.</li>
         <li><b>Capitals.</b> A capital is guarded by the rest of its realm. A rival's grows +30% stronger for every other city it holds (up to ×3.5), so take the outer cities first. Yours grows +15% per city (up to ×2.2), so small raids bounce off a big empire. The Fortifications civic makes it tougher still.</li>
-        <li><b>Battle lines.</b> Your band forms up facing the enemy: melee in front, archers behind, riders on the flanks, siege and healers at the back. The badly hurt step back to heal. Rivals fight the same way.</li>
+        <li><b>Battle lines.</b> Your band forms up facing the enemy: melee in front, archers behind, riders on the flanks, siege and healers at the back, and they hold it in the fight: each soldier only goes a short way from his place for a target, so blocks stay blocks. Charge lets the front line press further, Hold keeps it tight. The badly hurt step back to heal. Rivals fight the same way.</li>
         <li><b>Orders.</b> Charge (Q), Hold (E) and Fall back (R) for your band. Release (G) sends it to guard a city. Call the Banners (Y) brings every troop on the map to your general. Space fires his ability.</li>
         <li><b>Level-up tools.</b> Reroll the three cards, Banish a line so it never returns this game, or Skip for 40 influence (R, B, K).</li>
         <li><b>Evolutions and unions.</b> Some lines hide an evolution or a union of two lines. The first time you need its recipe, two pages found in ruins, warcamps and strongholds. After that it is yours in every game.</li>
         <li><b>Legendary unions.</b> In the Modern Age each rival can field a legendary union. Conquer that nation, or win it over by union, to learn the legend for every game. One legend per game, so pick your target.</li>
+        <li><b>Field battles.</b> March on a rival and its general calls its banners and rides out to meet you with everything nearby, or digs in under its towers if it is too weak. A badge over each block shows what it is: <b style="color:#8fe86a">▲</b> means it faces a line it beats, <b style="color:#ff6a5a">▼</b> means it faces its counter. The battle bar lists the matchups, and after a big battle a card says which of your lines beat which of theirs. Troops fighting inside their own borders deal 15% more damage, yours included. Absorbing a nation brings its cities and half its army.</li>
       </ul>
     </div>
     <div class="how-sec" data-hs="world" hidden>
@@ -198,7 +200,7 @@
         <li><b>Cities and army.</b> Food grows cities. Production pays for troops, up to 90 army room; big troops take more room. You can found 2 cities plus 1 per age; take more by war.</li>
         <li><b>Diplomacy.</b> Spend influence on gifts, trade and alliances. Nations lose heart as they lose cities and battles, and a broken nation may surrender.</li>
         <li><b>A living world.</b> Rival nations fight each other: ⚔ marks on the minimap show where. Their generals earn Renown and stars by claiming resource sites, raiding camps and winning battles, and grow bigger and deadlier. Slay a famous one for a rich reward. A nation losing a war may ask for your help, and a weak one may pledge itself to you as a vassal. Abandon a friend and the world remembers.</li>
-        <li><b>Taking a capital.</b> When a rival’s capital falls, choose: absorb them (their cities, army and troop line join you), make them a vassal (they fight for you and pay tribute), or raze it for a War Chest.</li>
+        <li><b>Taking a capital.</b> When a rival’s capital falls, choose: absorb them (their cities, half their army and their troop line join you), make them a vassal (they fight for you and pay tribute), or raze it for a War Chest.</li>
       </ul>
     </div>
     <div class="how-sec" data-hs="winning" hidden>
@@ -439,6 +441,7 @@
 <script src="js/13v-prosperity.js"></script>
 <script src="js/13n-renown.js"></script>
 <script src="js/13w-world.js"></script>
+<script src="js/13b-battle.js"></script>
 <script src="js/14-fx-audio.js"></script>
 <script src="js/15-render.js"></script>
 <script src="js/16-hud.js"></script>

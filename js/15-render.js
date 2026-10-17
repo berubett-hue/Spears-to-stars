@@ -761,6 +761,7 @@ function draw(){
   }
 
   if(z >= 4.5 && z < 15 && !G.demo) drawSquadIcons(x, us, z);
+  else if(z >= 15 && !G.demo) drawBattleBadges(x, us, z, 1/z, false);
   // Shots and sparks
   x.lineCap = 'round';
   for(const p of R.projs){ if(!vis(p.x1,p.y1,4)) continue; drawProj(x, p); x.globalAlpha = 1; }

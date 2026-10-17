@@ -24,6 +24,8 @@ const TIPS = [
     t:() => 'You found a resource site. Stand your troops on it for a few seconds to take its bonus. These icons are the sites you have seen; tap one to look at it.'},
   {id:'decree',  when:() => G.t > 60 && G.influence >= 60, tab:'empire', sel:() => PH() && document.getElementById('app').classList.contains('cbot') ? '#hcMore' : '#decrees',
     t:() => (PH() ? 'Tap More for your decrees. ' : '')+'You have influence to spend: Mobilize for damage, Golden Age for yields, Fortify to repair your cities.'},
+  {id:'battle',  when:() => !!(R.bat && G.t - (R.bat.last||0) < 2 && (R.bat.nE||0) >= 6), urgent:1, tab:'army', sel:() => '#battleBar',
+    t:() => 'A battle. The badge over each block shows what it is: a green ▲ means it faces a line it beats, a red ▼ means it faces its counter. The bar lists the matchups. Put your best counter where it is needed.'},
   {id:'release', when:() => bandSize() >= 12, tab:'army', sel:() => '#hcRally',
     t:() => 'Release sends your band to guard the nearest city. Your general can gather a new one.'},
   {id:'minimap', when:() => G.t > 210, tab:'basics', sel:() => '#mini',

@@ -44,6 +44,7 @@ js/               the game, split by system, loaded in this order:
   13v-prosperity.js        the Prosperity victory (a Golden Age you hold for 90 seconds)
   13n-renown.js            Renown: three ranks a game for your general, each a choice of two boons
   13w-world.js             rival generals' Renown and errands, visible rival wars, calls for help, pledges, Fortifications
+  13b-battle.js            field battles: rivals muster to meet you, battle lines hold, counters called out, after-battle card
   14-fx-audio.js           effects, sound, generative music
   15-render.js             pixel art, troop forms, map rendering
   16-hud.js                HUD, damage meter, goals, battles, diplomacy panel, ledger
@@ -80,6 +81,8 @@ tools/            developer tools (Node)
 cd tools
 node sim-decline.js .. legion 600    # play to 10:00, hand over the map, run the Decline
 node sim-troops.js .. horde          # army size, spawns and upkeep through the late game
+node sim-invade.js legion 8 300 1.3 # your host (1.3x their army) marches on the nearest rival: does the city fall, at what cost
+node sim-rush.js steppe 1500 0 360  # a blitzing player: build, then conquer rival after rival
 ```
 
 ## License

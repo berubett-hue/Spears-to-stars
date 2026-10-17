@@ -98,7 +98,7 @@ function openConquest(q){
   const lineTxt = !C ? '' : has ? ' Their veterans swell your '+cardName(PLAYER, line)+'.' : room ? ' '+C.n+' join you as a support line for this game.' : ' Their veterans join you (no free troop slot for their line).';
   showEvent({gate:6, kicker:'Conquest', img:KIT.vic_conquest, title:(c ? c.name : 'Their capital')+' is yours', text:'The '+r.name+' still hold '+nc+' cit'+(nc===1 ? 'y' : 'ies')+'. Their leader kneels. What becomes of them?',
     opts:[
-      {l:'Absorb them', ic:KIT.u_absorb, s:'Their cities and army join your empire.'+lineTxt+' Their towns are restless for a minute', f:() => conqAbsorb(r.id, line)},
+      {l:'Absorb them', ic:KIT.u_absorb, s:'Their cities and half their army join your empire (the rest go home).'+lineTxt+' Their towns are restless for a minute', f:() => conqAbsorb(r.id, line)},
       {l:'Make them a vassal', ic:KIT.u_vassal, s:'They keep their land, fight beside you and pay '+trib+' influence a second. Vassals count as conquered', f:() => conqVassal(r.id)},
       {l:'Raze the capital', ic:KIT.u_raze, s:'Burn '+(c ? c.name : 'it')+' for a War Chest and Glory. Every other nation trusts you less', f:() => conqRaze(r.id, c)}]});
 }
@@ -135,7 +135,7 @@ function absorb(r){
   if(!r.alive) return;
   for(const c of G.cities) if(c.owner===r.id){ c.owner = PLAYER; c.capital = false; c.born = G.t; G.stats.captured++; }
   for(let i=0;i<N*N;i++) if(G.own[i]===r.id) G.own[i] = PLAYER;
-  for(const u of G.units) if(u.owner===r.id && ROLE[u.kind]){ if(u.hero){ u.hp = 0; u.dead = true; continue; } u.owner = PLAYER; u.tgt = 0; u.tcity = 0; u.fol = 0; }
+  let ki = 0; for(const u of G.units) if(u.owner===r.id && ROLE[u.kind]){ if(u.hero || (ki++ % 2)){ u.hp = 0; u.dead = true; continue; } u.owner = PLAYER; u.tgt = 0; u.tcity = 0; u.fol = 0; }   // half their army joins, the rest go home
   r.alive = false; r.status = 'joined'; r.proj = null; learnLegend(r);
   G.rwars = G.rwars.filter(w => w.a!==r.id && w.b!==r.id);
   G.offers = (G.offers||[]).filter(q => q.r!==r.id);
@@ -350,7 +350,10 @@ function battleAlerts(){
     const siege = citiesOf(PLAYER).find(ct => (ct.x+.5-cx)**2+(ct.y+.5-cy)**2 < 25 && ct.hp < cityMax(ct)*.7);
     if(c.n + foes < 20 && !boss && !siege) continue;
     if(G.t - (R.battleT.get(k) || -999) < 60) continue;
-    R.battleT.set(k, G.t);
+    // not for a fight you are already watching or leading, and never twice for the same field
+    { const h = heroOf(PLAYER); if(onScr(cx, cy, -1) || (h && (h.x-cx)**2 + (h.y-cy)**2 < 144)) continue; }
+    if((R.batAl || []).some(a => G.t - a.t < 60 && (a.x-cx)**2 + (a.y-cy)**2 < 100)) continue;
+    R.battleT.set(k, G.t); (R.batAl || (R.batAl = [])).push({x:cx, y:cy, t:G.t}); if(R.batAl.length > 8) R.batAl.shift();
     const near = G.cities.reduce((b, ct) => { const d = (ct.x-cx)**2+(ct.y-cy)**2; return !b || d < b.d ? {ct, d} : b; }, null);
     const where = near ? ' near '+near.ct.name : '';
     const msg = boss ? '⚔ '+(boss.hero ? boss.name : 'A Warlord')+' is in battle'+where+'. Watch' : siege ? '⚔ '+siege.name+' is under siege. Watch' : '⚔ Battle'+where+': '+(c.n+foes)+' troops clashing. Watch';

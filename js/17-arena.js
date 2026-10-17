@@ -108,6 +108,7 @@ function arDraw(){
       const f = u.hp/uStat(u).hp; x.fillStyle = 'rgba(0,0,0,.7)'; x.fillRect(u.x-.25, u.y+.34, .5, .06); x.fillStyle = u.owner===1 ? '#f4b84a' : '#6ea8f7'; x.fillRect(u.x-.25, u.y+.34, .5*clamp(f,0,1), .06);
       if(u.pinT > 0 || u.stun > 0 || u.burnT > 0 || u.tauntT > 0) drawStatus(x, u, h);
     }
+    drawBattleBadges(x, G.units, z, dpr/z, true);
     x.lineCap = 'round';
     for(const p of R.projs){ drawProj(x, p); x.globalAlpha = 1; }
     drawFx(x, null);
